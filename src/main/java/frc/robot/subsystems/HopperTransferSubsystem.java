@@ -17,4 +17,9 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private HopperTransferSubsystem() {}
 
     public void configureTransferMotors() {}
+
+    @Override
+    public void periodic() {}
+
+    
 }
