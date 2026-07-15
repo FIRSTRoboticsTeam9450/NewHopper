@@ -13,7 +13,7 @@ public class IntakeSubsystem extends SubsystemBase {
     
     public enum AngleState {
     }
-    
+
     public enum IntakeState {
     }
 
@@ -21,7 +21,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private IntakeState currentIntakeState;
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-
     private TalonFX leftIntakeMotor = new TalonFX(IntakeConstants.DeviceIDs.kLeftIntakeMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX rightIntakeMotor = new TalonFX(IntakeConstants.DeviceIDs.kRightIntakeMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     
