@@ -10,6 +10,15 @@ import frc.robot.Constants.RobotConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem INSTANCE;
+    
+    public enum AngleState {
+    }
+    
+    public enum IntakeState {
+    }
+
+    private AngleState currentAngleState;
+    private IntakeState currentIntakeState;
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
@@ -17,11 +26,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private TalonFX rightIntakeMotor = new TalonFX(IntakeConstants.DeviceIDs.kRightIntakeMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
-    public enum AngleState {
-    }
-    public enum IntakeState {
-    }
 
     private IntakeSubsystem() {
         configureIntakeMotors();

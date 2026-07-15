@@ -10,14 +10,16 @@ import frc.robot.Constants.SidesweeperConstants;
 public class SidesweeperSubsystem extends SubsystemBase {
     private static SidesweeperSubsystem INSTANCE;
 
+    public enum SidesweeperState {
+    }
+
+    private SidesweeperState currentState;
+
     private TalonFX upperTransfer = new TalonFX(SidesweeperConstants.DeviceIDs.kUpperTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX lowerTransfer = new TalonFX(SidesweeperConstants.DeviceIDs.kLowerTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
-    public enum SidesweeperState {
-    }
 
     public SidesweeperSubsystem() {
         configureSidesweeperMotors();
@@ -41,7 +43,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
     public void updateConstants() {
     }
 
-    public SidesweeperSubsystem getInstance() {
+    public static SidesweeperSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new SidesweeperSubsystem();
         return INSTANCE;
     }

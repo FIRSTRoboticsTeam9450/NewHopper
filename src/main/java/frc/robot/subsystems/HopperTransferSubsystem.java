@@ -10,14 +10,16 @@ import frc.robot.Constants.TransferConstants;
 
 public class HopperTransferSubsystem extends SubsystemBase {
     private static HopperTransferSubsystem INSTANCE;
+    
+    public enum TransferState {
+    }
+
+    private TransferState currentState;
 
     private TalonFX leadTransferMotor = new TalonFX(TransferConstants.DeviceIDs.kLeadTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX followerTransferMotor = new TalonFX(TransferConstants.DeviceIDs.kFollowerTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
-    public enum TransferState {
-    }
     
     private HopperTransferSubsystem() {
         configureTransferMotors();

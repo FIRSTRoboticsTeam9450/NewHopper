@@ -18,8 +18,21 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.CoordinationSubsystem;
+import frc.robot.subsystems.HopperTransferSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SidesweeperSubsystem;
 
 public class RobotContainer {
+    public static final HopperTransferSubsystem transferSub = HopperTransferSubsystem.getInstance();
+    public static final IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
+    public static final ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+    public static final SidesweeperSubsystem sidesweeperSub = SidesweeperSubsystem.getInstance();
+
+    public static final CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+
+    
     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 

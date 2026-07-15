@@ -10,12 +10,6 @@ import frc.robot.Constants.ShooterConstants;
 public class ShooterSubsystem extends SubsystemBase {
     private static ShooterSubsystem INSTANCE;
 
-    private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX leftShooterMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX rightShooterMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-
-    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-
     public enum AngleState {
         DISABLED,
         ZEROING,
@@ -30,6 +24,15 @@ public class ShooterSubsystem extends SubsystemBase {
         NOT_SHOOTING,
         HOLD_IN
     }
+
+    private AngleState currentAngleState;
+    private ShooterState currentShooterState;
+
+    private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX leftShooterMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX rightShooterMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+
+    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     private ShooterSubsystem() {
         configureAngleMotors();
@@ -68,7 +71,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return 0;
     }
 
-    public ShooterSubsystem getInstance() {
+    public static ShooterSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new ShooterSubsystem();
         return INSTANCE;
     }
