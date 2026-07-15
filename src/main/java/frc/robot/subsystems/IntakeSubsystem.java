@@ -2,35 +2,52 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.RobotConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
+    private static IntakeSubsystem INSTANCE;
 
-    public static IntakeSubsystem instance;
+    private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    TalonFX deployMotor = new TalonFX(0, "nothing yet");
-
-    TalonFX leftIntakeMotor = new TalonFX(0, "nothing yet");
-    TalonFX rightIntakeMotor = new TalonFX(0, "nothing yet");
+    private TalonFX leftIntakeMotor = new TalonFX(IntakeConstants.DeviceIDs.kLeftIntakeMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX rightIntakeMotor = new TalonFX(IntakeConstants.DeviceIDs.kRightIntakeMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     
-    TalonFXConfiguration config = new TalonFXConfiguration();
+    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+    public enum AngleState {
+    }
+    public enum IntakeState {
+    }
 
     private IntakeSubsystem() {
         configureIntakeMotors();
     }
 
     private void configureIntakeMotors() {
-        config.MotorOutput.Inverted = com.ctre.phoenix6.signals.InvertedValue.Clockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+        applyState();
+        publishLogs();
+    }
+
+    private void applyState() {
+    }
+
+    private void publishLogs() {
+    }
+
+    public void updateConstants() {
+    }
 
     public static IntakeSubsystem getInstance() {
-        if (instance == null) {
-            instance = new IntakeSubsystem();
-        }
-        return instance;
+        if (INSTANCE == null) INSTANCE = new IntakeSubsystem();
+        return INSTANCE;
     }
 }

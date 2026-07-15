@@ -5,37 +5,48 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.TransferConstants;
 
 public class HopperTransferSubsystem extends SubsystemBase {
+    private static HopperTransferSubsystem INSTANCE;
 
-    public static HopperTransferSubsystem instance;
+    private TalonFX leadTransferMotor = new TalonFX(TransferConstants.DeviceIDs.kLeadTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX followerTransferMotor = new TalonFX(TransferConstants.DeviceIDs.kFollowerTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    TalonFX leadTransferMotor;
-    TalonFX followerTransferMotor;
-
-    TalonFXConfiguration config = new TalonFXConfiguration();
+    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     public enum TransferState {
-
+    }
+    
+    private HopperTransferSubsystem() {
+        configureTransferMotors();
     }
 
-    //private MotionMagic
-    
-    private HopperTransferSubsystem() {}
-
-    public void configureTransferMotors() {}
+    public void configureTransferMotors() {
+    }
 
     public boolean isJammed() {
         return false;
     }
 
     @Override
-    public void periodic() {}
+    public void periodic() {
+        applyState();
+        publishLogs();
+    }
+
+    private void applyState() {
+    }
+
+    private void publishLogs() {
+    }
+
+    public void updateConstants() {
+    }
 
     public static HopperTransferSubsystem getInstance() {
-        if (instance == null) {
-            instance = new HopperTransferSubsystem();
-        }
-        return instance;
+        if (INSTANCE == null) INSTANCE = new HopperTransferSubsystem();
+        return INSTANCE;
     }    
 }

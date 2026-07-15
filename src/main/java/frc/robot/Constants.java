@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
-public final class Constants {
+public final class Constants { // TODO: Replace -1 motor IDs with real values
     
     public static final class RobotConstants {
         public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
@@ -26,13 +26,20 @@ public final class Constants {
     }
 
     public static final class TransferConstants {
-
+      public static final class DeviceIDs {
+        public static final int kLeadTransferMotorID = -1;
+        public static final int kFollowerTransferMotorID = -1;
+      }
     }
 
 
 
     public static final class ShooterConstants {
-
+      public static final class DeviceIDs {
+        public static final int kAngleMotorID = -1;
+        public static final int kLeftShooterMotorID = -1;
+        public static final int kRightShooterMotorID = -1;
+      }
     }
 
     public static final class IntakeConstants {
@@ -40,10 +47,18 @@ public final class Constants {
         public static final double kAngleRotorToSensorRatio = 36;//36:1
 
         public static final class DeviceIDs {
-            public static final double kLeftIntakeMotorID = 0;
-            public static final double kRightIntakeMotorID = 0;
-            public static final double kDeployMotorID = 0;
+          public static final int kLeftIntakeMotorID = -1;
+          public static final int kRightIntakeMotorID = -1;
+          public static final int kDeployMotorID = -1;
         }
+    }
+
+    public static final class SidesweeperConstants {
+      public static final class DeviceIDs {
+        public static final int kUpperTransferMotorID = -1;
+        public static final int kLowerTransferMotorID = -1;
+        public static final int kRampMotorID = -1;
+      }
     }
 
     public static final class FieldConstants {
