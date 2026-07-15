@@ -1,5 +1,8 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -9,19 +12,38 @@ import edu.wpi.first.wpilibj.DriverStation;
 public final class Constants {
     
     public static final class RobotConstants {
-        
+        public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
+        public static final String MAIN_SYSTEMS_CANBUS_NAME = "CantShoot";
+        public static final String RIO_BUS_NAME = "Rio";
+
+        public static final CANBus DRIVEBASE_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME);
+        public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME); //Temporarily set to same as drivebase canbus due to only have 1 canivore on robot.
+        public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
+
+        public static final boolean ENABLE_FOC = true;
+
+        public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
     }
 
     public static final class TransferConstants {
 
     }
 
+
+
     public static final class ShooterConstants {
 
     }
 
     public static final class IntakeConstants {
+        public static final double kAngleEncoderMagnetOffset = -0.2001953125;
+        public static final double kAngleRotorToSensorRatio = 36;//36:1
 
+        public static final class DeviceIDs {
+            public static final double kLeftIntakeMotorID = 0;
+            public static final double kRightIntakeMotorID = 0;
+            public static final double kDeployMotorID = 0;
+        }
     }
 
     public static final class FieldConstants {
