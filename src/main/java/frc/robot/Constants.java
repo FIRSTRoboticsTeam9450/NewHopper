@@ -1,5 +1,11 @@
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+
 public final class Constants {
     
     public static final class RobotConstants {
@@ -10,5 +16,121 @@ public final class Constants {
 
     }
 
+    public static final class ShooterConstants {
 
+    }
+
+    public static final class IntakeConstants {
+
+    }
+
+    public static final class FieldConstants {
+
+    public static boolean isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+
+    public static AprilTagFieldLayout FIELD_LAYOUT;
+
+    static {
+      FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+      FIELD_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+    }
+
+    /**
+     * Ferry Poses are from blue alliance driver box perspective
+     */
+    public static final class ImportantFieldPoses {
+      public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
+      public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
+
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,7.0); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.0); //(2.54, 1.8), (2.54, 6.1976)
+      public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(2.396,  4.041);
+      public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(2.396,  4.041);
+      public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);
+      public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.6);
+      public static final Translation2d FERRY_MID_TARGET = new Translation2d(2.446, 4.046);
+
+
+      /* ========= HARD CODED POSES ======== */
+      public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
+      public static final Translation2d BLUE_RIGHT_FERRY_TARGET = new Translation2d();
+
+      public static final Translation2d RED_LEFT_FERRY_TARGET = new Translation2d();
+      public static final Translation2d RED_RIGHT_FERRY_TARGET = new Translation2d();
+
+      public static final Translation2d BLUE_TOWER = new Translation2d(1.063, 3.75);
+      public static final Translation2d RED_TOWER = new Translation2d(15.475, 4.325);
+
+    }
+
+    public static final class AprilTagIDs {
+      public static final int RED_BOTTOM_TRENCH_NEUTRAL_SIDE = 1;
+      public static final int RED_BOTTOM_HUB_NEUTRAL_SIDE = 2;
+      public static final int RED_NEUTRAL_HUB_SIDE_LOWER = 3;
+      public static final int RED_NEUTRAL_HUB_SIDE_HIGHER = 4;
+      public static final int RED_TOP_HUB_NEUTRAL_SIDE = 5;
+      public static final int RED_TOP_TRENCH_NEUTRAL_SIDE = 6;
+      public static final int RED_TOP_TRENCH_ALLIANCE_SIDE = 7;
+      public static final int RED_TOP_HUB_ALLIANCE_SIDE = 8;
+      public static final int RED_ALLIANCE_HUB_SIDE_HIGHER = 9;
+      public static final int RED_ALLIANCE_HUB_SIDE_LOWER = 10;
+      public static final int RED_BOTTOM_HUB_ALLIANCE_SIDE = 11;
+      public static final int RED_BOTTOM_TRENCH_ALLIANCE_SIDE = 12;
+      public static final int RED_OUTPOST_LOWER = 13;
+      public static final int RED_OUTPOST_HIGHER = 14;
+      public static final int RED_TOWER_LOWER = 15;
+      public static final int RED_TOWER_HIGHER = 16;
+
+      public static final int BLUE_TOP_TRENCH_NEUTRAL_SIDE = 17;
+      public static final int BLUE_TOP_HUB_NEUTRAL_SIDE = 18;
+      public static final int BLUE_NEUTRAL_HUB_SIDE_HIGHER = 19;
+      public static final int BLUE_NEUTRAL_HUB_SIDE_LOWER = 20;
+      public static final int BLUE_BOTTOM_HUB_NEUTRAL_SIDE = 21;
+      public static final int BLUE_BOTTOM_TRENCH_NEUTRAL_SIDE = 22;
+      public static final int BLUE_BOTTOM_TRENCH_ALLIANCE_SIDE = 23;
+      public static final int BLUE_BOTTOM_HUB_ALLIANCE_SIDE = 24;
+      public static final int BLUE_ALLIANCE_HUB_SIDE_LOWER = 25;
+      public static final int BLUE_ALLIANCE_HUB_SIDE_HIGHER = 26;
+      public static final int BLUE_TOP_HUB_ALLIANCE_SIDE = 27;
+      public static final int BLUE_TOP_TRENCH_ALLIANCE_SIDE = 28;
+      public static final int BLUE_OUTPOST_HIGHER = 29;
+      public static final int BLUE_OUTPOST_LOWER = 30;
+      public static final int BLUE_TOWER_HIGHER = 31;
+      public static final int BLUE_TOWER_LOWER = 32;
+    }
+
+    public static Pose3d getTag3dPose(int tagID) {
+      return FIELD_LAYOUT.getTagPose(tagID).orElseThrow(() -> {
+        final String errorMsg = String.format("getTagPose called for unexpected tag, %d", tagID);
+        return new RuntimeException(errorMsg);
+      });
+    }
+
+    /**BLUE                      RED
+     * -----------------------------
+     * |    1 | 2          5 | 6   |
+     * |     HUB            HUB    |
+     * |    3 | 4          7 | 8   |
+     * -----------------------------
+     */
+    public static final class TrenchManeuvering {
+
+      public static enum TrenchLocationWRTBlueOrigin {
+        CLOSE_LEFT,
+        CLOSE_RIGHT,
+        FAR_LEFT,
+        FAR_RIGHT
+      }
+      
+      public static final Translation2d trenchOne = new Translation2d(2.618, 7.435);
+      public static final Translation2d trenchTwo = new Translation2d(6.618, 7.435);
+      public static final Translation2d trenchThree = new Translation2d(2.618, 0.627);
+      public static final Translation2d trenchFour = new Translation2d(6.618, 0.627);
+
+      public static final Translation2d trenchFive = new Translation2d(9.618, 7.435);
+      public static final Translation2d trenchSix = new Translation2d(14.618, 7.435);
+      public static final Translation2d trenchSeven = new Translation2d(9.618, 0.627);
+      public static final Translation2d trenchEight = new Translation2d(14.618, 0.627);
+    }
+  }
 }
