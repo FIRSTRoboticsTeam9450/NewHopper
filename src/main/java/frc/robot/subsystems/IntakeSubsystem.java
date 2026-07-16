@@ -22,17 +22,19 @@ import frc.robot.Constants.RobotConstants;
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem INSTANCE;
     
-    public enum AngleState {
-        INTAKE,
+    public enum DeployState {
+        ZEROING,
+        DEPLOY,
         STORE
     }
 
     public enum IntakeState {
         INTAKE,
+        BRAKE,
         IDLE
     }
 
-    private AngleState angleState = AngleState.STORE;
+    private DeployState angleState = DeployState.STORE;
     private IntakeState intakeState = IntakeState.IDLE;
 
     private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
@@ -123,7 +125,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private void applyState() {
         switch (angleState) {
-            case INTAKE:
+            case DEPLOY:
                 deploySetpoint = angleDeployIntake;
                 deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
                 break;
@@ -181,7 +183,7 @@ public class IntakeSubsystem extends SubsystemBase {
         return INSTANCE;
     }
 
-    public void setAngleState(AngleState state) {
+    public void setAngleState(DeployState state) {
         angleState = state;
     }
 
@@ -189,7 +191,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeState = state;
     }
 
-    public InstantCommand setAngleStateCommand(AngleState state) {
+    public InstantCommand setAngleStateCommand(DeployState state) {
         return new InstantCommand(() -> setAngleState(state));
     }
 
