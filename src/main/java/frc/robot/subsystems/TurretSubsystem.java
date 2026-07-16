@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -13,6 +15,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.TurretConstants;
@@ -20,31 +23,34 @@ import frc.robot.Constants.TurretConstants;
 public class TurretSubsystem extends SubsystemBase {
     private static TurretSubsystem INSTANCE;
 
-    public enum TurretState {
-        AIM,
-        IDLE
-    }
-
     public enum SideState {
         TRANSFER,
         IDLE
     }
 
-    private TurretState currentTurretState = TurretState.IDLE;
-    private SideState currentSideState = SideState.IDLE;
+    public enum TurretState {
+        AIM,
+        IDLE
+    }
+
+    private SideState sideState = SideState.IDLE;
+    private TurretState turretState = TurretState.IDLE;
 
     private double angleMax = 0; // Motor revolutions // TODO: Max turret angle
     private double angleMin = 0; // Motor revolutions // TODO: Min turret angle
 
+    private double speedSideTransfer = 0; // Volts // TODO: Transfer speed
+    private double speedSideIdle = 0; // Volts
+
     private CANcoder turretEncoder = new CANcoder(TurretConstants.DeviceIDs.kTurretEncoderID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    private TalonFX turretMotor = new TalonFX(TurretConstants.DeviceIDs.kTurretMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX sideMotor = new TalonFX(TurretConstants.DeviceIDs.kSideMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX turretMotor = new TalonFX(TurretConstants.DeviceIDs.kTurretMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private CANcoderConfiguration turretEncoderConfig = new CANcoderConfiguration();
 
-    private TalonFXConfiguration turretMotorConfig = new TalonFXConfiguration();
     private TalonFXConfiguration sideMotorConfig = new TalonFXConfiguration();
+    private TalonFXConfiguration turretMotorConfig = new TalonFXConfiguration();
 
     // TODO: Motion Magic tuning
     private LoggedNetworkNumber logTurretAccel = new LoggedNetworkNumber("/Tuning/Turret/Turret/Accel", 0);
@@ -56,14 +62,19 @@ public class TurretSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logTurretKI = new LoggedNetworkNumber("/Tuning/Turret/Turret/kI", 0);
     private LoggedNetworkNumber logTurretKD = new LoggedNetworkNumber("/Tuning/Turret/Turret/kD", 0);
 
-    private MotionMagicVoltage turretRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut sideRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private MotionMagicVoltage turretRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private LoggedNetworkBoolean logTurretDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
+
+    private double sideSetpoint = 0;
+    private double turretSetpoint = 0;
 
     private TurretSubsystem() {
         configureTurretEncoders();
 
-        configureTurretMotors();
         configureSideMotors();
+        configureTurretMotors();
     }
 
     private void configureTurretEncoders() {
@@ -73,6 +84,20 @@ public class TurretSubsystem extends SubsystemBase {
         turretEncoderConfig.MagnetSensor.MagnetOffset = TurretConstants.kTurretEncoderMagnetOffset;
 
         turretEncoder.getConfigurator().apply(turretEncoderConfig);
+    }
+
+    private void configureSideMotors() {
+        sideMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        sideMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
+
+        sideMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        sideMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        sideMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        sideMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        sideMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        sideMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+
+        sideMotor.getConfigurator().apply(sideMotorConfig);
     }
 
     private void configureTurretMotors() {
@@ -116,30 +141,52 @@ public class TurretSubsystem extends SubsystemBase {
         turretMotor.getConfigurator().apply(turretMotorConfig);
     }
 
-    private void configureSideMotors() {
-        sideMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        sideMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
-
-        sideMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        sideMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
-        sideMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        sideMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
-        sideMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
-        sideMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
-
-        sideMotor.getConfigurator().apply(sideMotorConfig);
-    }
-
     @Override
     public void periodic() {
         applyState();
         publishLogs();
     }
 
-    private void applyState() {
+    private void applyState() { // TODO: applyState()
+        switch (sideState) {
+            case IDLE:
+                sideSetpoint = speedSideIdle;
+                sideMotor.setControl(sideRequest.withOutput(sideSetpoint));
+                break;
+            case TRANSFER:
+                sideSetpoint = speedSideTransfer;
+                sideMotor.setControl(sideRequest.withOutput(sideSetpoint));
+                break;
+        }
+
+        switch (turretState) {
+            case AIM:
+                break;
+            case IDLE:
+                break;
+        }
     }
     
     private void publishLogs() {
+        Logger.recordOutput("NewHopper/Turret/Turret Relative Position", turretEncoder.getPosition().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Turret/Turret Absolute Position", turretEncoder.getAbsolutePosition().getValueAsDouble());
+
+        Logger.recordOutput("NewHopper/Turret/Side State", sideState);
+        Logger.recordOutput("NewHopper/Turret/Turret State", turretState);
+        Logger.recordOutput("NewHopper/Turret/Side Setpoint", sideSetpoint);
+        Logger.recordOutput("NewHopper/Turret/Turret Setpoint", turretSetpoint);
+
+        if (logTurretDebug.get()) {
+            Logger.recordOutput("NewHopper/Turret/Turret Encoder Velocity", turretEncoder.getVelocity().getValueAsDouble());
+
+            Logger.recordOutput("NewHopper/Turret/Side Velocity", sideMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Turret/Side Position", sideMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Turret/Side Voltage", sideMotor.getMotorVoltage().getValueAsDouble());
+            
+            Logger.recordOutput("NewHopper/Turret/Turret Velocity", turretMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Turret/Turret Position", turretMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Turret/Turret Voltage", turretMotor.getMotorVoltage().getValueAsDouble());
+        }
     }
 
     public void updateConstants() {
@@ -158,5 +205,21 @@ public class TurretSubsystem extends SubsystemBase {
     public static TurretSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new TurretSubsystem();
         return INSTANCE;
+    }
+    
+    public void setSideState(SideState state) {
+        sideState = state;
+    }
+
+    public void setTurretState(TurretState state) {
+        turretState = state;
+    }
+
+    public InstantCommand setSideStateCommand(SideState state) {
+        return new InstantCommand(() -> setSideState(state));
+    }
+
+    public InstantCommand setTurretStateCommand(TurretState state) {
+        return new InstantCommand(() -> setTurretState(state));
     }
 }

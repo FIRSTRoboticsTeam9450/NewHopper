@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -8,6 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SidesweeperConstants;
@@ -21,12 +25,18 @@ public class SidesweeperSubsystem extends SubsystemBase {
     }
 
     public enum SidesweeperState {
-        SIDESWEEP,
+        TRANSFER,
         IDLE
     }
 
-    private RampState currentRampState = RampState.IDLE;
-    private SidesweeperState currentSidesweeperState = SidesweeperState.IDLE;
+    private RampState rampState = RampState.IDLE;
+    private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
+
+    private double speedRampTransfer = 0; // Volts // TODO: Transfer speed
+    private double speedRampIdle = 0; // Volts
+    
+    private double speedSidesweeperTransfer = 0; // Volts // TODO: Transfer speed
+    private double speedSidesweeperIdle = 0; // Volts
 
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX sidesweeperUpperMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kSidesweeperUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -37,6 +47,11 @@ public class SidesweeperSubsystem extends SubsystemBase {
 
     private VoltageOut rampRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut sidesweepRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private LoggedNetworkBoolean logSidesweeperDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Sidesweeper", false);
+
+    private double rampSetpoint = 0;
+    private double sidesweeperSetpoint = 0;
 
     public SidesweeperSubsystem() {
         configureRampMotors();
@@ -81,13 +96,64 @@ public class SidesweeperSubsystem extends SubsystemBase {
     }
 
     private void applyState() {
+        switch (rampState) {
+            case IDLE:
+                rampSetpoint = speedRampIdle;
+                rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
+                break;
+            case TRANSFER:
+                rampSetpoint = speedRampTransfer;
+                rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
+                break;
+        }
+
+        switch (sidesweeperState) {
+            case IDLE:
+                sidesweeperSetpoint = speedSidesweeperIdle;
+                sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
+                break;
+            case TRANSFER:
+                sidesweeperSetpoint = speedSidesweeperTransfer;
+                sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
+                break;
+        }
     }
 
     private void publishLogs() {
+        Logger.recordOutput("NewHopper/Sidesweeper/Ramp State", rampState);
+        Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper State", sidesweeperState);
+        Logger.recordOutput("NewHopper/Sidesweeper/Ramp Setpoint", rampSetpoint);
+        Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Setpoint", sidesweeperSetpoint);
+
+        if (logSidesweeperDebug.get()) {
+            Logger.recordOutput("NewHopper/Sidesweeper/Ramp Velocity", rampMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Sidesweeper/Ramp Position", rampMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Sidesweeper/Ramp Voltage", rampMotor.getMotorVoltage().getValueAsDouble());
+            
+            Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Velocity", sidesweeperUpperMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Position", sidesweeperUpperMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Voltage", sidesweeperUpperMotor.getMotorVoltage().getValueAsDouble());
+        }
     }
 
     public static SidesweeperSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new SidesweeperSubsystem();
         return INSTANCE;
+    }
+    
+    public void setRampState(RampState state) {
+        rampState = state;
+    }
+
+    public void setSidesweeperState(SidesweeperState state) {
+        sidesweeperState = state;
+    }
+
+    public InstantCommand setRampStateCommand(RampState state) {
+        return new InstantCommand(() -> setRampState(state));
+    }
+
+    public InstantCommand setSidesweeperStateCommand(SidesweeperState state) {
+        return new InstantCommand(() -> setSidesweeperState(state));
     }
 }

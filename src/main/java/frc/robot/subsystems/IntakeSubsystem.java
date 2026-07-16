@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
@@ -29,8 +32,14 @@ public class IntakeSubsystem extends SubsystemBase {
         IDLE
     }
 
-    private AngleState currentAngleState = AngleState.STORE;
-    private IntakeState currentIntakeState = IntakeState.IDLE;
+    private AngleState angleState = AngleState.STORE;
+    private IntakeState intakeState = IntakeState.IDLE;
+
+    private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
+    private double angleDeployIntake = 0; // Motor revolutions // TODO: Intake angle
+
+    private double speedIntakeIntake = 0; // Volts // TODO: Intake speed
+    private double speedIntakeIdle = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX intakeLeftMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -52,6 +61,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", false);
+
+    private double deploySetpoint = 0;
+    private double intakeSetpoint = 0;
 
     private IntakeSubsystem() {
         configureDeployMotors();
@@ -108,9 +122,44 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private void applyState() {
+        switch (angleState) {
+            case INTAKE:
+                deploySetpoint = angleDeployIntake;
+                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                break;
+            case STORE:
+                deploySetpoint = angleDeployStore;
+                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                break;
+        }
+
+        switch (intakeState) {
+            case IDLE:
+                intakeSetpoint = speedIntakeIdle;
+                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
+                break;
+            case INTAKE:
+                intakeSetpoint = speedIntakeIntake;
+                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
+                break;
+        }
     }
 
     private void publishLogs() {
+        Logger.recordOutput("NewHopper/Intake/Angle State", angleState);
+        Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
+        Logger.recordOutput("NewHopper/Intake/Deploy Setpoint", deploySetpoint);
+        Logger.recordOutput("NewHopper/Intake/Intake Setpoint", intakeSetpoint);
+
+        if (logIntakeDebug.get()) {
+            Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Deploy Position", deployMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Deploy Voltage", deployMotor.getMotorVoltage().getValueAsDouble());
+            
+            Logger.recordOutput("NewHopper/Intake/Intake Velocity", intakeLeftMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Intake Position", intakeLeftMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Intake Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
+        }
     }
 
     public void updateConstants() {
@@ -130,5 +179,21 @@ public class IntakeSubsystem extends SubsystemBase {
     public static IntakeSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new IntakeSubsystem();
         return INSTANCE;
+    }
+
+    public void setAngleState(AngleState state) {
+        angleState = state;
+    }
+
+    public void setIntakeState(IntakeState state) {
+        intakeState = state;
+    }
+
+    public InstantCommand setAngleStateCommand(AngleState state) {
+        return new InstantCommand(() -> setAngleState(state));
+    }
+
+    public InstantCommand setIntakeStateCommand(IntakeState state) {
+        return new InstantCommand(() -> setIntakeState(state));
     }
 }

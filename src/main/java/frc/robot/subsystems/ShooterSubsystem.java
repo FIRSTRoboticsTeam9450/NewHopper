@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -29,8 +32,8 @@ public class ShooterSubsystem extends SubsystemBase {
         IDLE
     }
 
-    private AngleState currentAngleState = AngleState.STORE;
-    private ShooterState currentShooterState = ShooterState.IDLE;
+    private AngleState angleState = AngleState.STORE;
+    private ShooterState shooterState = ShooterState.IDLE;
 
     private double angleMax = 0; // Motor revolutions // TODO: Max shooter angle
 
@@ -61,6 +64,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private MotionMagicVoltage angleRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private MotionMagicVelocityVoltage shootRequest = new MotionMagicVelocityVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private LoggedNetworkBoolean logShooterDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
+
+    private double angleSetpoint = 0;
+    private double shooterSetpoint = 0;
 
     private ShooterSubsystem() {
         configureAngleMotors();
@@ -154,10 +162,37 @@ public class ShooterSubsystem extends SubsystemBase {
         ) configureShooterMotors();
     }
 
-    private void applyState() {
+    private void applyState() { // TODO: applyState()
+        switch (angleState) {
+            case SHOOT:
+                break;
+            case STORE:
+                break;
+        }
+
+        switch (shooterState) {
+            case IDLE:
+                break;
+            case SHOOT:
+                break;
+        }
     }
 
     private void publishLogs() {
+        Logger.recordOutput("NewHopper/Shooter/Angle State", angleState);
+        Logger.recordOutput("NewHopper/Shooter/Shooter State", shooterState);
+        Logger.recordOutput("NewHopper/Shooter/Angle Setpoint", angleSetpoint);
+        Logger.recordOutput("NewHopper/Shooter/Shooter Setpoint", shooterSetpoint);
+
+        if (logShooterDebug.get()) {
+            Logger.recordOutput("NewHopper/Shooter/Angle Velocity", angleMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Shooter/Angle Position", angleMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Shooter/Angle Voltage", angleMotor.getMotorVoltage().getValueAsDouble());
+            
+            Logger.recordOutput("NewHopper/Shooter/Shooter Velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Shooter/Shooter Position", shooterLeftMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Shooter/Shooter Voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
+        }
     }
 
     public double getShooterVelocity() {
@@ -171,5 +206,21 @@ public class ShooterSubsystem extends SubsystemBase {
     public static ShooterSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new ShooterSubsystem();
         return INSTANCE;
+    }
+    
+    public void setAngleState(AngleState state) {
+        angleState = state;
+    }
+
+    public void setShooterState(ShooterState state) {
+        shooterState = state;
+    }
+
+    public InstantCommand setAngleStateCommand(AngleState state) {
+        return new InstantCommand(() -> setAngleState(state));
+    }
+
+    public InstantCommand setShooterStateCommand(ShooterState state) {
+        return new InstantCommand(() -> setShooterState(state));
     }
 }

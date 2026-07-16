@@ -65,8 +65,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         
         public static final class DeviceIDs {
             public static final int kTurretEncoderID = -1;
-            public static final int kTurretMotorID = -1;
             public static final int kSideMotorID = -1;
+            public static final int kTurretMotorID = -1;
         }
     }
 
