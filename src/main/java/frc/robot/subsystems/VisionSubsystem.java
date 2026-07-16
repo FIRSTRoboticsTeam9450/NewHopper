@@ -85,7 +85,7 @@ public class VisionSubsystem extends SubsystemBase {
     public double defaultVisionStdDevTheta = enabledMT2StdDev.get(2);
     public double currentVisionStdDevX = 0;
     public double currentVisionStdDevY = 0;
-    private double currentVisionStdDevTheta = 0.0;
+    // private double currentVisionStdDevTheta = 0.0;
 
     private boolean odomPoseOutsideField = false;
     private boolean operatorForcedVisionTrust = false;
@@ -95,9 +95,9 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
-    private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
-    private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
+    // private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
+    // private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
+    // private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
     private static final double MAX_MT2_YAW_DIFF_DEGREES = 0.5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
     private static final double MAX_MT1_YAW_DIFF_DEGREES = 2.25;
 
@@ -107,8 +107,8 @@ public class VisionSubsystem extends SubsystemBase {
     // Logging
     private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
 
-    private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
-    private double prevTimeStamp = 0;
+    // private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
+    // private double prevTimeStamp = 0;
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
@@ -178,8 +178,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         double robotYaw = robotPoseData.getRotation().getDegrees();
         double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
-        double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble());
-        double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
+        // double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble());
+        // double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;
@@ -278,15 +278,15 @@ public class VisionSubsystem extends SubsystemBase {
             // Extract 3D pose data from botpose array
             // botpose format: [x, y, z, roll, pitch, yaw, ...]
             Pose2d botpose = llData.megaTag2Estimate.pose;
-            double[] llPose = {llData.imuData.Roll, llData.imuData.Pitch};
+            // double[] llPose = {llData.imuData.Roll, llData.imuData.Pitch};
             
             if (botpose != null) {
                 double x = botpose.getX();
                 double y = botpose.getY();
                 double visionYaw = botpose.getRotation().getDegrees();
 
-                double llRoll = llPose[0];
-                double llPitch = llPose[1];
+                // double llRoll = llPose[0];
+                // double llPitch = llPose[1];
                 
                 // Get current Pigeon yaw
                 double pigeonYaw;
@@ -302,8 +302,8 @@ public class VisionSubsystem extends SubsystemBase {
                 boolean xValid = (x > 0) && (x < 16.565);
                 boolean yValid = (y > 0) && (y < 8.095);
 
-                boolean llRollValid = Math.abs(llRoll) < 20;
-                boolean llPitchValid = Math.abs(-28.1 - llPitch) < 20;
+                // boolean llRollValid = Math.abs(llRoll) < 20;
+                // boolean llPitchValid = Math.abs(-28.1 - llPitch) < 20;
                 
                 
                 // Yaw difference check (handle angle wrapping)
@@ -557,7 +557,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void setVisionMeasurementStdDevs(Vector<N3> vector) {
         this.currentVisionStdDevX = vector.get(0);
         this.currentVisionStdDevY = vector.get(1);
-        this.currentVisionStdDevTheta = vector.get(2);
+        // this.currentVisionStdDevTheta = vector.get(2);
 
         drivetrain.setVisionMeasurementStdDevs(vector);
     }
