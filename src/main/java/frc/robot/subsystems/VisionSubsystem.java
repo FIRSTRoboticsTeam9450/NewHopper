@@ -13,10 +13,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.VisionConstants.BackLeft;
-import frc.robot.Constants.VisionConstants.BackRight;
-import frc.robot.Constants.VisionConstants.FrontLeft;
-import frc.robot.Constants.VisionConstants.FrontRight;
+import frc.robot.Constants.VisionConstants.Back;
+import frc.robot.Constants.VisionConstants.Left;
+import frc.robot.Constants.VisionConstants.Right;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.LimelightHelpers;
 import frc.robot.util.LimelightObject;
@@ -133,29 +132,23 @@ public class VisionSubsystem extends SubsystemBase {
      * Ensures that all camera poses are correctly transformed to robot frame.
      */
     private void configureLimelights() {
-        // Front Left Limelight
-        LimelightObject limelightFL = new LimelightObject(FrontLeft.NAME)
-                                        .withLocation(Location.FRONT_LEFT)
-                                        .withPose3d(FrontLeft.POSE);
-        LIMELIGHT_LIST.add(limelightFL);
+        // Left Limelight
+        LimelightObject limelightLeft = new LimelightObject(Left.NAME)
+                                        .withLocation(Location.LEFT)
+                                        .withPose3d(Left.POSE);
+        LIMELIGHT_LIST.add(limelightLeft);
 
-        // Front Right Limelight
-        LimelightObject limelightFR = new LimelightObject(FrontRight.NAME)
-                                        .withLocation(Location.FRONT_RIGHT)
-                                        .withPose3d(FrontRight.POSE);
-        LIMELIGHT_LIST.add(limelightFR);
+        // Right Limelight
+        LimelightObject limelightRight = new LimelightObject(Right.NAME)
+                                        .withLocation(Location.RIGHT)
+                                        .withPose3d(Right.POSE);
+        LIMELIGHT_LIST.add(limelightRight);
 
-        // Back Left Limelight
-        LimelightObject limelightBL = new LimelightObject(BackLeft.NAME)
-                                        .withLocation(Location.BACK_LEFT)
-                                        .withPose3d(BackLeft.POSE);
-        LIMELIGHT_LIST.add(limelightBL);
-
-        // Back Right Limelight
-        LimelightObject limelightBR = new LimelightObject(BackRight.NAME)
-                                        .withLocation(Location.BACK_RIGHT)
-                                        .withPose3d(BackRight.POSE);
-        LIMELIGHT_LIST.add(limelightBR);
+        // Back Limelight
+        LimelightObject limelightBack = new LimelightObject(Back.NAME)
+                                        .withLocation(Location.BACK)
+                                        .withPose3d(Back.POSE);
+        LIMELIGHT_LIST.add(limelightBack);
     }
 
     /**

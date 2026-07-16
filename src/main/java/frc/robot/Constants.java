@@ -71,8 +71,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
     }
 
     public static final class VisionConstants { // TODO: Vision constants (Including Limelight names)
-        public static final class FrontLeft {
-            public static final String NAME = "limelight-fl";
+        public static final class Left {
+            public static final String NAME = "limelight-l";
             public static final double LOCATION_X = 0.271457252;
             public static final double LOCATION_Y = -0.26510724;
             public static final double LOCATION_Z = 0.22526;
@@ -82,8 +82,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
             public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
         }
 
-        public static final class FrontRight {
-            public static final String NAME = "limelight-fr";
+        public static final class Right {
+            public static final String NAME = "limelight-r";
             public static final double LOCATION_X = 0.271457252;
             public static final double LOCATION_Y = 0.26510724;
             public static final double LOCATION_Z = 0.22526;
@@ -93,25 +93,14 @@ public final class Constants { // TODO: Replace -1 IDs with real values
             public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
         }
 
-        public static final class BackLeft {
-            public static final String NAME = "limelight-bl";
+        public static final class Back {
+            public static final String NAME = "limelight-b";
             public static final double LOCATION_X = -0.271457252;
             public static final double LOCATION_Y = -0.26510724;
             public static final double LOCATION_Z = 0.22526;
             public static final double PITCH = 28.1;
             public static final double ROLL = 0;
             public static final double YAW = 135;
-            public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
-        }
-
-        public static final class BackRight {
-            public static final String NAME = "limelight-br";
-            public static final double LOCATION_X = -0.271457252;
-            public static final double LOCATION_Y = 0.26510724;
-            public static final double LOCATION_Z = 0.22526;
-            public static final double PITCH = 28.1;
-            public static final double ROLL = 0;
-            public static final double YAW = -135;
             public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
         }
     }

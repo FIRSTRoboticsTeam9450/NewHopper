@@ -43,7 +43,11 @@ public class RobotContainer {
     public static final CommandXboxController DRIVER = new CommandXboxController(RobotConstants.DRIVER_CONTROLLER_PORT);
     public static final CommandXboxController OPERATOR = new CommandXboxController(RobotConstants.OPERATOR_CONTROLLER_PORT);
 
-    public static final boolean enableSysIdKeybinds = false; // Enable SysID keybinds, and disable conflicting keybinds! Currently disables: None
+    public static final boolean enableSysIdKeybinds = false; // Enable SysID keybinds, and disable conflicting keybinds!
+        // Currently disables:
+        //  Driver:
+        //   Reset IMU
+        //  Operator:
     
     /**
      * Woojins Drive: 117.4, 0.054, 91.4, 0.76, 0.1, 0.01
@@ -132,25 +136,37 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> idle).ignoringDisable(true)
         );
         
-        // Logging
+        // Log
         drivetrain.registerTelemetry(logger::telemeterize);
         
 
         /* ========== DRIVER KEYBINDS ========== */
-        DRIVER.y().onTrue(new ResetIMU(drivetrain));
+        // Normal
+
+        // No SysID
+        if (!enableSysIdKeybinds) {
+            DRIVER.y().onTrue(new ResetIMU(drivetrain));
+        }
         
 
         /* ========== OPERATOR KEYBINDS ========== */
+        // Normal
+        OPERATOR.povDown()
+            .onTrue(VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true))
+            .onFalse(VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false));
+
+        // No SysID
+        if (!enableSysIdKeybinds) {
+        }
         
 
         /* ========== TESTING KEYBINDS ========== */
         // SysID
-        if (enableSysIdKeybinds) { // Enable SysID keybinds
+        if (enableSysIdKeybinds) {
             DRIVER.back().and(DRIVER.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
             DRIVER.back().and(DRIVER.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
             DRIVER.start().and(DRIVER.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
             DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-        } else { // Disable conflicting keybinds
         }
     }
     

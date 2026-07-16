@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
@@ -44,6 +45,9 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
+        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
+        VisionSubsystem.getInstance().setThrottle(100);
+        VisionSubsystem.getInstance().setLLIMUModes(1);
         updateValuesOffset = 0;
     }
 
@@ -59,15 +63,17 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
+        VisionSubsystem.getInstance().setThrottle(100);
+        VisionSubsystem.getInstance().setLLIMUModes(0);
+        // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
+    }
 
     @Override
     public void autonomousInit() {
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().schedule(m_autonomousCommand);
-        }
+        if (m_autonomousCommand != null) CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }
 
     @Override
@@ -78,9 +84,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopInit() {
-        if (m_autonomousCommand != null) {
-            CommandScheduler.getInstance().cancel(m_autonomousCommand);
-        }
+        if (m_autonomousCommand != null) CommandScheduler.getInstance().cancel(m_autonomousCommand);
     }
 
     @Override
