@@ -12,6 +12,7 @@ import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.VisionConstants.IMUMode;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -47,7 +48,7 @@ public class Robot extends LoggedRobot {
     public void disabledInit() {
         VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
         VisionSubsystem.getInstance().setThrottle(100);
-        VisionSubsystem.getInstance().setLLIMUModes(1);
+        VisionSubsystem.getInstance().setLLIMUModes(IMUMode.EXTERNAL_SEED);
         updateValuesOffset = 0;
     }
 
@@ -66,7 +67,7 @@ public class Robot extends LoggedRobot {
     public void disabledExit() {
         VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
         VisionSubsystem.getInstance().setThrottle(100);
-        VisionSubsystem.getInstance().setLLIMUModes(0);
+        VisionSubsystem.getInstance().setLLIMUModes(IMUMode.EXTERNAL_ONLY);
         // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
     }
 

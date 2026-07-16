@@ -71,37 +71,57 @@ public final class Constants { // TODO: Replace -1 IDs with real values
     }
 
     public static final class VisionConstants { // TODO: Vision constants (Including Limelight names)
-        public static final class Left {
-            public static final String NAME = "limelight-l";
-            public static final double LOCATION_X = 0.271457252;
-            public static final double LOCATION_Y = -0.26510724;
-            public static final double LOCATION_Z = 0.22526;
-            public static final double PITCH = 28.1;
-            public static final double ROLL = 0;
-            public static final double YAW = 45;
-            public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
+        /** MT2 IMU mode. Info copied from Limelight docs. */
+        public static final class IMUMode {
+            /** No internal IMU processing. MT2 uses interpolated yaw from robot's gyro sent via SetRobotOrientation(). */
+            public static final int EXTERNAL_ONLY = 0;
+
+            /** Internal IMU offset is calibrated to match external yaw each frame (seeding). MT2 still uses external yaw for botpose. */
+            public static final int EXTERNAL_SEED = 1;
+
+            /** Uses internal IMU's fused yaw only. No external input required. */
+            public static final int INTERNAL_ONLY = 2;
+
+            /** Complementary filter fuses internal IMU with MT1 vision yaw. When MT1 gets a valid pose, it slowly corrects internal IMU drift. */
+            public static final int INTERNAL_MT1_ASSIST = 3;
+            
+            /** Complementary filter fuses internal IMU with external yaw from SetRobotOrientation(). This is the recommended mode, as the internal IMU's 1khz update rate is utilized for frame-by-frame motion while the robot's IMU corrects for any drift over time. */
+            public static final int INTERNAL_EXTERNAL_ASSIST = 4;
         }
 
-        public static final class Right {
-            public static final String NAME = "limelight-r";
-            public static final double LOCATION_X = 0.271457252;
-            public static final double LOCATION_Y = 0.26510724;
-            public static final double LOCATION_Z = 0.22526;
-            public static final double PITCH = 28.1;
-            public static final double ROLL = 0;
-            public static final double YAW = -45;
-            public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
-        }
+        public static final class Limelights {
+            public static final class Left {
+                public static final String NAME = "limelight-l";
+                public static final double LOCATION_X = 0.271457252;
+                public static final double LOCATION_Y = -0.26510724;
+                public static final double LOCATION_Z = 0.22526;
+                public static final double PITCH = 28.1;
+                public static final double ROLL = 0;
+                public static final double YAW = 45;
+                public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
+            }
 
-        public static final class Back {
-            public static final String NAME = "limelight-b";
-            public static final double LOCATION_X = -0.271457252;
-            public static final double LOCATION_Y = -0.26510724;
-            public static final double LOCATION_Z = 0.22526;
-            public static final double PITCH = 28.1;
-            public static final double ROLL = 0;
-            public static final double YAW = 135;
-            public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
+            public static final class Right {
+                public static final String NAME = "limelight-r";
+                public static final double LOCATION_X = 0.271457252;
+                public static final double LOCATION_Y = 0.26510724;
+                public static final double LOCATION_Z = 0.22526;
+                public static final double PITCH = 28.1;
+                public static final double ROLL = 0;
+                public static final double YAW = -45;
+                public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
+            }
+
+            public static final class Back {
+                public static final String NAME = "limelight-b";
+                public static final double LOCATION_X = -0.271457252;
+                public static final double LOCATION_Y = -0.26510724;
+                public static final double LOCATION_Z = 0.22526;
+                public static final double PITCH = 28.1;
+                public static final double ROLL = 0;
+                public static final double YAW = 135;
+                public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
+            }
         }
     }
 
