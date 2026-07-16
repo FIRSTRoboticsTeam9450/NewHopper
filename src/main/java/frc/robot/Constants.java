@@ -71,6 +71,11 @@ public final class Constants { // TODO: Replace -1 IDs with real values
     }
 
     public static final class VisionConstants { // TODO: Vision constants (Including Limelight names)
+        public static final int kDisabledThrottle = 200;
+        public static final int kEnabledThrottle = 100;
+        public static final int kDisabledIMUMode = IMUMode.EXTERNAL_SEED;
+        public static final int kEnabledIMUMode = IMUMode.EXTERNAL_ONLY;
+
         /** MT2 IMU mode. Info copied from Limelight docs. */
         public static final class IMUMode {
             /** No internal IMU processing. MT2 uses interpolated yaw from robot's gyro sent via SetRobotOrientation(). */
