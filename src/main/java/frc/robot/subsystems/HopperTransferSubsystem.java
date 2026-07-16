@@ -1,7 +1,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
@@ -11,20 +16,38 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private static HopperTransferSubsystem INSTANCE;
     
     public enum TransferState {
+        TRANSFER,
+        IDLE
     }
 
-    private TransferState currentState;
+    private TransferState currentTransferState = TransferState.IDLE;
 
-    private TalonFX leadTransferMotor = new TalonFX(TransferConstants.DeviceIDs.kLeadTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX followerTransferMotor = new TalonFX(TransferConstants.DeviceIDs.kFollowerTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX transferLowerMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    private TalonFXConfiguration transferMotorConfig = new TalonFXConfiguration();
+
+    private VoltageOut transferRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     
     private HopperTransferSubsystem() {
         configureTransferMotors();
     }
 
-    public void configureTransferMotors() {
+    private void configureTransferMotors() {
+        transferMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        transferMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
+
+        transferMotorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+        transferMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        transferMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        transferMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        transferMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        transferMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+
+        transferUpperMotor.getConfigurator().apply(transferMotorConfig);
+        transferLowerMotor.getConfigurator().apply(transferMotorConfig);
+
+        transferLowerMotor.setControl(new Follower(transferUpperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
     public boolean isJammed() {
@@ -41,9 +64,6 @@ public class HopperTransferSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-    }
-
-    public void updateConstants() {
     }
 
     public static HopperTransferSubsystem getInstance() {

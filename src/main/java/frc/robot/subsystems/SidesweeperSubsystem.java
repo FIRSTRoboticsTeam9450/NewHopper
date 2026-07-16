@@ -1,7 +1,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
@@ -10,22 +15,63 @@ import frc.robot.Constants.SidesweeperConstants;
 public class SidesweeperSubsystem extends SubsystemBase {
     private static SidesweeperSubsystem INSTANCE;
 
-    public enum SidesweeperState {
+    public enum RampState {
+        TRANSFER,
+        IDLE
     }
 
-    private SidesweeperState currentState;
+    public enum SidesweeperState {
+        SIDESWEEP,
+        IDLE
+    }
 
-    private TalonFX upperTransfer = new TalonFX(SidesweeperConstants.DeviceIDs.kUpperTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX lowerTransfer = new TalonFX(SidesweeperConstants.DeviceIDs.kLowerTransferMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private RampState currentRampState = RampState.IDLE;
+    private SidesweeperState currentSidesweeperState = SidesweeperState.IDLE;
+
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX sidesweeperUpperMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kSidesweeperUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX sidesweeperLowerMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kSidesweeperLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    private TalonFXConfiguration sidesweeperMotorConfig = new TalonFXConfiguration();
+    private TalonFXConfiguration rampMotorConfig = new TalonFXConfiguration();
+
+    private VoltageOut rampRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut sidesweepRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     public SidesweeperSubsystem() {
+        configureRampMotors();
         configureSidesweeperMotors();
     }
 
-    public void configureSidesweeperMotors() {
+    private void configureRampMotors() {
+        rampMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        rampMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // Positive = Intake, Negative = Outtake
+
+        rampMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        rampMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        rampMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        rampMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        rampMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        rampMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+
+        rampMotor.getConfigurator().apply(rampMotorConfig);
+    }
+
+    private void configureSidesweeperMotors() {
+        sidesweeperMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        sidesweeperMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive; // Positive = Intake, Negative = Outtake
+
+        sidesweeperMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        sidesweeperMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        sidesweeperMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        sidesweeperMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        sidesweeperMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        sidesweeperMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+
+        sidesweeperUpperMotor.getConfigurator().apply(sidesweeperMotorConfig);
+        sidesweeperLowerMotor.getConfigurator().apply(sidesweeperMotorConfig);
+
+        sidesweeperLowerMotor.setControl(new Follower(sidesweeperUpperMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     @Override
@@ -38,9 +84,6 @@ public class SidesweeperSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-    }
-
-    public void updateConstants() {
     }
 
     public static SidesweeperSubsystem getInstance() {

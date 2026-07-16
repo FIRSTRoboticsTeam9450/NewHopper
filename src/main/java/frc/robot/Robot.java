@@ -12,10 +12,9 @@ import com.ctre.phoenix6.HootAutoReplay;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.HopperTransferSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SidesweeperSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
@@ -50,11 +49,10 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledPeriodic() {
-        if (updateValuesOffset == 15) HopperTransferSubsystem.getInstance().updateConstants();
-        else if (updateValuesOffset == 30) IntakeSubsystem.getInstance().updateConstants();
-        else if (updateValuesOffset == 45) ShooterSubsystem.getInstance().updateConstants();
-        else if (updateValuesOffset >= 60) {
-            SidesweeperSubsystem.getInstance().updateConstants();
+        if (updateValuesOffset == 15) IntakeSubsystem.getInstance().updateConstants();
+        else if (updateValuesOffset == 30) ShooterSubsystem.getInstance().updateConstants();
+        else if (updateValuesOffset >= 45) {
+            TurretSubsystem.getInstance().updateConstants();
             updateValuesOffset = 0;
         }
         updateValuesOffset++;

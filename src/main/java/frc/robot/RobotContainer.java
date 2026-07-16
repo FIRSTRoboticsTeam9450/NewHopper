@@ -23,12 +23,14 @@ import frc.robot.subsystems.HopperTransferSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SidesweeperSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class RobotContainer {
     public static final HopperTransferSubsystem transferSub = HopperTransferSubsystem.getInstance();
     public static final IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
     public static final ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
     public static final SidesweeperSubsystem sidesweeperSub = SidesweeperSubsystem.getInstance();
+    public static final TurretSubsystem turretSub = TurretSubsystem.getInstance();
 
     public static final CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
 

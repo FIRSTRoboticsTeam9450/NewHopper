@@ -1,7 +1,6 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -10,59 +9,60 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public final class Constants { // TODO: Replace -1 motor IDs with real values
-    
-    public static final class RobotConstants {
-        public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
-        public static final String MAIN_SYSTEMS_CANBUS_NAME = "CantShoot";
-        public static final String RIO_BUS_NAME = "Rio";
+  public static final class RobotConstants {
+      public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
+      public static final String MAIN_SYSTEMS_CANBUS_NAME = "CantShoot";
+      public static final String RIO_BUS_NAME = "rio";
 
-        public static final CANBus DRIVEBASE_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME);
-        public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME); //Temporarily set to same as drivebase canbus due to only have 1 canivore on robot.
-        public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
+      public static final CANBus DRIVEBASE_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME);
+      public static final CANBus MAIN_SYSTEMS_CANBUS = DRIVEBASE_CANBUS;//new CANBus(MAIN_SYSTEMS_CANBUS_NAME); // TODO: After getting a second CANivore on the robot, change RobotConstants.MAIN_SYSTEMS_CANBUS to its unique value (which is currently commented out).
+      public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
-        public static final boolean ENABLE_FOC = true;
+      public static final boolean ENABLE_FOC = true;
+  }
 
-        public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
+  public static final class TransferConstants {
+    public static final class DeviceIDs {
+      public static final int kTransferUpperMotorID = -1;
+      public static final int kTransferLowerMotorID = -1;
     }
+  }
 
-    public static final class TransferConstants {
+  public static final class IntakeConstants {
+      public static final double kAngleEncoderMagnetOffset = -0.2001953125;
+      public static final double kAngleRotorToSensorRatio = 36;//36:1
+
       public static final class DeviceIDs {
-        public static final int kLeadTransferMotorID = -1;
-        public static final int kFollowerTransferMotorID = -1;
+        public static final int kDeployMotorID = -1;
+        public static final int kIntakeLeftMotorID = -1;
+        public static final int kIntakeRightMotorID = -1;
       }
+  }
+
+  public static final class ShooterConstants {
+    public static final class DeviceIDs {
+      public static final int kAngleMotorID = -1;
+      public static final int kShooterLeftMotorID = -1;
+      public static final int kShooterRightMotorID = -1;
     }
+  }
 
-
-
-    public static final class ShooterConstants {
-      public static final class DeviceIDs {
-        public static final int kAngleMotorID = -1;
-        public static final int kLeftShooterMotorID = -1;
-        public static final int kRightShooterMotorID = -1;
-      }
+  public static final class SidesweeperConstants {
+    public static final class DeviceIDs {
+      public static final int kRampMotorID = -1;
+      public static final int kSidesweeperUpperMotorID = -1;
+      public static final int kSidesweeperLowerMotorID = -1;
     }
+  }
 
-    public static final class IntakeConstants {
-        public static final double kAngleEncoderMagnetOffset = -0.2001953125;
-        public static final double kAngleRotorToSensorRatio = 36;//36:1
-
-        public static final class DeviceIDs {
-          public static final int kLeftIntakeMotorID = -1;
-          public static final int kRightIntakeMotorID = -1;
-          public static final int kDeployMotorID = -1;
-        }
+  public static final class TurretConstants {
+    public static final class DeviceIDs {
+      public static final int kTurretMotorID = -1;
+      public static final int kSideMotorID = -1;
     }
+  }
 
-    public static final class SidesweeperConstants {
-      public static final class DeviceIDs {
-        public static final int kUpperTransferMotorID = -1;
-        public static final int kLowerTransferMotorID = -1;
-        public static final int kRampMotorID = -1;
-      }
-    }
-
-    public static final class FieldConstants {
-
+  public static final class FieldConstants {
     public static boolean isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
 
     public static AprilTagFieldLayout FIELD_LAYOUT;
@@ -87,7 +87,6 @@ public final class Constants { // TODO: Replace -1 motor IDs with real values
       public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.6);
       public static final Translation2d FERRY_MID_TARGET = new Translation2d(2.446, 4.046);
 
-
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
       public static final Translation2d BLUE_RIGHT_FERRY_TARGET = new Translation2d();
@@ -97,7 +96,6 @@ public final class Constants { // TODO: Replace -1 motor IDs with real values
 
       public static final Translation2d BLUE_TOWER = new Translation2d(1.063, 3.75);
       public static final Translation2d RED_TOWER = new Translation2d(15.475, 4.325);
-
     }
 
     public static final class AprilTagIDs {
@@ -151,7 +149,6 @@ public final class Constants { // TODO: Replace -1 motor IDs with real values
      * -----------------------------
      */
     public static final class TrenchManeuvering {
-
       public static enum TrenchLocationWRTBlueOrigin {
         CLOSE_LEFT,
         CLOSE_RIGHT,
