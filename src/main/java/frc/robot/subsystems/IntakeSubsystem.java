@@ -98,7 +98,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeLeftMotor.getConfigurator().apply(intakeMotorConfig);
         intakeRightMotor.getConfigurator().apply(intakeMotorConfig);
 
-        intakeRightMotor.setControl(new Follower(intakeLeftMotor.getDeviceID(), MotorAlignmentValue.Aligned)); // TODO: Follower alignment (Look at CAD or just test both options)
+        intakeRightMotor.setControl(new Follower(intakeLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     @Override

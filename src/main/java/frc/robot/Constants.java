@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
-public final class Constants { // TODO: Replace -1 motor IDs with real values
+public final class Constants { // TODO: Replace -1 IDs with real values
   public static final class RobotConstants {
     public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
     public static final String MAIN_SYSTEMS_CANBUS_NAME = "CantShoot";
@@ -32,9 +32,6 @@ public final class Constants { // TODO: Replace -1 motor IDs with real values
   }
 
   public static final class IntakeConstants {
-      public static final double kAngleEncoderMagnetOffset = -0.2001953125;
-      public static final double kAngleRotorToSensorRatio = 36;//36:1
-
       public static final class DeviceIDs {
         public static final int kDeployMotorID = -1;
         public static final int kIntakeLeftMotorID = -1;
@@ -59,7 +56,13 @@ public final class Constants { // TODO: Replace -1 motor IDs with real values
   }
 
   public static final class TurretConstants {
+    // TODO: Turret encoder constants (Current values are defaults)
+    public static final double kTurretEncoderMagnetOffset = 0.0;
+    public static final double kTurretRotorToSensorRatio = 1.0;
+    public static final double kTurretSensorToMechanismRatio = 1.0;
+    
     public static final class DeviceIDs {
+      public static final int kTurretEncoderID = -1;
       public static final int kTurretMotorID = -1;
       public static final int kSideMotorID = -1;
     }
