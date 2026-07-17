@@ -34,7 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
         IDLE
     }
 
-    private DeployState angleState = DeployState.STORE;
+    private DeployState deployState = DeployState.STORE;
     private IntakeState intakeState = IntakeState.IDLE;
 
     private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
@@ -124,7 +124,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private void applyState() {
-        switch (angleState) {
+        switch (deployState) {
+            case ZEROING:
+                deployMotor.setPosition(0);
+                deployState = DeployState.STORE;
+                break;
             case DEPLOY:
                 deploySetpoint = angleDeployIntake;
                 deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
@@ -148,7 +152,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-        Logger.recordOutput("NewHopper/Intake/Angle State", angleState);
+        Logger.recordOutput("NewHopper/Intake/Angle State", deployState);
         Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
         Logger.recordOutput("NewHopper/Intake/Deploy Setpoint", deploySetpoint);
         Logger.recordOutput("NewHopper/Intake/Intake Setpoint", intakeSetpoint);
@@ -183,8 +187,8 @@ public class IntakeSubsystem extends SubsystemBase {
         return INSTANCE;
     }
 
-    public void setAngleState(DeployState state) {
-        angleState = state;
+    public void setDeployState(DeployState state) {
+        deployState = state;
     }
 
     public void setIntakeState(IntakeState state) {
@@ -192,7 +196,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public InstantCommand setAngleStateCommand(DeployState state) {
-        return new InstantCommand(() -> setAngleState(state));
+        return new InstantCommand(() -> setDeployState(state));
     }
 
     public InstantCommand setIntakeStateCommand(IntakeState state) {

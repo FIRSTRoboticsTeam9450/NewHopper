@@ -223,4 +223,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public InstantCommand setShooterStateCommand(ShooterState state) {
         return new InstantCommand(() -> setShooterState(state));
     }
+
+    public AngleState getCurrentAngleState() {
+        return angleState;
+    }
 }

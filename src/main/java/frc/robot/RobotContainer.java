@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -28,6 +29,8 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SidesweeperSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.DeployState;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
@@ -148,6 +151,7 @@ public class RobotContainer {
             DRIVER.y().onTrue(new ResetIMU(drivetrain));
         }
         
+        
 
         /* ========== OPERATOR KEYBINDS ========== */
         // Normal
@@ -168,6 +172,10 @@ public class RobotContainer {
             DRIVER.start().and(DRIVER.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
             DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         }
+
+        OPERATOR.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
+        OPERATOR.b().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE)));
+        
     }
     
     public ChassisSpeeds getRobotFieldCentricVeloc() {

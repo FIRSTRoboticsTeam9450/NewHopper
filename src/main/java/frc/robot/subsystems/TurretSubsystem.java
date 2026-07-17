@@ -29,12 +29,21 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public enum TurretState {
-        AIM,
-        IDLE
+        /** Do nothing, sit there and look pretty */
+        DISABLED,
+        /** Goes to store, then once there, goes to aiming */
+        INIT,
+        /** Holding current position, no active tracking */
+        AIMING,
+        /** Moving to safe storage position (0°) */
+        STORING,
+
+        /**  If hood flips off */
+        EMERGENCY
     }
 
     private SideState sideState = SideState.IDLE;
-    private TurretState turretState = TurretState.IDLE;
+    private TurretState turretState = TurretState.DISABLED;
 
     private double angleMax = 0; // Motor revolutions // TODO: Max turret angle
     private double angleMin = 0; // Motor revolutions // TODO: Min turret angle
@@ -160,10 +169,21 @@ public class TurretSubsystem extends SubsystemBase {
         }
 
         switch (turretState) {
-            case AIM:
+            case DISABLED:
+                turretMotor.stopMotor();
                 break;
-            case IDLE:
+            case INIT:
+                if (isAtProfiledGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.STORE) { //zeroing
+                        turretState = TurretState.AIMING;
+                    }
                 break;
+            case AIMING:
+                break;
+            case EMERGENCY:
+                break;
+            case STORING:
+                break;
+            
         }
     }
     
@@ -213,6 +233,10 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void setTurretState(TurretState state) {
         turretState = state;
+    }
+
+    public boolean isAtProfiledGoal(double tolerance) {
+        return false;
     }
 
     public InstantCommand setSideStateCommand(SideState state) {
