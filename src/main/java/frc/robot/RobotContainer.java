@@ -173,11 +173,12 @@ public class RobotContainer {
             DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         }
 
-        OPERATOR.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
-        OPERATOR.b().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE)));
+        // OPERATOR.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
+        // OPERATOR.b().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE)));
         
         DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(8 /*17.798*/))); // INTAKE
         DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPosition(0))); // STORE
+        
         // DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(-2)));
         // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(2)));
     }

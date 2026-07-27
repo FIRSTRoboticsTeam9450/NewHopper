@@ -12,12 +12,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 public final class Constants { // TODO: Replace -1 IDs with real values
     public static final class RobotConstants {
-        public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
-        public static final String MAIN_SYSTEMS_CANBUS_NAME = "CantShoot";
+        public static final String DRIVEBASE_CANBUS_NAME = "Drivebase";
+        public static final String MAIN_SYSTEMS_CANBUS_NAME = "UpperCAN";
         public static final String RIO_BUS_NAME = "rio";
 
         public static final CANBus DRIVEBASE_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME);
-        public static final CANBus MAIN_SYSTEMS_CANBUS = DRIVEBASE_CANBUS;//new CANBus(MAIN_SYSTEMS_CANBUS_NAME); // TODO: After getting a second CANivore on the robot, change RobotConstants.MAIN_SYSTEMS_CANBUS to its unique value (which is currently commented out).
+        public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(MAIN_SYSTEMS_CANBUS_NAME);
         public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
         public static final boolean ENABLE_FOC = true;
@@ -35,9 +35,9 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
     public static final class IntakeConstants {
         public static final class DeviceIDs {
-            public static final int kDeployMotorID = -1;
-            public static final int kIntakeLeftMotorID = -1;
-            public static final int kIntakeRightMotorID = -1;
+            public static final int kDeployMotorID = 20;
+            public static final int kIntakeLeftMotorID = 22;
+            public static final int kIntakeRightMotorID = 21;
         }
     }
 
