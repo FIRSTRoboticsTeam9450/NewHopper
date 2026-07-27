@@ -34,11 +34,11 @@ public class IntakeSubsystem extends SubsystemBase {
         IDLE
     }
 
-    private DeployState deployState = DeployState.STORE;
+    private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
     private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
-    private double angleDeployIntake = 0; // Motor revolutions // TODO: Intake angle
+    private double angleDeployIntake = -17.798; // Motor revolutions // TODO: Intake angle
 
     private double speedIntakeIntake = 0; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0; // Volts
@@ -56,12 +56,13 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
     private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 0);
+    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 0.2);
     private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
-    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0);
+    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0.001);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut temporaryDeployRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", false);
@@ -148,6 +149,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 intakeSetpoint = speedIntakeIntake;
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
                 break;
+            case BRAKE:
+                break;
         }
     }
 
@@ -194,6 +197,14 @@ public class IntakeSubsystem extends SubsystemBase {
     public void setIntakeState(IntakeState state) {
         intakeState = state;
     }
+
+    public void setPosition(double pos) {
+        deployMotor.setControl(deployRequest.withPosition(pos).withFeedForward(2));
+    }
+
+    // public void setPositionVoltage(double voltage) {
+    //     deployMotor.setControl(new VoltageOut(voltage));
+    // }
 
     public InstantCommand setAngleStateCommand(DeployState state) {
         return new InstantCommand(() -> setDeployState(state));
