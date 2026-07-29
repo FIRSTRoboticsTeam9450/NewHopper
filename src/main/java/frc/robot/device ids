@@ -1,0 +1,23 @@
+bed bottom 24
+bed top 25
+sidesweep b 26
+sidesweep t 27
+turret 28
+turret transfer 30
+turret encoder 29
+fl rotate 1
+fl drive 2
+fl 3
+fr rotate 4
+fr drive 5
+fr 6
+bl rotate 7
+bl drive 8
+bl 9
+br rotate 10
+br drive 11
+br 12
+intake rack 20
+intake right 21
+intake left 22
+IMU 13
