@@ -178,6 +178,7 @@ public class RobotContainer {
         
         DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(8 /*17.798*/))); // INTAKE
         DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPosition(0))); // STORE
+        DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
         
         // DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(-2)));
         // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(2)));
