@@ -31,6 +31,8 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.DeployState;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.ShooterSubsystem.AngleState;
+import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
@@ -149,9 +151,12 @@ public class RobotContainer {
         // No SysID
         if (!enableSysIdKeybinds) {
             DRIVER.y().onTrue(new ResetIMU(drivetrain));
+
+            // Rezero the hood on its hard stop, disabled only
+            DRIVER.back().onTrue(shooterSub.zeroHoodEncoderCommand());
         }
-        
-        
+
+
 
         /* ========== OPERATOR KEYBINDS ========== */
         // Normal
@@ -180,10 +185,50 @@ public class RobotContainer {
         // DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPosition(0))); // STORE
         // DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
 
-        DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
-        
+        // DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
+
         // DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(-2)));
         // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(2)));
+
+        /* ========== INTAKE DEPLOY KEYBINDS ========== */
+        // A retracts the deploy target (down to 0), B extends it (up to 8), the PID follows from there
+        DRIVER.a().onTrue(intakeSub.nudgeDeployTargetCommand(-IntakeSubsystem.kDeployStep));
+        DRIVER.b().onTrue(intakeSub.nudgeDeployTargetCommand(IntakeSubsystem.kDeployStep));
+
+        // Re-run the intake zeroing routine (also runs automatically on startup)
+        DRIVER.leftBumper().onTrue(intakeSub.startZeroingCommand());
+
+        /* ========== SHOOTER MANUAL KEYBINDS ========== */
+        /*
+         * Nothing here aims at a target, both setpoints are nudged by hand and stay where they are put.
+         *
+         * Driver:
+         *   Pov up   = hood up
+         *   Pov down = hood down
+         *   Back     = rezero the hood on its hard stop (disabled only)
+         * Operator:
+         *   X            = increase flywheel velocity
+         *   B            = decrease flywheel velocity
+         *   Y            = reset flywheel velocity to default
+         *   Right bumper = hold to spin the flywheel
+         *   Left bumper  = store the hood
+         *
+         * The old bot ran the flywheel adjust off driver X/B/Y behind a left stick modifier, which was
+         * only there to share those buttons with the turret angle adjust. Without turret aiming there is
+         * nothing to share with, and driver B/Y are already taken here, so it lives on the operator.
+         */
+        DRIVER.povUp().onTrue(shooterSub.nudgeHoodTargetCommand(ShooterSubsystem.kHoodStep));
+        DRIVER.povDown().onTrue(shooterSub.nudgeHoodTargetCommand(-ShooterSubsystem.kHoodStep));
+
+        OPERATOR.x().onTrue(shooterSub.nudgeShooterTargetCommand(ShooterSubsystem.kShooterStep));
+        OPERATOR.b().onTrue(shooterSub.nudgeShooterTargetCommand(-ShooterSubsystem.kShooterStep));
+        OPERATOR.y().onTrue(shooterSub.resetShooterTargetCommand());
+
+        OPERATOR.rightBumper()
+            .onTrue(shooterSub.setShooterStateCommand(ShooterState.SHOOT))
+            .onFalse(shooterSub.setShooterStateCommand(ShooterState.IDLE));
+
+        OPERATOR.leftBumper().onTrue(shooterSub.setAngleStateCommand(AngleState.STORE));
     }
     
     public ChassisSpeeds getRobotFieldCentricVeloc() {

@@ -14,6 +14,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -41,6 +44,21 @@ public class IntakeSubsystem extends SubsystemBase {
     private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
     private double angleDeployIntake = -17.798; // Motor revolutions // TODO: Intake angle
 
+    /* ========== DEPLOY TARGET ========== */
+    public static final double kDeployMinPosition = 0; // Motor revolutions, intake fully stored
+    public static final double kDeployMaxPosition = 8; // Motor revolutions, intake fully deployed
+    public static final double kDeployStep = 0.5; // Motor revolutions moved per button press
+    private static final double kDeployStallTolerance = 0.01; // Motor revolutions of movement per loop that still counts as stalled
+    private static final int kDeployStallLoops = 10; // Loops (20ms each) below the tolerance before the intake is called stuck
+    private static final double kDeployStallErrorTolerance = 0.25; // Motor revolutions still to travel before a lack of movement counts as a stall
+
+    /* ========== DEPLOY ZEROING ========== */
+    private static final double kZeroingVoltage = -2; // Volts, pulls the intake inwards against its hard stop
+    private static final double kZeroingStallTolerance = 0.01; // Motor revolutions of movement per loop that still counts as stalled
+    private static final int kZeroingStallLoops = 10; // Loops (20ms each) below the tolerance before the hard stop is confirmed
+    private static final int kZeroingMinLoops = 10; // Loops to let the motor get moving before a lack of movement counts as a stall
+    private static final int kZeroingTimeoutLoops = 250; // Loops (~5s) of pulling before giving up
+
     private double speedIntakeIntake = 0; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0; // Volts
 
@@ -63,6 +81,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut deployVoltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", true);
@@ -70,10 +89,18 @@ public class IntakeSubsystem extends SubsystemBase {
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
 
+    private double deployTarget = kDeployMinPosition;
+    private boolean deployZeroed = false;
+    private double deployLastPosition = 0;
+    private int deployStallLoops = 0;
+    private double zeroingLastPosition = 0;
+    private int zeroingStallLoops = 0;
+    private int zeroingLoops = 0;
+
     private IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
-        deployMotor.setPosition(0);
+        startZeroing();
         intakeLeftMotor.setControl(intakeRequest.withOutput(12));
     }
 
@@ -123,7 +150,91 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //applyState();
+        runDeploy();
         publishLogs();
+    }
+
+    private void runDeploy() {
+        if (deployState == DeployState.ZEROING) {
+            runZeroing();
+            return;
+        }
+
+        // Without a zero the encoder reference is meaningless, so don't let the PID chase a target off of it
+        if (!deployZeroed) {
+            deployMotor.setControl(deployVoltageRequest.withOutput(0));
+            return;
+        }
+
+        deploySetpoint = deployTarget;
+        deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+
+        checkExtendStall();
+    }
+
+    /**
+     * Catches the intake stalling on its way out before it reaches the ceiling, and makes wherever it stopped
+     * the new target so the PID stops pushing into whatever it hit.
+     */
+    private void checkExtendStall() {
+        double position = deployMotor.getPosition().getValueAsDouble();
+        boolean moved = Math.abs(position - deployLastPosition) >= kDeployStallTolerance;
+        deployLastPosition = position;
+
+        // Only meaningful while enabled (the motor cannot move when it has no output) and while still on the way out
+        boolean extending = DriverStation.isEnabled() && (deployTarget - position) > kDeployStallErrorTolerance;
+
+        if (!extending || moved) {
+            deployStallLoops = 0;
+            return;
+        }
+
+        deployStallLoops++;
+        if (deployStallLoops >= kDeployStallLoops) {
+            deployTarget = MathUtil.clamp(position, kDeployMinPosition, kDeployMaxPosition);
+            deployStallLoops = 0;
+        }
+    }
+
+    /**
+     * Pulls the intake inwards at a low voltage until it stops moving (the hard stop), then calls that position 0.
+     * Runs on startup and whenever {@link #startZeroing()} is called.
+     */
+    private void runZeroing() {
+        // Motor output is ignored while disabled, so the intake would never move and the stall check would trip instantly
+        if (!DriverStation.isEnabled()) {
+            zeroingLoops = 0;
+            zeroingStallLoops = 0;
+            zeroingLastPosition = deployMotor.getPosition().getValueAsDouble();
+            return;
+        }
+
+        deploySetpoint = kZeroingVoltage;
+        deployMotor.setControl(deployVoltageRequest.withOutput(kZeroingVoltage));
+
+        double position = deployMotor.getPosition().getValueAsDouble();
+        boolean stalled = Math.abs(position - zeroingLastPosition) < kZeroingStallTolerance;
+        zeroingLastPosition = position;
+        zeroingLoops++;
+
+        // Give the motor a moment to get moving before a lack of movement means anything
+        if (zeroingLoops < kZeroingMinLoops) return;
+
+        zeroingStallLoops = stalled ? zeroingStallLoops + 1 : 0;
+
+        if (zeroingStallLoops >= kZeroingStallLoops) {
+            deployMotor.setPosition(0);
+            deployTarget = kDeployMinPosition;
+            deployLastPosition = 0;
+            deployStallLoops = 0;
+            deployZeroed = true;
+            deployState = DeployState.STORE;
+        } else if (zeroingLoops >= kZeroingTimeoutLoops) {
+            // Never found the hard stop, so stop pulling and stay unzeroed until someone re-triggers zeroing
+            deployMotor.setControl(deployVoltageRequest.withOutput(0));
+            deployState = DeployState.STORE;
+            DriverStation.reportWarning("Intake deploy zeroing timed out, intake is disabled until it is re-zeroed", false);
+        }
     }
 
     private void applyState() {
@@ -161,6 +272,8 @@ public class IntakeSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
         Logger.recordOutput("NewHopper/Intake/Deploy Setpoint", deploySetpoint);
         Logger.recordOutput("NewHopper/Intake/Intake Setpoint", intakeSetpoint);
+        Logger.recordOutput("NewHopper/Intake/Deploy Target", deployTarget);
+        Logger.recordOutput("NewHopper/Intake/Deploy Zeroed", deployZeroed);
 
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
@@ -200,6 +313,29 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeState = state;
     }
 
+    /** Restarts the zeroing routine. The routine only makes progress while the robot is enabled. */
+    public void startZeroing() {
+        deployZeroed = false;
+        zeroingLoops = 0;
+        zeroingStallLoops = 0;
+        zeroingLastPosition = deployMotor.getPosition().getValueAsDouble();
+        deployState = DeployState.ZEROING;
+    }
+
+    /** Moves the deploy target by the given number of motor revolutions, clamped to the deploy range. */
+    public void nudgeDeployTarget(double delta) {
+        if (!deployZeroed) return;
+        deployTarget = MathUtil.clamp(deployTarget + delta, kDeployMinPosition, kDeployMaxPosition);
+    }
+
+    public double getDeployTarget() {
+        return deployTarget;
+    }
+
+    public boolean isDeployZeroed() {
+        return deployZeroed;
+    }
+
     public void setPosition(double pos) {
         deployMotor.setControl(deployRequest.withPosition(pos).withFeedForward(0));
     }
@@ -218,5 +354,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public InstantCommand setIntakeStateCommand(IntakeState state) {
         return new InstantCommand(() -> setIntakeState(state));
+    }
+
+    public InstantCommand nudgeDeployTargetCommand(double delta) {
+        return new InstantCommand(() -> nudgeDeployTarget(delta));
+    }
+
+    public Command startZeroingCommand() {
+        return new InstantCommand(() -> startZeroing()).ignoringDisable(true);
     }
 }
