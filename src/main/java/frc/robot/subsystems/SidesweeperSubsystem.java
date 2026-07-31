@@ -21,21 +21,25 @@ public class SidesweeperSubsystem extends SubsystemBase {
 
     public enum RampState {
         TRANSFER,
+        REVERSE,
         IDLE
     }
 
     public enum SidesweeperState {
         TRANSFER,
+        REVERSE,
         IDLE
     }
 
     private RampState rampState = RampState.IDLE;
     private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
 
-    private double speedRampTransfer = 0; // Volts // TODO: Transfer speed
+    private double speedRampTransfer = 10; // Volts
+    private double speedRampReverse = -2; // Volts
     private double speedRampIdle = 0; // Volts
-    
-    private double speedSidesweeperTransfer = 0; // Volts // TODO: Transfer speed
+
+    private double speedSidesweeperTransfer = 10; // Volts
+    private double speedSidesweeperReverse = -2; // Volts
     private double speedSidesweeperIdle = 0; // Volts
 
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -99,24 +103,28 @@ public class SidesweeperSubsystem extends SubsystemBase {
         switch (rampState) {
             case IDLE:
                 rampSetpoint = speedRampIdle;
-                rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
                 break;
             case TRANSFER:
                 rampSetpoint = speedRampTransfer;
-                rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
+                break;
+            case REVERSE:
+                rampSetpoint = speedRampReverse;
                 break;
         }
+        rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
 
         switch (sidesweeperState) {
             case IDLE:
                 sidesweeperSetpoint = speedSidesweeperIdle;
-                sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
                 break;
             case TRANSFER:
                 sidesweeperSetpoint = speedSidesweeperTransfer;
-                sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
+                break;
+            case REVERSE:
+                sidesweeperSetpoint = speedSidesweeperReverse;
                 break;
         }
+        sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
     }
 
     private void publishLogs() {

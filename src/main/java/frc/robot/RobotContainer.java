@@ -29,8 +29,11 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SidesweeperSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.HopperTransferSubsystem.TransferState;
 import frc.robot.subsystems.IntakeSubsystem.DeployState;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.SidesweeperSubsystem.RampState;
+import frc.robot.subsystems.SidesweeperSubsystem.SidesweeperState;
 import frc.robot.subsystems.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.util.BezierCurve;
@@ -195,6 +198,13 @@ public class RobotContainer {
         DRIVER.leftTrigger().onTrue(intakeSub.extendCommand());
         DRIVER.rightTrigger().onTrue(intakeSub.storeCommand());
 
+        /* ========== SCORING SEQUENCE KEYBINDS ========== */
+        // Everything that moves balls through the robot runs as one group: bed roller at 4V, vertical
+        // roller at 12V, ramp and sidesweepers at 10V. These latch, so B is what turns them back off
+        DRIVER.a().onTrue(scoringSequenceCommand(TransferState.TRANSFER, RampState.TRANSFER, SidesweeperState.TRANSFER));
+        DRIVER.b().onTrue(scoringSequenceCommand(TransferState.IDLE, RampState.IDLE, SidesweeperState.IDLE));
+        DRIVER.x().onTrue(scoringSequenceCommand(TransferState.REVERSE, RampState.REVERSE, SidesweeperState.REVERSE));
+
         /* ========== SHOOTER MANUAL KEYBINDS ========== */
         /*
          * Nothing here aims at a target, both setpoints are nudged by hand and stay where they are put.
@@ -228,6 +238,15 @@ public class RobotContainer {
         OPERATOR.leftBumper().onTrue(shooterSub.setAngleStateCommand(AngleState.STORE));
     }
     
+    /** Sets every ball handling system at once, so the whole path runs or stops together. */
+    private InstantCommand scoringSequenceCommand(TransferState transfer, RampState ramp, SidesweeperState sidesweeper) {
+        return new InstantCommand(() -> {
+            transferSub.setTransferState(transfer);
+            sidesweeperSub.setRampState(ramp);
+            sidesweeperSub.setSidesweeperState(sidesweeper);
+        });
+    }
+
     public ChassisSpeeds getRobotFieldCentricVeloc() {
         return new ChassisSpeeds(
             -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed,

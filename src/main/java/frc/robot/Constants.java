@@ -51,7 +51,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
     public static final class SidesweeperConstants {
         public static final class DeviceIDs {
-            public static final int kRampMotorID = -1;
+            public static final int kRampMotorID = 30;
             public static final int kSidesweeperUpperMotorID = 27;
             public static final int kSidesweeperLowerMotorID = 26;
         }

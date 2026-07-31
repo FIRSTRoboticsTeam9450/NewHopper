@@ -4,11 +4,9 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -21,25 +19,33 @@ public class HopperTransferSubsystem extends SubsystemBase {
     
     public enum TransferState {
         TRANSFER,
+        REVERSE,
         IDLE
     }
 
     private TransferState transferState = TransferState.IDLE;
 
-    private double speedTransferTransfer = 0; // Volts // TODO: Transfer speed
-    private double speedTransferIdle = 0; // Volts
+    // Volts. The two rollers run at different speeds, which is why they are driven separately below
+    // rather than as a follower pair
+    private double speedVerticalTransfer = 12;
+    private double speedBedTransfer = 4;
+    private double speedTransferReverse = -2;
+    private double speedTransferIdle = 0;
 
-    private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX transferLowerMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    // The upper transfer motor is the vertical roller, the lower one is the bed roller
+    private TalonFX verticalRollerMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX bedRollerMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private TalonFXConfiguration transferMotorConfig = new TalonFXConfiguration();
 
-    private VoltageOut transferRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut verticalRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut bedRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private LoggedNetworkBoolean logTransferDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Transfer", false);
 
-    private double transferSetpoint = 0;
-    
+    private double verticalSetpoint = 0;
+    private double bedSetpoint = 0;
+
     private HopperTransferSubsystem() {
         configureTransferMotors();
     }
@@ -55,10 +61,11 @@ public class HopperTransferSubsystem extends SubsystemBase {
         transferMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         transferMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 
-        transferUpperMotor.getConfigurator().apply(transferMotorConfig);
-        transferLowerMotor.getConfigurator().apply(transferMotorConfig);
+        verticalRollerMotor.getConfigurator().apply(transferMotorConfig);
+        bedRollerMotor.getConfigurator().apply(transferMotorConfig);
 
-        transferLowerMotor.setControl(new Follower(transferUpperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+        // No Follower here on purpose. The bed roller runs slower than the vertical roller, so following
+        // would force both to the same voltage
     }
 
     public boolean isJammed() {
@@ -74,24 +81,34 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private void applyState() {
         switch (transferState) {
             case IDLE:
-                transferSetpoint = speedTransferIdle;
-                transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
+                verticalSetpoint = speedTransferIdle;
+                bedSetpoint = speedTransferIdle;
                 break;
             case TRANSFER:
-                transferSetpoint = speedTransferTransfer;
-                transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
+                verticalSetpoint = speedVerticalTransfer;
+                bedSetpoint = speedBedTransfer;
+                break;
+            case REVERSE:
+                verticalSetpoint = speedTransferReverse;
+                bedSetpoint = speedTransferReverse;
                 break;
         }
+
+        verticalRollerMotor.setControl(verticalRequest.withOutput(verticalSetpoint));
+        bedRollerMotor.setControl(bedRequest.withOutput(bedSetpoint));
     }
 
     private void publishLogs() {
         Logger.recordOutput("NewHopper/Transfer/Transfer State", transferState);
-        Logger.recordOutput("NewHopper/Transfer/Transfer Setpoint", transferSetpoint);
+        Logger.recordOutput("NewHopper/Transfer/Vertical Setpoint", verticalSetpoint);
+        Logger.recordOutput("NewHopper/Transfer/Bed Setpoint", bedSetpoint);
 
         if (logTransferDebug.get()) {
-            Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());
-            Logger.recordOutput("NewHopper/Transfer/Transfer Position", transferUpperMotor.getPosition().getValueAsDouble());
-            Logger.recordOutput("NewHopper/Transfer/Transfer Voltage", transferUpperMotor.getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Transfer/Vertical Velocity", verticalRollerMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Transfer/Vertical Voltage", verticalRollerMotor.getMotorVoltage().getValueAsDouble());
+
+            Logger.recordOutput("NewHopper/Transfer/Bed Velocity", bedRollerMotor.getVelocity().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Transfer/Bed Voltage", bedRollerMotor.getMotorVoltage().getValueAsDouble());
         }
     }
 
