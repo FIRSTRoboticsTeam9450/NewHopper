@@ -34,6 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public enum IntakeState {
         INTAKE,
+        EJECT,
         BRAKE,
         IDLE
     }
@@ -55,6 +56,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private static final double kDeployStallTolerance = 0.01; // Motor revolutions of movement per loop that still counts as stalled
     private static final int kDeployStallLoops = 10; // Loops (20ms each) below the tolerance before the intake is called stuck
     private static final double kDeployStallErrorTolerance = 0.25; // Motor revolutions still to travel before a lack of movement counts as a stall
+    private static final double kDeployExtendedTolerance = 1; // Motor revolutions short of the extend target that still counts as extended
+
+    /* ========== INTAKE WHEELS ========== */
+    private static final double kIntakeVoltage = 8; // Volts, positive pulls balls in
+    private static final double kIntakeEjectVoltage = -3; // Volts, negative spits them back out
 
     /* ========== DEPLOY ZEROING ========== */
     private static final double kZeroingVoltage = -4; // Volts. Negative pulls the intake in, per the Inverted setting in configureDeployMotors()
@@ -98,7 +104,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut deployVoltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
-    private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut intakeLeftRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut intakeRightRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", true);
 
@@ -107,7 +114,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private double deployTarget = kDeployStorePosition;
     private boolean deployZeroed = false;
-    private boolean wasEnabled = false;
+    private boolean wasTeleopEnabled = false;
     private double deployLastPosition = 0;
     private int deployStallLoops = 0;
     private double zeroingLastPosition = 0;
@@ -121,8 +128,10 @@ public class IntakeSubsystem extends SubsystemBase {
         startZeroing();
 
         // A Talon holds onto its last control request, even across a code restart, so the rollers would
-        // otherwise pick straight back up at whatever they were last commanded the moment we enable
-        intakeLeftMotor.setControl(intakeRequest.withOutput(0));
+        // otherwise pick straight back up at whatever they were last commanded the moment we enable.
+        // Both are commanded now that the right roller is no longer a follower of the left
+        intakeLeftMotor.setControl(intakeLeftRequest.withOutput(0));
+        intakeRightMotor.setControl(intakeRightRequest.withOutput(0));
     }
 
     private void configureDeployMotors() {
@@ -172,7 +181,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private void configureIntakeMotors() {
         intakeMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
 
         intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -181,23 +189,28 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
 
+        // The rollers face each other, so the same positive command has to turn them opposite ways.
+        // Each direction is set on its own motor rather than through a Follower, so the two spin
+        // directions are stated outright instead of depending on follower alignment semantics
+        intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         intakeLeftMotor.getConfigurator().apply(intakeMotorConfig);
-        intakeRightMotor.getConfigurator().apply(intakeMotorConfig);
 
-        intakeRightMotor.setControl(new Follower(Constants.IntakeConstants.DeviceIDs.kIntakeLeftMotorID, MotorAlignmentValue.Opposed));
+        intakeMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        intakeRightMotor.getConfigurator().apply(intakeMotorConfig);
     }
 
     @Override
     public void periodic() {
         //applyState();
 
-        // Re-zero on every disabled -> enabled transition. Zeroing needs motor output to move the
-        // intake, so it cannot run while disabled, which makes the enable edge the only place to start it
-        boolean enabled = DriverStation.isEnabled();
-        if (enabled && !wasEnabled) startZeroing();
-        wasEnabled = enabled;
+        // Zero on entering teleop, and only teleop. Zeroing drives the intake into its hard stop, which
+        // is not something to do partway through an auto routine
+        boolean teleopEnabled = DriverStation.isTeleopEnabled();
+        if (teleopEnabled && !wasTeleopEnabled) startZeroing();
+        wasTeleopEnabled = teleopEnabled;
 
         runDeploy();
+        runIntakeWheels();
         publishLogs();
     }
 
@@ -217,6 +230,36 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
 
         checkExtendStall();
+    }
+
+    /**
+     * Drives the rollers off the deploy position. Neither direction is any use with the intake stored,
+     * and rejecting while stored would just fire balls into the frame, so both are gated on being out.
+     */
+    private void runIntakeWheels() {
+        boolean extended = isExtended();
+
+        switch (intakeState) {
+            case INTAKE:
+                intakeSetpoint = extended ? kIntakeVoltage : 0;
+                break;
+            case EJECT:
+                intakeSetpoint = extended ? kIntakeEjectVoltage : 0;
+                break;
+            case BRAKE:
+            case IDLE:
+                intakeSetpoint = 0;
+                break;
+        }
+
+        intakeLeftMotor.setControl(intakeLeftRequest.withOutput(intakeSetpoint));
+        intakeRightMotor.setControl(intakeRightRequest.withOutput(intakeSetpoint));
+    }
+
+    /** True once the deploy has actually arrived at the extended target, not merely been commanded there. */
+    public boolean isExtended() {
+        return deployZeroed
+            && deployMotor.getPosition().getValueAsDouble() >= kDeployExtendPosition - kDeployExtendedTolerance;
     }
 
     /**
@@ -248,8 +291,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * that position 0. Kicked off by every enable.
      */
     private void runZeroing() {
-        // Motor output is ignored while disabled, so the intake would never move and the stall check would trip instantly
-        if (!DriverStation.isEnabled()) {
+        // Only ever run this in teleop, and motor output is ignored while disabled anyway, which would
+        // leave the intake still and trip the stall check instantly
+        if (!DriverStation.isTeleopEnabled()) {
             zeroingLoops = 0;
             zeroingStallLoops = 0;
             zeroingLastPosition = deployMotor.getPosition().getValueAsDouble();
@@ -302,15 +346,18 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
         }
 
+        // Superseded by runIntakeWheels(), which is what actually drives the rollers. Do not re-enable
+        // applyState() without deleting this half, or the two will fight over the same motors every loop
         switch (intakeState) {
             case IDLE:
                 intakeSetpoint = speedIntakeIdle;
-                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
+                intakeLeftMotor.setControl(intakeLeftRequest.withOutput(intakeSetpoint));
                 break;
             case INTAKE:
                 intakeSetpoint = speedIntakeIntake;
-                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
+                intakeLeftMotor.setControl(intakeLeftRequest.withOutput(intakeSetpoint));
                 break;
+            case EJECT:
             case BRAKE:
                 break;
         }
@@ -408,13 +455,19 @@ public class IntakeSubsystem extends SubsystemBase {
         return new InstantCommand(() -> setIntakeState(state));
     }
 
-    /** Sends the intake out to the extended target. */
+    /** Sends the intake out to the extended target. The rollers pick up on their own once it arrives. */
     public InstantCommand extendCommand() {
-        return new InstantCommand(() -> setDeployTarget(kDeployExtendPosition));
+        return new InstantCommand(() -> {
+            setDeployTarget(kDeployExtendPosition);
+            setIntakeState(IntakeState.INTAKE);
+        });
     }
 
-    /** Brings the intake back in to the stored target. */
+    /** Brings the intake back in to the stored target, and stops the rollers with it. */
     public InstantCommand storeCommand() {
-        return new InstantCommand(() -> setDeployTarget(kDeployStorePosition));
+        return new InstantCommand(() -> {
+            setDeployTarget(kDeployStorePosition);
+            setIntakeState(IntakeState.IDLE);
+        });
     }
 }
