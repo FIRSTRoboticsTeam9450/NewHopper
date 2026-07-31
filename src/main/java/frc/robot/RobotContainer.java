@@ -200,10 +200,11 @@ public class RobotContainer {
 
         /* ========== SCORING SEQUENCE KEYBINDS ========== */
         // Everything that moves balls through the robot runs as one group: bed roller at 4V, vertical
-        // roller at 12V, ramp and sidesweepers at 10V. These latch, so B is what turns them back off
-        DRIVER.a().onTrue(scoringSequenceCommand(TransferState.TRANSFER, RampState.TRANSFER, SidesweeperState.TRANSFER));
-        DRIVER.b().onTrue(scoringSequenceCommand(TransferState.IDLE, RampState.IDLE, SidesweeperState.IDLE));
-        DRIVER.x().onTrue(scoringSequenceCommand(TransferState.REVERSE, RampState.REVERSE, SidesweeperState.REVERSE));
+        // roller at 12V, ramp and sidesweepers at 10V, intake rollers at 8V in and 3V out. These latch,
+        // so B is what turns them back off. The intake rollers only obey while the intake is extended
+        DRIVER.a().onTrue(scoringSequenceCommand(TransferState.TRANSFER, RampState.TRANSFER, SidesweeperState.TRANSFER, IntakeState.INTAKE));
+        DRIVER.b().onTrue(scoringSequenceCommand(TransferState.IDLE, RampState.IDLE, SidesweeperState.IDLE, IntakeState.IDLE));
+        DRIVER.x().onTrue(scoringSequenceCommand(TransferState.REVERSE, RampState.REVERSE, SidesweeperState.REVERSE, IntakeState.EJECT));
 
         /* ========== SHOOTER MANUAL KEYBINDS ========== */
         /*
@@ -239,11 +240,12 @@ public class RobotContainer {
     }
     
     /** Sets every ball handling system at once, so the whole path runs or stops together. */
-    private InstantCommand scoringSequenceCommand(TransferState transfer, RampState ramp, SidesweeperState sidesweeper) {
+    private InstantCommand scoringSequenceCommand(TransferState transfer, RampState ramp, SidesweeperState sidesweeper, IntakeState intake) {
         return new InstantCommand(() -> {
             transferSub.setTransferState(transfer);
             sidesweeperSub.setRampState(ramp);
             sidesweeperSub.setSidesweeperState(sidesweeper);
+            intakeSub.setIntakeState(intake);
         });
     }
 
