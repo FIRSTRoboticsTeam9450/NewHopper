@@ -173,17 +173,12 @@ public class RobotContainer {
             DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         }
 
-        // OPERATOR.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
-        // OPERATOR.b().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE)));
-        
-        // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(8 /*17.798*/))); // INTAKE
-        // DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPosition(0))); // STORE
-        // DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY)));
-
-        DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
-        
-        // DRIVER.y().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(-2)));
-        // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(2)));
+        DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
+        DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.runInOut(false)));
+        DRIVER.b().onTrue(new InstantCommand(() -> intakeSub.runInOut(true)));
+        DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(8)));
+        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(0)));
+        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
     }
     
     public ChassisSpeeds getRobotFieldCentricVeloc() {

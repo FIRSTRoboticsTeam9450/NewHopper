@@ -74,7 +74,6 @@ public class IntakeSubsystem extends SubsystemBase {
         configureDeployMotors();
         configureIntakeMotors();
         deployMotor.setPosition(0);
-        intakeLeftMotor.setControl(intakeRequest.withOutput(12));
     }
 
     private void configureDeployMotors() {
@@ -201,16 +200,20 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setPosition(double pos) {
-        deployMotor.setControl(deployRequest.withPosition(pos).withFeedForward(0));
+        deployMotor.setControl(deployRequest.withPosition(pos));
     }
 
     public void holdPosition() {
         deployMotor.setControl(deployRequest.withPosition(0));
     }
 
-    // public void setPositionVoltage(double voltage) {
-    //     deployMotor.setControl(new VoltageOut(voltage));
-    // }
+    public void runInOut(boolean out) {
+        intakeLeftMotor.setControl(intakeRequest.withOutput(out ? -12 : 12));
+    }
+
+    public void killIntakeWheels() {
+        intakeLeftMotor.setControl(intakeRequest.withOutput(0));
+    }
 
     public InstantCommand setAngleStateCommand(DeployState state) {
         return new InstantCommand(() -> setDeployState(state));
