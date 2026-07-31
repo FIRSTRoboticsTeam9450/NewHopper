@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -46,7 +47,9 @@ public class IntakeSubsystem extends SubsystemBase {
     /* ========== DEPLOY TARGET ========== */
     // Positive revolutions send the intake out, matching the Inverted setting in configureDeployMotors()
     public static final double kDeployExtendPosition = 17.6; // Motor revolutions, intake extended out
-    public static final double kDeployStorePosition = 1; // Motor revolutions, intake pulled in. Deliberately off the 0 hard stop, which sits inconsistently
+    // Motor revolutions, intake pulled in. Deliberately clear of the 0 hard stop, which sits inconsistently.
+    // 1 was too tight, the mechanism binds around 1.16 and the motor sat there stalling against it
+    public static final double kDeployStorePosition = 2;
     private static final double kDeployMinPosition = 0; // Motor revolutions, the hard stop zeroing finds
     private static final double kDeployMaxPosition = kDeployExtendPosition;
     private static final double kDeployStallTolerance = 0.01; // Motor revolutions of movement per loop that still counts as stalled
@@ -73,15 +76,24 @@ public class IntakeSubsystem extends SubsystemBase {
     // TODO: Motion Magic tuning
     // Accel and Veloc must stay non-zero. For non-Expo Motion Magic 0 does not mean "unlimited" (that
     // only applies to Motion Magic Expo), it means the generated profile never advances, so the motor
-    // holds where it is no matter what position is commanded. These are slow starting values, tune up.
-    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 20);
-    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc", 10);
-    private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
-    private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0);
+    // holds where it is no matter what position is commanded.
+    //
+    // These two, NOT kP, are what set how long a move takes. kP only decides how hard the motor tracks
+    // the profile they generate, so raising it to speed up travel just adds overshoot.
+    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 60);
+    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc", 30);
+
+    // kV/kS carry the profile so the PID only has to correct what is left over. With every feedforward
+    // at 0 the gains had to generate all of the motion from error alone, which lags on the way out and
+    // rings at the setpoint. kV is roughly 12V / free speed in rot/s.
+    private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0.15);
+    private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0.12);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 15);
+    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 4);
     private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
-    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 5);
+    // Volts per rot/s of error derivative. The old 5 turned a 1 rot/s wobble into a 5V swing, which fed
+    // encoder noise straight back into the output
+    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0.2);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -104,6 +116,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private IntakeSubsystem() {
         configureDeployMotors();
+        configureDeploySignals();
         configureIntakeMotors();
         startZeroing();
 
@@ -136,6 +149,25 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotorConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
 
         deployMotor.getConfigurator().apply(deployMotorConfig);
+    }
+
+    /**
+     * Pins the signals worth plotting to a diagnostic rate. Position and velocity already stream fast,
+     * but the closed loop signals default far slower, which is not enough to see a setpoint oscillation
+     * in a hoot log. Closed Loop Reference is the profiled setpoint Motion Magic is actually chasing,
+     * which is what separates "gains are too hot" from "the profile itself is slow".
+     * Drop this back down once the deploy is tuned, it is CAN bandwidth.
+     */
+    private void configureDeploySignals() {
+        BaseStatusSignal.setUpdateFrequencyForAll(
+            100,
+            deployMotor.getPosition(),
+            deployMotor.getVelocity(),
+            deployMotor.getMotorVoltage(),
+            deployMotor.getStatorCurrent(),
+            deployMotor.getClosedLoopReference(),
+            deployMotor.getClosedLoopError()
+        );
     }
 
     private void configureIntakeMotors() {
@@ -296,6 +328,9 @@ public class IntakeSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Intake/Deploy Position", deployMotor.getPosition().getValueAsDouble());
             Logger.recordOutput("NewHopper/Intake/Deploy Voltage", deployMotor.getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Deploy Stator Current", deployMotor.getStatorCurrent().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Deploy Closed Loop Reference", deployMotor.getClosedLoopReference().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Deploy Closed Loop Error", deployMotor.getClosedLoopError().getValueAsDouble());
             
             Logger.recordOutput("NewHopper/Intake/Intake Velocity", intakeLeftMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Intake/Intake Position", intakeLeftMotor.getPosition().getValueAsDouble());
