@@ -56,9 +56,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
     private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 1);
+    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 35);
     private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
-    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0.1);
+    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 5);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -72,6 +72,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
+        deployMotor.setPosition(0);
     }
 
     private void configureDeployMotors() {
@@ -199,6 +200,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void setPosition(double pos) {
         deployMotor.setControl(deployRequest.withPosition(pos).withFeedForward(0));
+    }
+
+    public void holdPosition() {
+        deployMotor.setControl(deployRequest.withPosition(0));
     }
 
     // public void setPositionVoltage(double voltage) {

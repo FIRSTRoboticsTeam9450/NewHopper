@@ -28,8 +28,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
     public static final class TransferConstants {
         public static final class DeviceIDs {
-            public static final int kTransferUpperMotorID = -1;
-            public static final int kTransferLowerMotorID = -1;
+            public static final int kTransferUpperMotorID = 25;
+            public static final int kTransferLowerMotorID = 24;
         }
     }
 
@@ -52,8 +52,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
     public static final class SidesweeperConstants {
         public static final class DeviceIDs {
             public static final int kRampMotorID = -1;
-            public static final int kSidesweeperUpperMotorID = -1;
-            public static final int kSidesweeperLowerMotorID = -1;
+            public static final int kSidesweeperUpperMotorID = 27;
+            public static final int kSidesweeperLowerMotorID = 26;
         }
     }
 
