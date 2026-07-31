@@ -16,7 +16,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -45,17 +44,19 @@ public class IntakeSubsystem extends SubsystemBase {
     private double angleDeployIntake = -17.798; // Motor revolutions // TODO: Intake angle
 
     /* ========== DEPLOY TARGET ========== */
-    public static final double kDeployMinPosition = 0; // Motor revolutions, intake fully stored
-    public static final double kDeployMaxPosition = 8; // Motor revolutions, intake fully deployed
-    public static final double kDeployStep = 0.5; // Motor revolutions moved per button press
+    // Positive revolutions send the intake out, matching the Inverted setting in configureDeployMotors()
+    public static final double kDeployExtendPosition = 17.6; // Motor revolutions, intake extended out
+    public static final double kDeployStorePosition = 1; // Motor revolutions, intake pulled in. Deliberately off the 0 hard stop, which sits inconsistently
+    private static final double kDeployMinPosition = 0; // Motor revolutions, the hard stop zeroing finds
+    private static final double kDeployMaxPosition = kDeployExtendPosition;
     private static final double kDeployStallTolerance = 0.01; // Motor revolutions of movement per loop that still counts as stalled
     private static final int kDeployStallLoops = 10; // Loops (20ms each) below the tolerance before the intake is called stuck
     private static final double kDeployStallErrorTolerance = 0.25; // Motor revolutions still to travel before a lack of movement counts as a stall
 
     /* ========== DEPLOY ZEROING ========== */
-    private static final double kZeroingVoltage = -2; // Volts, pulls the intake inwards against its hard stop
+    private static final double kZeroingVoltage = -4; // Volts. Negative pulls the intake in, per the Inverted setting in configureDeployMotors()
     private static final double kZeroingStallTolerance = 0.01; // Motor revolutions of movement per loop that still counts as stalled
-    private static final int kZeroingStallLoops = 10; // Loops (20ms each) below the tolerance before the hard stop is confirmed
+    private static final int kZeroingStallLoops = 6; // Loops (20ms each) below the tolerance before the hard stop is confirmed
     private static final int kZeroingMinLoops = 10; // Loops to let the motor get moving before a lack of movement counts as a stall
     private static final int kZeroingTimeoutLoops = 250; // Loops (~5s) of pulling before giving up
 
@@ -70,8 +71,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private TalonFXConfiguration intakeMotorConfig = new TalonFXConfiguration();
 
     // TODO: Motion Magic tuning
-    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 0);
-    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc",0);
+    // Accel and Veloc must stay non-zero. For non-Expo Motion Magic 0 does not mean "unlimited" (that
+    // only applies to Motion Magic Expo), it means the generated profile never advances, so the motor
+    // holds where it is no matter what position is commanded. These are slow starting values, tune up.
+    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 20);
+    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc", 10);
     private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
     private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
@@ -89,8 +93,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
 
-    private double deployTarget = kDeployMinPosition;
+    private double deployTarget = kDeployStorePosition;
     private boolean deployZeroed = false;
+    private boolean wasEnabled = false;
     private double deployLastPosition = 0;
     private int deployStallLoops = 0;
     private double zeroingLastPosition = 0;
@@ -101,7 +106,10 @@ public class IntakeSubsystem extends SubsystemBase {
         configureDeployMotors();
         configureIntakeMotors();
         startZeroing();
-        intakeLeftMotor.setControl(intakeRequest.withOutput(12));
+
+        // A Talon holds onto its last control request, even across a code restart, so the rollers would
+        // otherwise pick straight back up at whatever they were last commanded the moment we enable
+        intakeLeftMotor.setControl(intakeRequest.withOutput(0));
     }
 
     private void configureDeployMotors() {
@@ -150,6 +158,13 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //applyState();
+
+        // Re-zero on every disabled -> enabled transition. Zeroing needs motor output to move the
+        // intake, so it cannot run while disabled, which makes the enable edge the only place to start it
+        boolean enabled = DriverStation.isEnabled();
+        if (enabled && !wasEnabled) startZeroing();
+        wasEnabled = enabled;
+
         runDeploy();
         publishLogs();
     }
@@ -197,8 +212,8 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Pulls the intake inwards at a low voltage until it stops moving (the hard stop), then calls that position 0.
-     * Runs on startup and whenever {@link #startZeroing()} is called.
+     * Pulls the intake inwards at a low voltage until it stops moving (the hard stop), stops, and calls
+     * that position 0. Kicked off by every enable.
      */
     private void runZeroing() {
         // Motor output is ignored while disabled, so the intake would never move and the stall check would trip instantly
@@ -223,8 +238,10 @@ public class IntakeSubsystem extends SubsystemBase {
         zeroingStallLoops = stalled ? zeroingStallLoops + 1 : 0;
 
         if (zeroingStallLoops >= kZeroingStallLoops) {
+            // Stop pulling before anything else, then call where it stopped the zero
+            deployMotor.setControl(deployVoltageRequest.withOutput(0));
             deployMotor.setPosition(0);
-            deployTarget = kDeployMinPosition;
+            deployTarget = kDeployStorePosition;
             deployLastPosition = 0;
             deployStallLoops = 0;
             deployZeroed = true;
@@ -322,10 +339,10 @@ public class IntakeSubsystem extends SubsystemBase {
         deployState = DeployState.ZEROING;
     }
 
-    /** Moves the deploy target by the given number of motor revolutions, clamped to the deploy range. */
-    public void nudgeDeployTarget(double delta) {
+    /** Sets the deploy target in motor revolutions, clamped to the deploy range. Ignored until the intake has zeroed. */
+    public void setDeployTarget(double position) {
         if (!deployZeroed) return;
-        deployTarget = MathUtil.clamp(deployTarget + delta, kDeployMinPosition, kDeployMaxPosition);
+        deployTarget = MathUtil.clamp(position, kDeployMinPosition, kDeployMaxPosition);
     }
 
     public double getDeployTarget() {
@@ -356,11 +373,13 @@ public class IntakeSubsystem extends SubsystemBase {
         return new InstantCommand(() -> setIntakeState(state));
     }
 
-    public InstantCommand nudgeDeployTargetCommand(double delta) {
-        return new InstantCommand(() -> nudgeDeployTarget(delta));
+    /** Sends the intake out to the extended target. */
+    public InstantCommand extendCommand() {
+        return new InstantCommand(() -> setDeployTarget(kDeployExtendPosition));
     }
 
-    public Command startZeroingCommand() {
-        return new InstantCommand(() -> startZeroing()).ignoringDisable(true);
+    /** Brings the intake back in to the stored target. */
+    public InstantCommand storeCommand() {
+        return new InstantCommand(() -> setDeployTarget(kDeployStorePosition));
     }
 }

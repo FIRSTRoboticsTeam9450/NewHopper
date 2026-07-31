@@ -191,12 +191,9 @@ public class RobotContainer {
         // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPositionVoltage(2)));
 
         /* ========== INTAKE DEPLOY KEYBINDS ========== */
-        // A retracts the deploy target (down to 0), B extends it (up to 8), the PID follows from there
-        DRIVER.a().onTrue(intakeSub.nudgeDeployTargetCommand(-IntakeSubsystem.kDeployStep));
-        DRIVER.b().onTrue(intakeSub.nudgeDeployTargetCommand(IntakeSubsystem.kDeployStep));
-
-        // Re-run the intake zeroing routine (also runs automatically on startup)
-        DRIVER.leftBumper().onTrue(intakeSub.startZeroingCommand());
+        // The intake zeroes itself on every enable, there is no button for it
+        DRIVER.leftTrigger().onTrue(intakeSub.extendCommand());
+        DRIVER.rightTrigger().onTrue(intakeSub.storeCommand());
 
         /* ========== SHOOTER MANUAL KEYBINDS ========== */
         /*
