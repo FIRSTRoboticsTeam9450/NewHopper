@@ -46,7 +46,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /* ========== DEPLOY TARGET ========== */
     // Positive revolutions send the intake out, matching the Inverted setting in configureDeployMotors()
-    public static final double kDeployExtendPosition = 17.6; // Motor revolutions, intake extended out
+    public static final double kDeployExtendPosition = 18.2; // Motor revolutions, intake extended out
     // Motor revolutions, intake pulled in. Deliberately clear of the 0 hard stop, which sits inconsistently.
     // 1 was too tight, the mechanism binds around 1.16 and the motor sat there stalling against it
     public static final double kDeployStorePosition = 2;
