@@ -62,8 +62,11 @@ public class TurretSubsystem extends SubsystemBase {
     private TalonFXConfiguration turretMotorConfig = new TalonFXConfiguration();
 
     // TODO: Motion Magic tuning
-    private LoggedNetworkNumber logTurretAccel = new LoggedNetworkNumber("/Tuning/Turret/Turret/Accel", 0);
-    private LoggedNetworkNumber logTurretVeloc = new LoggedNetworkNumber("/Tuning/Turret/Turret/Veloc",0);
+    // Accel and Veloc MUST stay non-zero. For non-Expo Motion Magic, 0 does NOT mean "unlimited"
+    // (that only applies to Motion Magic Expo) - it means the generated profile can never advance,
+    // so the motor holds its current position no matter what you command.
+    private LoggedNetworkNumber logTurretAccel = new LoggedNetworkNumber("/Tuning/Turret/Turret/Accel", 20);
+    private LoggedNetworkNumber logTurretVeloc = new LoggedNetworkNumber("/Tuning/Turret/Turret/Veloc", 10);
     private LoggedNetworkNumber logTurretKS = new LoggedNetworkNumber("/Tuning/Turret/Turret/kS", 0);
     private LoggedNetworkNumber logTurretKV = new LoggedNetworkNumber("/Tuning/Turret/Turret/kV", 0);
     private LoggedNetworkNumber logTurretKA = new LoggedNetworkNumber("/Tuning/Turret/Turret/kA", 0);
@@ -126,9 +129,11 @@ public class TurretSubsystem extends SubsystemBase {
         turretMotorConfig.TorqueCurrent.PeakForwardTorqueCurrent = 40;
         turretMotorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
 
-        turretMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // TODO: re-enable once angleMax/angleMin are real measured values. Enabling them against
+        // the placeholder 0/0 pins the turret to exactly 0 - it cannot rotate in either direction.
+        turretMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
         turretMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = angleMax;
-        turretMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        turretMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         turretMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = angleMin;
 
         turretMotorConfig.MotionMagic.MotionMagicAcceleration = logTurretAccel.get();

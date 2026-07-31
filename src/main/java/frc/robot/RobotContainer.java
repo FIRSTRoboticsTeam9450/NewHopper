@@ -176,8 +176,10 @@ public class RobotContainer {
         DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
         DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.runInOut(false)));
         DRIVER.b().onTrue(new InstantCommand(() -> intakeSub.runInOut(true)));
-        DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(8)));
-        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(0)));
+        // Deploy target is live-editable at /Tuning/Intake/Deploy/Test Position (defaults to 8).
+        // Try both signs there - the deploy direction convention is still unconfirmed.
+        DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(intakeSub.getTestPosition())));
+        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.storePosition()));
         DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
     }
     

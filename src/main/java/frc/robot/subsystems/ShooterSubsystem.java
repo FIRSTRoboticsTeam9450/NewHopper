@@ -45,8 +45,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private TalonFXConfiguration shooterMotorConfig = new TalonFXConfiguration();
     
     // TODO: Motion Magic tuning
-    private LoggedNetworkNumber logAngleAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Accel", 0);
-    private LoggedNetworkNumber logAngleVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Veloc",0);
+    // Accel and Veloc MUST stay non-zero. For non-Expo Motion Magic, 0 does NOT mean "unlimited"
+    // (that only applies to Motion Magic Expo) - it means the generated profile can never advance,
+    // so the motor holds its current position/velocity no matter what you command.
+    private LoggedNetworkNumber logAngleAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Accel", 20);
+    private LoggedNetworkNumber logAngleVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Veloc", 10);
     private LoggedNetworkNumber logAngleKS = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kS", 0);
     private LoggedNetworkNumber logAngleKV = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kV", 0);
     private LoggedNetworkNumber logAngleKA = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kA", 0);
@@ -54,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logAngleKI = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kI", 0);
     private LoggedNetworkNumber logAngleKD = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kD", 0);
     private LoggedNetworkNumber logAngleKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0);
-    private LoggedNetworkNumber logShooterAccel = new LoggedNetworkNumber("/Tuning/Shooter/Shooter/Accel", 0);
+    private LoggedNetworkNumber logShooterAccel = new LoggedNetworkNumber("/Tuning/Shooter/Shooter/Accel", 200);
     private LoggedNetworkNumber logShooterKS = new LoggedNetworkNumber("/Tuning/Shooter/Shooter/kS", 0);
     private LoggedNetworkNumber logShooterKV = new LoggedNetworkNumber("/Tuning/Shooter/Shooter/kV", 0);
     private LoggedNetworkNumber logShooterKA = new LoggedNetworkNumber("/Tuning/Shooter/Shooter/kA", 0);
@@ -84,7 +87,9 @@ public class ShooterSubsystem extends SubsystemBase {
         angleMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         angleMotorConfig.CurrentLimits.SupplyCurrentLimit = 20;
 
-        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        // TODO: re-enable once angleMax is a real measured value. Enabling it against the
+        // placeholder angleMax of 0 forbids the angle motor from ever travelling above 0.
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = angleMax;
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
 

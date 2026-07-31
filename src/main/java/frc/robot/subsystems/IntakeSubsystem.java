@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -14,9 +15,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
 
@@ -39,6 +40,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private IntakeState intakeState = IntakeState.IDLE;
 
     private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
+    // TODO: VERIFY SIGN. This measured value says deploying out is NEGATIVE revolutions, but
+    // configureDeployMotors() below claims "Positive = Intake out". One of the two is wrong.
+    // Use /Tuning/Intake/Deploy/Test Position to find the real direction before trusting either.
     private double angleDeployIntake = -17.798; // Motor revolutions // TODO: Intake angle
 
     private double speedIntakeIntake = 0; // Volts // TODO: Intake speed
@@ -52,20 +56,28 @@ public class IntakeSubsystem extends SubsystemBase {
     private TalonFXConfiguration intakeMotorConfig = new TalonFXConfiguration();
 
     // TODO: Motion Magic tuning
-    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 0);
-    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc",0);
+    // Accel and Veloc MUST stay non-zero. For non-Expo Motion Magic, 0 does NOT mean "unlimited"
+    // (that only applies to Motion Magic Expo) - it means the generated profile can never advance,
+    // so the motor holds its current position no matter what position you command.
+    // These are deliberately slow starting values; tune upward once direction is confirmed.
+    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 20);
+    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc", 10);
     private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
     private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 15);
+    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 5);
     private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
     private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 5);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private Follower intakeFollowRequest = new Follower(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, MotorAlignmentValue.Opposed);
 
     private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", true);
+
+    /** Target used by the DRIVER.x() test keybind, so deploy travel/direction can be probed without a redeploy. */
+    private LoggedNetworkNumber logDeployTestPosition = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Test Position", 17.6);
 
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
@@ -73,7 +85,14 @@ public class IntakeSubsystem extends SubsystemBase {
     private IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
-        deployMotor.setPosition(0);
+
+        // The deploy motor may not be enumerated on the CAN bus yet this early in startup. If the
+        // zeroing silently fails, every position command afterwards is referenced to garbage, so say so.
+        StatusCode zeroStatus = deployMotor.setPosition(0);
+        if (!zeroStatus.isOK()) {
+            DriverStation.reportWarning(
+                "Intake deploy motor failed to zero at startup: " + zeroStatus.toString(), false);
+        }
     }
 
     private void configureDeployMotors() {
@@ -106,7 +125,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
 
-        intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+        intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
@@ -116,12 +135,29 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeLeftMotor.getConfigurator().apply(intakeMotorConfig);
         intakeRightMotor.getConfigurator().apply(intakeMotorConfig);
 
-        intakeRightMotor.setControl(new Follower(Constants.IntakeConstants.DeviceIDs.kIntakeLeftMotorID, MotorAlignmentValue.Opposed));
+        // Command the wheels off immediately. A Talon keeps the last control request it was sent, so
+        // without this the rollers pick straight back up at the last commanded voltage the moment the
+        // robot is enabled - even across a code restart.
+        applyIntakeWheels();
+    }
+
+    /**
+     * Pushes the current wheel setpoint to the motors. Called every loop so the rollers only ever
+     * run when something has actually asked them to, and so a device reboot cannot leave the right
+     * motor without its follower assignment.
+     */
+    private void applyIntakeWheels() {
+        intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
+        intakeRightMotor.setControl(intakeFollowRequest);
     }
 
     @Override
     public void periodic() {
+        // Left disabled on purpose: the STORE case re-commands position 0 every loop, which would
+        // immediately overwrite anything the direct setPosition()/runInOut() keybinds ask for.
+        // Do not re-enable this while the manual test keybinds in RobotContainer are active.
         //applyState();
+        applyIntakeWheels();
         publishLogs();
     }
 
@@ -200,19 +236,33 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setPosition(double pos) {
+        deploySetpoint = pos;
         deployMotor.setControl(deployRequest.withPosition(pos));
     }
 
+    /** Target for the DRIVER.x() test keybind, live-editable at /Tuning/Intake/Deploy/Test Position. */
+    public double getTestPosition() {
+        return logDeployTestPosition.get();
+    }
+
+    /** Holds the arm wherever it currently is, rather than driving it back to the zero reference. */
     public void holdPosition() {
-        deployMotor.setControl(deployRequest.withPosition(0));
+        setPosition(deployMotor.getPosition().getValueAsDouble());
+    }
+
+    /** Drives the arm back to the stored (zero) reference. */
+    public void storePosition() {
+        setPosition(1);
     }
 
     public void runInOut(boolean out) {
-        intakeLeftMotor.setControl(intakeRequest.withOutput(out ? -12 : 12));
+        intakeSetpoint = out ? -12 : 12;
+        applyIntakeWheels();
     }
 
     public void killIntakeWheels() {
-        intakeLeftMotor.setControl(intakeRequest.withOutput(0));
+        intakeSetpoint = 0;
+        applyIntakeWheels();
     }
 
     public InstantCommand setAngleStateCommand(DeployState state) {
