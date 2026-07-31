@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
 
@@ -44,8 +45,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private double speedIntakeIdle = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);
-    private TalonFX intakeLeftMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX intakeRightMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeRightMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX intakeLeftMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, RobotConstants.RIO_BUS);
+    private TalonFX intakeRightMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeRightMotorID, RobotConstants.RIO_BUS);
     
     private TalonFXConfiguration deployMotorConfig = new TalonFXConfiguration();
     private TalonFXConfiguration intakeMotorConfig = new TalonFXConfiguration();
@@ -56,7 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
     private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 35);
+    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 15);
     private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
     private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 5);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
@@ -64,7 +65,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
-    private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", false);
+    private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", true);
 
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
@@ -73,6 +74,7 @@ public class IntakeSubsystem extends SubsystemBase {
         configureDeployMotors();
         configureIntakeMotors();
         deployMotor.setPosition(0);
+        intakeLeftMotor.setControl(intakeRequest.withOutput(12));
     }
 
     private void configureDeployMotors() {
@@ -115,7 +117,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeLeftMotor.getConfigurator().apply(intakeMotorConfig);
         intakeRightMotor.getConfigurator().apply(intakeMotorConfig);
 
-        intakeRightMotor.setControl(new Follower(intakeLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        intakeRightMotor.setControl(new Follower(Constants.IntakeConstants.DeviceIDs.kIntakeLeftMotorID, MotorAlignmentValue.Opposed));
     }
 
     @Override
