@@ -174,11 +174,11 @@ public class RobotContainer {
         }
 
         DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
+        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
         DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.runInOut(false)));
         DRIVER.b().onTrue(new InstantCommand(() -> intakeSub.runInOut(true)));
-        DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(8)));
-        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(0)));
-        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
+        DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(17.6)));
+        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));
     }
     
     public ChassisSpeeds getRobotFieldCentricVeloc() {

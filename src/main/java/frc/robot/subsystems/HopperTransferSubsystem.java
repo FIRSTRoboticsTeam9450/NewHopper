@@ -42,6 +42,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
     
     private HopperTransferSubsystem() {
         configureTransferMotors();
+        transferUpperMotor.setControl(transferRequest.withOutput(4));
     }
 
     private void configureTransferMotors() {

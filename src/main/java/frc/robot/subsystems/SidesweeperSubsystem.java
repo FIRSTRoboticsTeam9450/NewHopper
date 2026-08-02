@@ -56,6 +56,8 @@ public class SidesweeperSubsystem extends SubsystemBase {
     public SidesweeperSubsystem() {
         configureRampMotors();
         configureSidesweeperMotors();
+        sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(10));
+        rampMotor.setControl(rampRequest.withOutput(12));
     }
 
     private void configureRampMotors() {
