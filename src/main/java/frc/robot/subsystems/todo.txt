@@ -1,0 +1,1 @@
+-every robot deploy sets an init state which resolves after first enable, during which everything that needs zeroing is zeroed.
