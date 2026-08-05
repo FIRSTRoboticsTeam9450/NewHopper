@@ -1,0 +1,16 @@
+robot-wide states:
+
+zeroing
+enter from either idle or on robot enable. zeros intake by pulling inward until stall, then extend to full position. ends by entering idle.
+
+idle 
+press B to enter idle.
+-all transfer systems static, systems with high static friction continue. intake rollers are on if the intake is fully extended. set intake to max extension with left trigger, retract to storing position with right trigger.
+
+feeding 
+press A to enter feeding. enter feeding only when intake is fully extended.
+all systems activate in a positive direction, shooting fuel.
+
+rejecting 
+press X to reject. only enter rejecting when the intake is fully extended.
+all transfer systems reverse, to release fuel. intake rollers also reverse.
