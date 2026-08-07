@@ -1,16 +1,22 @@
 package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public final class Constants { // TODO: Replace -1 IDs with real values
+    public static final int DRIVER_CONTROLLER_PORT = 0;
+    public static final int OPERATOR_CONTROLLER_PORT = 1;
+    
     public static final class RobotConstants {
         public static final String DRIVEBASE_CANBUS_NAME = "Drivebase";
         public static final String MAIN_SYSTEMS_CANBUS_NAME = "UpperCAN";
@@ -20,10 +26,37 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(MAIN_SYSTEMS_CANBUS_NAME);
         public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
+        public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
         public static final boolean ENABLE_FOC = true;
 
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
+    }
+
+    public static final class TurretConstants{
+        public static final class DeviceIDs {
+            public static final int kMotorID = 28;
+            public static final int kEncoderId = 29;
+            public static final int kSideMotorID = -1;
+        }
+        
+      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-.1079, -.1824), new Rotation2d(0)); // .1778
+      public static final double ENCODER_MAGNET_OFFSET = -0.2685546875;
+
+      //To find the ratios, divide if reduction, multiply if increase.
+      //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
+      public static final double ROTOR_TO_SENSOR_RATIO = 52.5;//01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
+      public static final double SENSOR_TO_MECHANISM_RATIO = 1.1664;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
+
+      public static final double TURRET_OFFSET_TO_ZERO = 180;
+      public static final double TURRET_OFFSET_TO_TARGET = 0.25; // 1.25
+
+      public static final double TOTAL_ROTATION_DEGREES = 270; //320
+      public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
+      
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 6.857142857; //2.24;
+      public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
+
     }
 
     public static final class TransferConstants {
@@ -43,9 +76,12 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
     public static final class ShooterConstants {
         public static final class DeviceIDs {
-            public static final int kAngleMotorID = -1;
-            public static final int kShooterLeftMotorID = -1;
-            public static final int kShooterRightMotorID = -1;
+            public static final int kAngleMotorID = 35;
+            public static final int kLeftShooterMotorID = 36;
+            public static final int kRightShooterMotorID = 37;
+        }
+        public static final class HoodConstants {
+            public static final double degreesPerMotorRev = 0;
         }
     }
 
@@ -54,19 +90,6 @@ public final class Constants { // TODO: Replace -1 IDs with real values
             public static final int kRampMotorID = -1;
             public static final int kSidesweeperUpperMotorID = 27;
             public static final int kSidesweeperLowerMotorID = 26;
-        }
-    }
-
-    public static final class TurretConstants {
-        // TODO: Turret encoder constants (Current values are defaults)
-        public static final double kTurretEncoderMagnetOffset = 0.0;
-        public static final double kTurretRotorToSensorRatio = 1.0;
-        public static final double kTurretSensorToMechanismRatio = 1.0;
-        
-        public static final class DeviceIDs {
-            public static final int kTurretEncoderID = -1;
-            public static final int kSideMotorID = -1;
-            public static final int kTurretMotorID = -1;
         }
     }
 
@@ -235,13 +258,108 @@ public final class Constants { // TODO: Replace -1 IDs with real values
             public static final Translation2d trenchEight = new Translation2d(14.618, 0.627);
         }
         
-        public static final class ZoneConstants {
-            public static final class ZoneConstantsWelded {
-                public static final Translation2d RED_CORNER = new Translation2d(16.54, 8.069326);
-            }
-            public static final class ZoneConstantsAndyMark {
-                public static final Translation2d RED_CORNER = new Translation2d(16.513048, 8.042656);
-            }
-        }
+    public static final class ZoneConstants {
+
+      public static final class ZoneConstantsWelded {
+        public static final Translation2d RED_CORNER = new Translation2d(16.54, 8.069326);
+        public static final double MAJOR_ZONE_X_LOW = 0;
+        public static final double MAJOR_ZONE_X_HIGH = 4.625594; // inches 182.11;
+        public static final double MAJOR_ZONE_Y_LOW = 0;
+        public static final double MAJOR_ZONE_Y_HIGH = 8.06936; // inches 317.69;
+
+        // RIGHT SIDE POINTS
+        public static final double FERRY_ZONE_NORMAL_SECTION_X_LOW = 4.764;
+        public static final double FERRY_ZONE_NORMAL_SECTION_X_HIGH = 16.499;
+        // public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW = 0;
+        // public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH = 8.065;
+        public static final double FERRY_ZONE_BOTTOM_SECTION_Y_LOW = 0;
+        public static final double FERRY_ZONE_BOTTOM_SECTION_Y_HIGH = 4.029;
+
+        public static final double FERRY_ZONE_TOP_SECTION_Y_LOW = 4.029;
+        public static final double FERRY_ZONE_TOP_SECTION_Y_HIGH = 8.05;
+        
+        public static final double FERRY_ZONE_MID_SECTION_1_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_MID_SECTION_1_X_HIGH = 5.98; 
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW = 3.653;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH = 4.145;
+         
+        public static final double FERRY_ZONE_MID_SECTION_2_X_LOW = FERRY_ZONE_MID_SECTION_1_X_HIGH;
+        public static final double FERRY_ZONE_MID_SECTION_2_X_HIGH = 7.433; // TODO: Change to threshold value
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH = 5.2;
+
+        public static final double FERRY_ZONE_PUSH_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_PUSH_SECTION_X_HIGH = FERRY_ZONE_MID_SECTION_1_X_HIGH;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH = 5.2;
+
+        public static final double FERRY_ZONE_LEFT_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_LEFT_SECTION_X_HIGH = 7.433; // Untested change check it later
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 6.8;
+        
+        // LEFT SIDE POINTS
+        public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;
+        public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_HIGH = 8.065;
+        
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH;
+
+        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
+
+        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH;
+
+        public static final double FERRY_ZONE_PUSH_V2_X_LOW = 4.582;
+        public static final double FERRY_ZONE_PUSH_V2_X_HIGH = 6.045;
+        public static final double FERRY_ZONE_V2_Y_LOW = 3.511;
+        public static final double FERRY_ZONE_V2_Y_HIGH = 4.54;
+        
+        public static final double FERRY_ZONE_SHOOT_OVER_V2_X_LOW = FERRY_ZONE_PUSH_V2_X_HIGH;
+        public static final double FERRY_ZONE_SHOOT_OVER_V2_X_HIGH = 8.166;
+        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // used to be -.762 4.535424
+        public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.1; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + 1.1; // 4.687824
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
+
+        public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
+
+        public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.839194 - .762;
+        public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.99 + .762;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.839194 - 1.1; //1.524
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.99 + 1.1;
+        public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
+        public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
+
+        public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
+
+        public static final double OUR_CLIMB_DEADZONE_X_LOW = 0;
+        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .662;
+        public static final double CLIMB_DEADZONE_Y_LOW = 2.838;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 4.533;
+
+        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 15.684;
+        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 16.400528;
+
+      }
+      public static final class ZoneTargets {
+        public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
+        public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.FERRY_TOP_TARGET;
+        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.FERRY_BOTTOM_TARGET;
+        public static final Translation2d NEUTRAL_TOP_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_TOP;
+        public static final Translation2d NEUTRAL_BOTTOM_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_BOTTOM;
+        public static final Translation2d FERRY_MID_RIGHT_TARGET = ImportantFieldPoses.FERRY_MID_RIGHT_TARGET;
+        public static final Translation2d FERRY_MID_LEFT_TARGET = ImportantFieldPoses.FERRY_MID_LEFT_TARGET;
+        public static final Translation2d FERRY_MID_TARGET = ImportantFieldPoses.FERRY_MID_TARGET;
+      }
+    }
     }
 }

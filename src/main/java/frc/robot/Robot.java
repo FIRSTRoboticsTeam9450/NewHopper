@@ -55,9 +55,9 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {
         if (updateValuesOffset == 15) IntakeSubsystem.getInstance().updateConstants();
-        else if (updateValuesOffset == 30) ShooterSubsystem.getInstance().updateConstants();
+        else if (updateValuesOffset == 30) ShooterSubsystem.getInstance().updateShooterConstants();
         else if (updateValuesOffset >= 45) {
-            TurretSubsystem.getInstance().updateConstants();
+            TurretSubsystem.getInstance().updateTunableParameters();
             updateValuesOffset = 0;
         }
         updateValuesOffset++;

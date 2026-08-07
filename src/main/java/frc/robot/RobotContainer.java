@@ -29,8 +29,11 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SidesweeperSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.HopperTransferSubsystem.TransferState;
 import frc.robot.subsystems.IntakeSubsystem.DeployState;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.SidesweeperSubsystem.RampState;
+import frc.robot.subsystems.SidesweeperSubsystem.SidesweeperState;
 import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
@@ -172,14 +175,28 @@ public class RobotContainer {
             DRIVER.start().and(DRIVER.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
             DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         }
+        // DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
+        // DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
+        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
+            new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
+        ));
+        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
+            new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE))
+        ));
+        // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
-        DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
-        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
-        DRIVER.a().onTrue(new InstantCommand(() -> intakeSub.runInOut(false)));
-        DRIVER.b().onTrue(new InstantCommand(() -> intakeSub.runInOut(true)));
-        DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(17.6)));
-        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));
+        DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));
+        DRIVER.rightBumper().onFalse(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)));
+
+        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.TRANSFER)).alongWith(
+            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.TRANSFER))));
+        DRIVER.rightTrigger().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
+            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE))));
+
+        // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(17.6)));
+        // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));
     }
+
     
     public ChassisSpeeds getRobotFieldCentricVeloc() {
         return new ChassisSpeeds(

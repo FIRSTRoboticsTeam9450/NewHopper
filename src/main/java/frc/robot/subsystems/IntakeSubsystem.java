@@ -26,7 +26,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public enum DeployState {
         ZEROING,
         DEPLOY,
-        STORE
+        STORE,
+        TUNING
     }
 
     public enum IntakeState {
@@ -69,12 +70,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
+    private double tuningDeploySetpoint = 0;
 
     private IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
-        deployMotor.setPosition(0);
-        killIntakeWheels();
     }
 
     private void configureDeployMotors() {
@@ -123,14 +123,29 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //applyState();
+        if(!isZeroingDone()){
+            deployState = DeployState.ZEROING;
+        }
+
+        applyState();
         publishLogs();
+    }
+
+    private boolean isZeroingDone(){
+        if(Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0.5){
+            deployMotor.setPosition(0);
+            deployMotor.setVoltage(0);
+            deployState = DeployState.STORE;
+            return true;
+        }
+        return false;
     }
 
     private void applyState() {
         switch (deployState) {
             case ZEROING:
-                deployMotor.setPosition(0);
-                deployState = DeployState.STORE;
+                // deployMotor.setPosition(0);
+                deployMotor.setVoltage(-1);
                 break;
             case DEPLOY:
                 deploySetpoint = angleDeployIntake;
@@ -140,6 +155,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 deploySetpoint = angleDeployStore;
                 deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
                 break;
+            case TUNING:
+                deploySetpoint = tuningDeploySetpoint;
+                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+
         }
 
         switch (intakeState) {
@@ -160,16 +179,16 @@ public class IntakeSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Intake/Angle State", deployState);
         Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
         Logger.recordOutput("NewHopper/Intake/Deploy Setpoint", deploySetpoint);
-        Logger.recordOutput("NewHopper/Intake/Intake Setpoint", intakeSetpoint);
+        Logger.recordOutput("NewHopper/Intake/Deploy Position", deployMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Intake/Intake Voltage Setpoint", intakeSetpoint);
+        Logger.recordOutput("NewHopper/Intake/Intake Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
 
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
-            Logger.recordOutput("NewHopper/Intake/Deploy Position", deployMotor.getPosition().getValueAsDouble());
             Logger.recordOutput("NewHopper/Intake/Deploy Voltage", deployMotor.getMotorVoltage().getValueAsDouble());
             
             Logger.recordOutput("NewHopper/Intake/Intake Velocity", intakeLeftMotor.getVelocity().getValueAsDouble());
-            Logger.recordOutput("NewHopper/Intake/Intake Position", intakeLeftMotor.getPosition().getValueAsDouble());
-            Logger.recordOutput("NewHopper/Intake/Intake Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
+            // Logger.recordOutput("NewHopper/Intake/Intake Position", intakeLeftMotor.getPosition().getValueAsDouble());
         }
     }
 
@@ -192,28 +211,16 @@ public class IntakeSubsystem extends SubsystemBase {
         return INSTANCE;
     }
 
+    public void setDeploySetpoint(double setpoint) {
+        tuningDeploySetpoint = setpoint;
+    }
+
     public void setDeployState(DeployState state) {
         deployState = state;
     }
 
     public void setIntakeState(IntakeState state) {
         intakeState = state;
-    }
-
-    public void setPosition(double pos) {
-        deployMotor.setControl(deployRequest.withPosition(pos));
-    }
-
-    public void holdPosition() {
-        deployMotor.setControl(deployRequest.withPosition(0));
-    }
-
-    public void runInOut(boolean out) {
-        intakeLeftMotor.setControl(intakeRequest.withOutput(out ? -12 : 12));
-    }
-
-    public void killIntakeWheels() {
-        intakeLeftMotor.setControl(intakeRequest.withOutput(0));
     }
 
     public InstantCommand setAngleStateCommand(DeployState state) {
