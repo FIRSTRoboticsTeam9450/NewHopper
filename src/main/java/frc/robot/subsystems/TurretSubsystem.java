@@ -13,6 +13,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MathUtil;
@@ -75,8 +76,8 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
     
     // Physical limits (degrees) - degree° total range depends on the constant
-    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MIN_ANGLE_DEG = 0;//-(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = 180;//(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -127,7 +128,9 @@ public class TurretSubsystem extends SubsystemBase {
         /**  If hood flips off */
         EMERGENCY,
 
-        CLIMB
+        CLIMB,
+
+        MANUAL
     }
     
     /**
@@ -144,7 +147,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.AIMING;
+    private TurretState currentState = TurretState.MANUAL;
     private TurretState previousState = currentState;
     
     // Target management
@@ -241,7 +244,7 @@ public class TurretSubsystem extends SubsystemBase {
         //IRL
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         
-        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
+        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.8;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
@@ -268,7 +271,7 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig = new TalonFXConfiguration();
         
         // Neutral mode
-        motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
+        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // Calculate motor revolutions for your angle limits
@@ -637,6 +640,21 @@ public class TurretSubsystem extends SubsystemBase {
                     );
                     
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
+                case MANUAL:
+                    profiledSetpointDeg = 90;
+                    if(useManualAdjust) {
+                        profiledSetpointDeg += manualShift;
+                    }
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+
+                    break;
             }
         } else {
             turretMotor.stopMotor();
@@ -831,6 +849,11 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Position tracking
         Logger.recordOutput("Rebuilt/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
+        Logger.recordOutput("Rebuilt/Turret/Pos/min", MIN_ANGLE_DEG);
+        Logger.recordOutput("Rebuilt/Turret/Pos/max", MAX_ANGLE_DEG);
+        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentEncoder", turretEncoder.getAbsolutePosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentMotorPos", turretMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentMotorPos", turretMotor.getRotorPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
 
         Logger.recordOutput("Rebuilt/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());

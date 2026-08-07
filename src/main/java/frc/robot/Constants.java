@@ -27,7 +27,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
         public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
-        public static final boolean ENABLE_FOC = true;
+        public static final boolean ENABLE_FOC = false;
 
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
@@ -41,17 +41,17 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         }
         
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-.1079, -.1824), new Rotation2d(0)); // .1778
-      public static final double ENCODER_MAGNET_OFFSET = -0.2685546875;
+      public static final double ENCODER_MAGNET_OFFSET =  0.134521484375;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
       public static final double ROTOR_TO_SENSOR_RATIO = 52.5;//01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
-      public static final double SENSOR_TO_MECHANISM_RATIO = 1.1664;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.711;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
-      public static final double TURRET_OFFSET_TO_ZERO = 180;
+      public static final double TURRET_OFFSET_TO_ZERO = 360;
       public static final double TURRET_OFFSET_TO_TARGET = 0.25; // 1.25
 
-      public static final double TOTAL_ROTATION_DEGREES = 270; //320
+      public static final double TOTAL_ROTATION_DEGREES = 180; //320
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 6.857142857; //2.24;
@@ -72,6 +72,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
             public static final int kIntakeLeftMotorID = 22;
             public static final int kIntakeRightMotorID = 21;
         }
+        public static final double DEPLOY_TOL = 0.05;
+        public static final double DEPLOY_MAX = 19.29;
     }
 
     public static final class ShooterConstants {
@@ -87,9 +89,10 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
     public static final class SidesweeperConstants {
         public static final class DeviceIDs {
-            public static final int kRampMotorID = -1;
+            public static final int kRampMotorID = 30;
             public static final int kSidesweeperUpperMotorID = 27;
             public static final int kSidesweeperLowerMotorID = 26;
+            public static final int kVerticalRollerMotorID = 29;
         }
     }
 

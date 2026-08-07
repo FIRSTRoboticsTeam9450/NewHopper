@@ -158,7 +158,7 @@ public class RobotContainer {
 
         /* ========== OPERATOR KEYBINDS ========== */
         // Normal
-        OPERATOR.povDown()
+        DRIVER.povDown()
             .onTrue(VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true))
             .onFalse(VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false));
 
@@ -178,20 +178,24 @@ public class RobotContainer {
         // DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
         // DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
         DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
-            new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
-        ));
-        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
             new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE))
         ));
+        DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.INTAKE)).alongWith(
+            new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
+        ));
+        DRIVER.x().onTrue(new InstantCommand(() -> turretSub.decreaseManualAdjust()));
+        DRIVER.b().onTrue(new InstantCommand(() -> turretSub.increaseManualAdjust()));
+        DRIVER.a().onTrue(new InstantCommand(() -> turretSub.resetManualAdjust()));
+        DRIVER.povDown().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
         // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
-        DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));
-        DRIVER.rightBumper().onFalse(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)));
+        // DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));
+        // DRIVER.rightBumper().onFalse(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)));
 
         DRIVER.rightTrigger().onTrue(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.TRANSFER)).alongWith(
-            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.TRANSFER))));
+            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.TRANSFER)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)))));
         DRIVER.rightTrigger().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
-            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE))));
+            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
 
         // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(17.6)));
         // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));

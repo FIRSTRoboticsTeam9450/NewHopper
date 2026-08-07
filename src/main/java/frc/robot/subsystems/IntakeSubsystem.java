@@ -39,10 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
-    private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
-    private double angleDeployIntake = -17.798; // Motor revolutions // TODO: Intake angle
-
-    private double speedIntakeIntake = 0; // Volts // TODO: Intake speed
+    private double speedIntakeIntake = 8; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);
@@ -53,15 +50,19 @@ public class IntakeSubsystem extends SubsystemBase {
     private TalonFXConfiguration intakeMotorConfig = new TalonFXConfiguration();
 
     // TODO: Motion Magic tuning
-    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 60);
-    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc",30);
-    private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0.15);
-    private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0.15);
+    private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 400);
+    private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc",200);
+    private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
+    private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0.1);
     private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 4);
+    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 60);
     private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
-    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 5);
-    private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0.05);
+    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0);
+    private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
+    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
+
+    private double angleDeployStore = 5; // Motor revolutions // TODO: Store angle
+    private double angleDeployIntake = logDeploySetpoint.get(); //17.798; // Motor revolutions // TODO: Intake angle
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -71,10 +72,13 @@ public class IntakeSubsystem extends SubsystemBase {
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
     private double tuningDeploySetpoint = 0;
-
+    private double setpointCounter = 0;
+    private boolean isZeroingDone = false;
+    
     private IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
+        setpointCounter = 0;
     }
 
     private void configureDeployMotors() {
@@ -98,7 +102,7 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotorConfig.Slot0.kI = logDeployKI.get();
         deployMotorConfig.Slot0.kD = logDeployKD.get();
         deployMotorConfig.Slot0.kG = logDeployKG.get();
-        deployMotorConfig.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        deployMotorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         deployMotor.getConfigurator().apply(deployMotorConfig);
     }
@@ -123,8 +127,9 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //applyState();
-        if(!isZeroingDone()){
+        if(!isZeroingDone){
             deployState = DeployState.ZEROING;
+            isZeroingDone = isZeroingDone();
         }
 
         applyState();
@@ -132,7 +137,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0.5){
+        if(Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 1){
             deployMotor.setPosition(0);
             deployMotor.setVoltage(0);
             deployState = DeployState.STORE;
@@ -144,20 +149,20 @@ public class IntakeSubsystem extends SubsystemBase {
     private void applyState() {
         switch (deployState) {
             case ZEROING:
-                // deployMotor.setPosition(0);
-                deployMotor.setVoltage(-1);
+                deployMotor.setVoltage(-4);
                 break;
             case DEPLOY:
                 deploySetpoint = angleDeployIntake;
-                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                sendSetpoint();
                 break;
             case STORE:
                 deploySetpoint = angleDeployStore;
-                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                sendSetpoint();
                 break;
             case TUNING:
                 deploySetpoint = tuningDeploySetpoint;
-                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                sendSetpoint();
+                break;
 
         }
 
@@ -175,13 +180,31 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
+    private void sendSetpoint() {
+        double error = Math.abs(deploySetpoint - deployMotor.getPosition().getValueAsDouble());
+        if(error > .2) {
+            setpointCounter = 0;
+        }
+        if(error < IntakeConstants.DEPLOY_TOL) {
+            setpointCounter += 1;
+        }
+        if(setpointCounter > 10 && deploySetpoint < 10){
+            deployMotor.setVoltage(0);
+        }
+        else {
+            deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+
+        }
+
+    }
     private void publishLogs() {
         Logger.recordOutput("NewHopper/Intake/Angle State", deployState);
         Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
         Logger.recordOutput("NewHopper/Intake/Deploy Setpoint", deploySetpoint);
         Logger.recordOutput("NewHopper/Intake/Deploy Position", deployMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Intake/Intake Voltage Setpoint", intakeSetpoint);
-        Logger.recordOutput("NewHopper/Intake/Intake Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Intake/Intake Left Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Intake/Intake Right Voltage (follower)", intakeRightMotor.getMotorVoltage().getValueAsDouble());
 
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
@@ -193,6 +216,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void updateConstants() {
+        angleDeployIntake = logDeploySetpoint.get();
         if (
             deployMotorConfig.MotionMagic.MotionMagicAcceleration != logDeployAccel.get() ||
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logDeployVeloc.get() ||
@@ -216,7 +240,13 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setDeployState(DeployState state) {
+        if(deployState != state){
+            setpointCounter = 0;
+        }
         deployState = state;
+        if(deployState == DeployState.ZEROING) {
+            isZeroingDone = false;
+        }
     }
 
     public void setIntakeState(IntakeState state) {

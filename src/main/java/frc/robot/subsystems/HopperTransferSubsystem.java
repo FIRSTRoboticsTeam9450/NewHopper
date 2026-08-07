@@ -26,7 +26,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private TransferState transferState = TransferState.IDLE;
 
-    private double speedTransferTransfer = 1; // Volts // TODO: Transfer speed
+    private double speedTransferTransfer = 5; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
 
     private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -42,7 +42,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
     
     private HopperTransferSubsystem() {
         configureTransferMotors();
-        transferUpperMotor.setControl(transferRequest.withOutput(4));
+        // transferUpperMotor.setControl(transferRequest.withOutput(4));
     }
 
     private void configureTransferMotors() {

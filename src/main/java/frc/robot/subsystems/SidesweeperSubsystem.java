@@ -32,32 +32,52 @@ public class SidesweeperSubsystem extends SubsystemBase {
     private RampState rampState = RampState.IDLE;
     private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
 
-    private double speedRampTransfer = 2; // Volts // TODO: Transfer speed
+    private double speedRampTransfer = 10; // Volts // TODO: Transfer speed
     private double speedRampIdle = 0; // Volts
     
-    private double speedSidesweeperTransfer = 2; // Volts // TODO: Transfer speed
+    private double speedSidesweeperTransfer = 10; // Volts // TODO: Transfer speed
     private double speedSidesweeperIdle = 0; // Volts
 
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX sidesweeperUpperMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kSidesweeperUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX sidesweeperLowerMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kSidesweeperLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    
+    private TalonFX verticalRollerMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kVerticalRollerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private TalonFXConfiguration sidesweeperMotorConfig = new TalonFXConfiguration();
     private TalonFXConfiguration rampMotorConfig = new TalonFXConfiguration();
+    private TalonFXConfiguration verticalRollerMotorConfig = new TalonFXConfiguration();
 
     private VoltageOut rampRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut sidesweepRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut verticalRollerRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private LoggedNetworkBoolean logSidesweeperDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Sidesweeper", false);
 
     private double rampSetpoint = 0;
+    private double verticalRollerSetpoint = 0;
     private double sidesweeperSetpoint = 0;
 
     public SidesweeperSubsystem() {
         configureRampMotors();
         configureSidesweeperMotors();
-        sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(10));
-        rampMotor.setControl(rampRequest.withOutput(12));
+        configureVerticalRollerMotor();
+        // sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(10));
+        // rampMotor.setControl(rampRequest.withOutput(12));
+    }
+
+    private void configureVerticalRollerMotor() {
+        verticalRollerMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        verticalRollerMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
+
+        verticalRollerMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        verticalRollerMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        verticalRollerMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        verticalRollerMotorConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        verticalRollerMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        verticalRollerMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+
+        verticalRollerMotor.getConfigurator().apply(verticalRollerMotorConfig);
     }
 
     private void configureRampMotors() {
@@ -101,10 +121,14 @@ public class SidesweeperSubsystem extends SubsystemBase {
         switch (rampState) {
             case IDLE:
                 rampSetpoint = speedRampIdle;
+                verticalRollerSetpoint = 0;
+                verticalRollerMotor.setControl(verticalRollerRequest.withOutput(verticalRollerSetpoint));
                 rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
                 break;
             case TRANSFER:
                 rampSetpoint = speedRampTransfer;
+                verticalRollerSetpoint = 12;
+                verticalRollerMotor.setControl(verticalRollerRequest.withOutput(verticalRollerSetpoint));
                 rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
                 break;
         }
