@@ -27,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
         ZEROING,
         DEPLOY,
         STORE,
+        AGITATE,
         TUNING
     }
 
@@ -41,6 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private double angleDeployStore = 0; // Motor revolutions // TODO: Store angle
     private double angleDeployIntake = -17.798; // Motor revolutions // TODO: Intake angle
+    private double angleDeployAgitate = -16.5; // Motor revolutions // TODO: Agitation angle
 
     private double speedIntakeIntake = 0; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0; // Volts
@@ -71,6 +73,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
     private double tuningDeploySetpoint = 0;
+
+    private double deployAgitationTolerance = 0.3;
+
+    private boolean agitateTowardIntake = false;
+
 
     private IntakeSubsystem() {
         configureDeployMotors();
@@ -158,6 +165,20 @@ public class IntakeSubsystem extends SubsystemBase {
             case TUNING:
                 deploySetpoint = tuningDeploySetpoint;
                 deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                break;
+            case AGITATE:
+                double deploySetpoint = agitateTowardIntake
+                        ? angleDeployIntake
+                        : angleDeployAgitate;
+                
+                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+
+                double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
+                if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
+                    agitateTowardIntake = !agitateTowardIntake;
+                }
+
+                break;
 
         }
 

@@ -57,6 +57,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                 angleState = AngleState.AIMING;
                 turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
+                if (!isIntaking) {
+                    intakeDeployState = DeployState.AGITATE;
+                }
                 break;
             case STORING:
                 break;
