@@ -50,13 +50,15 @@ public class ShooterSubsystem extends SubsystemBase {
         AIMING,
         DEADZONE,
         STORING,
-        TUNING
+        TUNING,
+        MANUAL
     }
 
     public enum ShooterState {
         SHOOTING,
         NOT_SHOOTING,
         HOLD_IN,
+        MANUAL
     }
 
     // Other subsystems
@@ -64,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private VisionSubsystem visionSub; // = RobotContainer.visionSub;
 
     private AngleState currentAngleState = AngleState.ZEROING;
-    private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
+    private ShooterState currentShooterState = ShooterState.MANUAL;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
@@ -80,8 +82,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
@@ -133,6 +135,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
+    private double manualHoodShift = 0;
     private double wheelWareAdjustment = 1.5 - 3.5;
 
     // Timer
@@ -293,8 +296,8 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.AIMING);
-            coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+            setState(currentShooterState, AngleState.MANUAL);
+            // coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             return true;
         }
         return false;
@@ -336,7 +339,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void publishLogs() {
         Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight + manualHoodShift);
         // Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
@@ -390,6 +393,8 @@ public class ShooterSubsystem extends SubsystemBase {
             case HOLD_IN:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
                 break;
+            case MANUAL:
+                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(manualShift));
 
             default:
                 break;
@@ -417,6 +422,8 @@ public class ShooterSubsystem extends SubsystemBase {
                 double targetAngle = MathUtil.clamp(logHoodMotorRevTarget.get(), hoodAngleMin, hoodAngleMax);
                 angleMotor.setControl(hoodMMRequest.withPosition(targetAngle).withSlot(slotNum));
                 break;
+            case MANUAL:
+                angleMotor.setControl(hoodMMRequest.withPosition(manualHoodShift).withSlot(slotNum));
                 
             default:
                 break;
@@ -540,7 +547,7 @@ public class ShooterSubsystem extends SubsystemBase {
         else {
             targetHoodHeight = targetHoodAngleOverride;
         }
-        return targetHoodHeight;
+        return targetHoodHeight + manualHoodShift;
 
     }
 
@@ -598,7 +605,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isAngleWithinTolerance(double tolerance) {
-        return Math.abs(targetHoodHeight - angleMotor.getPosition().getValueAsDouble()) < tolerance;
+        return Math.abs(targetHoodHeight + manualHoodShift - angleMotor.getPosition().getValueAsDouble()) < tolerance;
     }
 
     public boolean isVelocityWithinTolerance() {
@@ -691,8 +698,24 @@ public class ShooterSubsystem extends SubsystemBase {
         manualShift -= 0.5;
     }
 
+    public void addManualHoodShift() {
+        manualHoodShift += 0.5;
+    }
+
+    public void addManualHoodShift(double value) {
+        manualHoodShift += value;
+    }
+
+    public void subtractManualHoodShift() {
+        manualHoodShift -= 0.5;
+    }
+
+    public void resetManualHoodShift() {
+        manualHoodShift = 0;
+    }
+
     public void resetManualVelocityShift() {
-        manualShift = 0;
+        manualHoodShift = 0;
     }
 
     // -------------------------------------------- UPDATE BASED ON LOGS -------------------------------------------- //

@@ -41,7 +41,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         }
         
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-.1079, -.1824), new Rotation2d(0)); // .1778
-      public static final double ENCODER_MAGNET_OFFSET =  0.134521484375;
+      public static final double ENCODER_MAGNET_OFFSET =  -0.155029296875;//0.134521484375;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5

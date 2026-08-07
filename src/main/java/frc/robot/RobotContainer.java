@@ -183,10 +183,16 @@ public class RobotContainer {
         DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.INTAKE)).alongWith(
             new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
         ));
-        DRIVER.x().onTrue(new InstantCommand(() -> turretSub.decreaseManualAdjust()));
-        DRIVER.b().onTrue(new InstantCommand(() -> turretSub.increaseManualAdjust()));
-        DRIVER.a().onTrue(new InstantCommand(() -> turretSub.resetManualAdjust()));
-        DRIVER.povDown().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
+        DRIVER.x().onTrue(CoordinationSubsystem.getInstance().decreaseManualAdjust());
+        DRIVER.b().onTrue(CoordinationSubsystem.getInstance().increaseManualAdjust());
+        DRIVER.a().onTrue(CoordinationSubsystem.getInstance().resetManualAdjust());
+        DRIVER.leftStick().onTrue(CoordinationSubsystem.getInstance().setManualTurret(false));
+        DRIVER.leftStick().onFalse(CoordinationSubsystem.getInstance().setManualTurret(true));
+        DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().addManualHoodShift()));
+        DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualHoodShift()));
+        DRIVER.povLeft().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualHoodShift()));
+        
+        DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
         // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
         // DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));

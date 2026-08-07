@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.HopperTransferSubsystem.TransferState;
 import frc.robot.subsystems.IntakeSubsystem.DeployState;
@@ -22,6 +25,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private AbsoluteStates currentState = AbsoluteStates.INIT;
     private boolean isIntaking = false;
+    private boolean shiftingTurret = true;
     public CoordinationSubsystem() {}
 
     @Override
@@ -87,6 +91,25 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
     public void setIntake(boolean intaking) {
         isIntaking = intaking;
+    }
+
+    public Command increaseManualAdjust() {
+        // return new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust());
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift()), (() -> shiftingTurret));
+    }
+
+    public Command decreaseManualAdjust() {
+        // return new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust());
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()), (() -> shiftingTurret));
+    }
+
+    public Command resetManualAdjust() {
+        // return new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust());
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualVelocityShift()), (() -> shiftingTurret));
+    }
+
+    public Command setManualTurret(boolean value){
+        return new InstantCommand(() -> shiftingTurret = value);
     }
 
     public static CoordinationSubsystem getInstance() {
