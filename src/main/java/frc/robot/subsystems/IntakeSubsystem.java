@@ -27,6 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
         ZEROING,
         DEPLOY,
         STORE,
+        AGITATE,
         TUNING
     }
 
@@ -63,6 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private double angleDeployStore = 5; // Motor revolutions // TODO: Store angle
     private double angleDeployIntake = logDeploySetpoint.get(); //17.798; // Motor revolutions // TODO: Intake angle
+    private double angleDeployAgitate = angleDeployIntake - 1; // Motor revolutions // TODO: Agitation angle
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -75,6 +77,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private double setpointCounter = 0;
     private boolean isZeroingDone = false;
     
+    private double deployAgitationTolerance = 0.3;
+
+    private boolean agitateTowardIntake = false;
+
+
     private IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
@@ -163,6 +170,19 @@ public class IntakeSubsystem extends SubsystemBase {
                 deploySetpoint = tuningDeploySetpoint;
                 sendSetpoint();
                 break;
+            case AGITATE:
+                double deploySetpoint = agitateTowardIntake
+                        ? angleDeployIntake
+                        : angleDeployAgitate;
+                
+                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+
+                double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
+                if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
+                    agitateTowardIntake = !agitateTowardIntake;
+                }
+
+                break;
 
         }
 
@@ -217,6 +237,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void updateConstants() {
         angleDeployIntake = logDeploySetpoint.get();
+        angleDeployAgitate = angleDeployIntake - 1;
         if (
             deployMotorConfig.MotionMagic.MotionMagicAcceleration != logDeployAccel.get() ||
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logDeployVeloc.get() ||
