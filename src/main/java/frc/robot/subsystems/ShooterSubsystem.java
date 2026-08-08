@@ -264,7 +264,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
    private void configureShooterMotors() {
         shooterMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -289,7 +289,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shooterRightMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        // shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     public boolean autoZeroing() {
@@ -350,7 +350,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
 
@@ -394,7 +394,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
                 break;
             case MANUAL:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(manualShift));
+                shooterLeftMotor.setVoltage(MathUtil.clamp(manualShift, 0, 12));
 
             default:
                 break;

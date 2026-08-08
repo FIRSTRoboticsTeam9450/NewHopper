@@ -34,7 +34,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public enum IntakeState {
         INTAKE,
         BRAKE,
-        IDLE
+        IDLE,
+        EJECT
     }
 
     private DeployState deployState = DeployState.ZEROING;
@@ -196,6 +197,10 @@ public class IntakeSubsystem extends SubsystemBase {
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
                 break;
             case BRAKE:
+                break;
+            case EJECT:
+                intakeSetpoint = -6;
+                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
                 break;
         }
     }

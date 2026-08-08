@@ -21,12 +21,14 @@ public class SidesweeperSubsystem extends SubsystemBase {
 
     public enum RampState {
         TRANSFER,
-        IDLE
+        IDLE,
+        EJECT
     }
 
     public enum SidesweeperState {
         TRANSFER,
-        IDLE
+        IDLE,
+        EJECT
     }
 
     private RampState rampState = RampState.IDLE;
@@ -131,6 +133,13 @@ public class SidesweeperSubsystem extends SubsystemBase {
                 verticalRollerMotor.setControl(verticalRollerRequest.withOutput(verticalRollerSetpoint));
                 rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
                 break;
+            case EJECT:
+                rampSetpoint = -4;
+                verticalRollerSetpoint = -4;
+                verticalRollerMotor.setControl(verticalRollerRequest.withOutput(verticalRollerSetpoint));
+                rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
+                break;
+
         }
 
         switch (sidesweeperState) {
@@ -140,6 +149,10 @@ public class SidesweeperSubsystem extends SubsystemBase {
                 break;
             case TRANSFER:
                 sidesweeperSetpoint = speedSidesweeperTransfer;
+                sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
+                break;
+            case EJECT:
+                sidesweeperSetpoint = -4;
                 sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
                 break;
         }

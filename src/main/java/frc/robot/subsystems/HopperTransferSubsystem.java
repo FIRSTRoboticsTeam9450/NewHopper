@@ -21,7 +21,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
     
     public enum TransferState {
         TRANSFER,
-        IDLE
+        IDLE,
+        EJECT
     }
 
     private TransferState transferState = TransferState.IDLE;
@@ -82,6 +83,9 @@ public class HopperTransferSubsystem extends SubsystemBase {
                 transferSetpoint = speedTransferTransfer;
                 transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
                 break;
+            case EJECT:
+                transferSetpoint = -4;
+                transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
         }
     }
 
