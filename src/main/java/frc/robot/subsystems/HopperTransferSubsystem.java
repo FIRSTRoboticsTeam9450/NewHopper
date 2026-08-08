@@ -27,7 +27,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private TransferState transferState = TransferState.IDLE;
 
-    private double speedTransferTransfer = 5; // Volts // TODO: Transfer speed
+    private double speedTransferTransfer = 1; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
 
     private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -92,11 +92,11 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private void publishLogs() {
         Logger.recordOutput("NewHopper/Transfer/Transfer State", transferState);
         Logger.recordOutput("NewHopper/Transfer/Transfer Setpoint", transferSetpoint);
+        Logger.recordOutput("NewHopper/Transfer/Transfer Voltage", transferUpperMotor.getMotorVoltage().getValueAsDouble());
 
         if (logTransferDebug.get()) {
             Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Transfer/Transfer Position", transferUpperMotor.getPosition().getValueAsDouble());
-            Logger.recordOutput("NewHopper/Transfer/Transfer Voltage", transferUpperMotor.getMotorVoltage().getValueAsDouble());
         }
     }
 

@@ -95,12 +95,12 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command increaseManualAdjust() {
         // return new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust());
-        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift()), (() -> shiftingTurret));
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift()), (() -> shiftingTurret));
     }
 
     public Command decreaseManualAdjust() {
         // return new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust());
-        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()), (() -> shiftingTurret));
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()), (() -> shiftingTurret));
     }
 
     public Command resetManualAdjust() {
