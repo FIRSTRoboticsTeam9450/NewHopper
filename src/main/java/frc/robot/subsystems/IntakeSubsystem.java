@@ -266,7 +266,6 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setDeployState(DeployState state) {
-        print(state)
         if(deployState != state){
             setpointCounter = 0;
         }
