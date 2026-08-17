@@ -351,7 +351,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert RPS to degrees/sec
         double currentVelocityDegPerSec = cachedMotorVelocity 
             * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
-        // Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
+        // Logger.recordOutput("NewHopper/Turret/Pos/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
 
         // Calculate stopping distance: v² / (2a)
         double maxDeceleration = currentRateLimit;
@@ -361,7 +361,7 @@ public class TurretSubsystem extends SubsystemBase {
         previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
         // robotRelativeTargetVelocityDegPerSec = calculateVelocity();
         robotRelativeTargetVelocityDegPerSec = calculateVelocityUpdated();
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();
@@ -387,7 +387,7 @@ public class TurretSubsystem extends SubsystemBase {
         double targetVeloc = 0;
 
         double robotYawVeloc = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
-        // Logger.recordOutput("Rebuilt/Turret/Robot Yaw Veloc", robotYawVeloc);
+        // Logger.recordOutput("NewHopper/Turret/Robot Yaw Veloc", robotYawVeloc);
 
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) {
             targetVeloc = 0.0;
@@ -440,11 +440,11 @@ public class TurretSubsystem extends SubsystemBase {
                 //     }
                 // }
             }
-            // Logger.recordOutput("Rebuilt/Turret/Veloc Net/MaxVelocity", maxVelocity);
+            // Logger.recordOutput("NewHopper/Turret/Veloc Net/MaxVelocity", maxVelocity);
         }
-        // Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
-        // Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
-        // Logger.recordOutput("Rebuilt/Turret/Combined Veloc", targetVeloc + robotYawVeloc);
+        // Logger.recordOutput("NewHopper/Turret/Veloc Net/Used Velocity", usedVeloc);
+        // Logger.recordOutput("NewHopper/Turret/Veloc Net/Calculated Veloc", targetVeloc);
+        // Logger.recordOutput("NewHopper/Turret/Combined Veloc", targetVeloc + robotYawVeloc);
         return targetVeloc;
     }   
 
@@ -467,16 +467,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         turretVeloictyWRTRobot = turretVelocityWRTField - robotYawVelocWRTField; //degrees/second
     
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Angle WRT Field", previousTurretAngleWRTField);
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Timestamp", previousVelocityTimestamp);
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Previous Angle WRT Field", previousTurretAngleWRTField);
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Previous Timestamp", previousVelocityTimestamp);
 
         previousTurretAngleWRTField = turretAngleWRTField;
         previousVelocityTimestamp = timestamp;
 
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Field", turretVelocityWRTField);
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Current Timestamp", timestamp);
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
-        // Logger.recordOutput("Rebuilt/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Velocity WRT Field", turretVelocityWRTField);
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Current Timestamp", timestamp);
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
+        // Logger.recordOutput("NewHopper/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
 
         return turretVeloictyWRTRobot;
     }
@@ -843,30 +843,30 @@ public class TurretSubsystem extends SubsystemBase {
         
 
         // State information
-        Logger.recordOutput("Rebuilt/Turret/State/CurrentState", currentState);
-        // Logger.recordOutput("Rebuilt/Turret/State/TargetMode", currentTargetMode);
+        Logger.recordOutput("NewHopper/Turret/State/CurrentState", currentState);
+        // Logger.recordOutput("NewHopper/Turret/State/TargetMode", currentTargetMode);
         
         // Position tracking
-        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
-        Logger.recordOutput("Rebuilt/Turret/Pos/min", MIN_ANGLE_DEG);
-        Logger.recordOutput("Rebuilt/Turret/Pos/max", MAX_ANGLE_DEG);
-        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentEncoder", turretEncoder.getAbsolutePosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentMotorPos", turretMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentMotorPos", turretMotor.getRotorPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
+        Logger.recordOutput("NewHopper/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
+        Logger.recordOutput("NewHopper/Turret/Pos/min", MIN_ANGLE_DEG);
+        Logger.recordOutput("NewHopper/Turret/Pos/max", MAX_ANGLE_DEG);
+        Logger.recordOutput("NewHopper/Turret/Pos/CurrentEncoder", turretEncoder.getAbsolutePosition().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Turret/Pos/CurrentMotorPos", turretMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Turret/Pos/CurrentMotorPos", turretMotor.getRotorPosition().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
 
-        Logger.recordOutput("Rebuilt/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());
         
         // Velocity tracking
-        // Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", 
+        // Logger.recordOutput("NewHopper/Turret/Pos/CurrentVelocityDegPerSec", 
             // cachedMotorVelocity * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
-        // Logger.recordOutput("Rebuilt/Turret/Target/TargetVelocityDegPerSec", 
+        // Logger.recordOutput("NewHopper/Turret/Target/TargetVelocityDegPerSec", 
         //     robotRelativeTargetVelocityDegPerSec);
 
         //Debugging For Creating Velocity Safety Net
-        // Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
+        // Logger.recordOutput("NewHopper/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
 
-        Logger.recordOutput("Rebuilt/Turret/Pos/Manual Adjustment", manualShift);
+        Logger.recordOutput("NewHopper/Turret/Pos/Manual Adjustment", manualShift);
 
         if (logDebuggingToggle.get()) {
 
@@ -874,37 +874,37 @@ public class TurretSubsystem extends SubsystemBase {
             Pose2d currentBotPoseWRTTurret = currentBotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
             Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.25);
             Rotation3d turretPoseRotation = new Rotation3d(0, 0, fieldRelativeGoalAngle.getRadians());
-            Logger.recordOutput("Rebuilt/Turret/Turret Pose WRT Field", new Pose3d(turretPoseTranslation, turretPoseRotation));
+            Logger.recordOutput("NewHopper/Turret/Turret Pose WRT Field", new Pose3d(turretPoseTranslation, turretPoseRotation));
 
-            Logger.recordOutput("Rebuilt/Turret/State/PreviousState", previousState);
+            Logger.recordOutput("NewHopper/Turret/State/PreviousState", previousState);
 
-            Logger.recordOutput("Rebuilt/Turret/Target/TargetAngleDeg", robotRelativeTargetAngleDeg);
-            Logger.recordOutput("Rebuilt/Turret/Target/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
+            Logger.recordOutput("NewHopper/Turret/Target/TargetAngleDeg", robotRelativeTargetAngleDeg);
+            Logger.recordOutput("NewHopper/Turret/Target/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
 
             Translation2d currentTargetTranslation = getCurrentTargetPosition();
             if (currentTargetTranslation != null) {
-                Logger.recordOutput("Rebuilt/Turret/Target/CurrentTargetTranslation", 
+                Logger.recordOutput("NewHopper/Turret/Target/CurrentTargetTranslation", 
                     new double[] {currentTargetTranslation.getX(), currentTargetTranslation.getY()});
             }
 
             Pose2d currentTargetPose = new Pose2d(getCurrentTargetPosition(), new Rotation2d(0));
-            Logger.recordOutput("Rebuilt/Turret/Target/CurrentTargetPose", currentTargetPose);
+            Logger.recordOutput("NewHopper/Turret/Target/CurrentTargetPose", currentTargetPose);
 
-            Logger.recordOutput("Rebuilt/Turret/Device/MotorRevolutions", 
+            Logger.recordOutput("NewHopper/Turret/Device/MotorRevolutions", 
                 turretMotor.getPosition().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/Device/AbsoluteEncoderPosition", 
+            Logger.recordOutput("NewHopper/Turret/Device/AbsoluteEncoderPosition", 
                 turretEncoder.getAbsolutePosition().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/Device/Encoder Relative Position", 
+            Logger.recordOutput("NewHopper/Turret/Device/Encoder Relative Position", 
                 turretEncoder.getPosition().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputVolts", 
+            Logger.recordOutput("NewHopper/Turret/Device/MotorOutputVolts", 
                 turretMotor.getMotorVoltage().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputAmps", 
+            Logger.recordOutput("NewHopper/Turret/Device/MotorOutputAmps", 
                 turretMotor.getTorqueCurrent().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/Device/MotorVelocity (RPS)", 
+            Logger.recordOutput("NewHopper/Turret/Device/MotorVelocity (RPS)", 
                 cachedMotorVelocity);
 
-            Logger.recordOutput("Rebuilt/Turret/Pos/AtGoal", isAtProfiledGoal());
-            Logger.recordOutput("Rebuilt/Turret/Target/TargetOutOfRange", isTargetOutOfRange());
+            Logger.recordOutput("NewHopper/Turret/Pos/AtGoal", isAtProfiledGoal());
+            Logger.recordOutput("NewHopper/Turret/Target/TargetOutOfRange", isTargetOutOfRange());
         }
     }
     
@@ -1180,7 +1180,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void initialize() {
-        //Logger.recordOutput("Rebuilt/Turret/Subsystem Initizalized", true);
+        //Logger.recordOutput("NewHopper/Turret/Subsystem Initizalized", true);
     }
 
     public TalonFX getMotor() {

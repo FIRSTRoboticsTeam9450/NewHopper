@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private VisionSubsystem visionSub; // = RobotContainer.visionSub;
 
     private AngleState currentAngleState = AngleState.ZEROING;
-    private ShooterState currentShooterState = ShooterState.MANUAL;
+    private ShooterState currentShooterState = ShooterState.SHOOTING;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
@@ -80,11 +80,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private double distanceAwayToUseLowDegree = 1.2;
     private double distanceAwayToUseHighDegree = 1.78;
 
-    // Motors
+    // Motors TODO: FIX THE MOTOR IDS BEING SWAPPED ONCE THE LEFT MOTOR COMES BACK
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-
+    
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
 
@@ -105,7 +105,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logHoodMMKD = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kD", 0);
     private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0.3);
 
-    private LoggedNetworkNumber logHoodMotorRevTarget = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Target", 3.5);
+    private LoggedNetworkNumber logHoodMotorRevTarget = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Target", 13);
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
@@ -170,7 +170,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     Volt.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
                     null,        // Use default timeout (10 s)
                                 // Log state with Phoenix SignalLogger class
-                    (state) -> Logger.recordOutput("Rebuilt/Shooter/Outtake/SysID/State", state.toString())
+                    (state) -> Logger.recordOutput("NewHopper/Shooter/Outtake/SysID/State", state.toString())
                 ),
                 new SysIdRoutine.Mechanism(
                     (volts) -> shooterLeftMotor.setControl(m_voltReq.withOutput(volts.in(Volt))),
@@ -296,7 +296,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.MANUAL);
+            setState(currentShooterState, AngleState.TUNING);
             // coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             return true;
         }
@@ -338,45 +338,45 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void publishLogs() {
-        Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight + manualHoodShift);
-        // Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
-        // Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
+        Logger.recordOutput("NewHopper/Shooter/Hood/currentState", currentAngleState);
+        Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight + manualHoodShift);
+        // Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
+        Logger.recordOutput("NewHopper/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
+        // Logger.recordOutput("NewHopper/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
+        Logger.recordOutput("NewHopper/Shooter/Outtake/currentState", currentShooterState);
+        Logger.recordOutput("NewHopper/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Manual Adjustment", manualShift);
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Manual Adjustment", manualShift);
 
 
         if (logDebuggingToggle.get()) { // To get rid of loop overruns
 
             
-            Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(cachedDistanceToTarget));
+            Logger.recordOutput("NewHopper/Shooter/Time To Shoot", getShootingDistanceToTime(cachedDistanceToTarget));
 
             // Hood logs
-            Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(cachedDistanceToTarget));
-            Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
-            Logger.recordOutput("Rebuilt/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
+            Logger.recordOutput("NewHopper/Shooter/Hood/Took target", hoodAngleFunction(cachedDistanceToTarget));
+            Logger.recordOutput("NewHopper/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
+            Logger.recordOutput("NewHopper/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
 
-            // Logger.recordOutput("Rebuilt/Shooter/Hood/Override hood setpoint", targetHoodAngleOverride);
-            // Logger.recordOutput("Rebuilt/Shooter/Hood/Overriding hood", isOverrideAngle);
+            // Logger.recordOutput("NewHopper/Shooter/Hood/Override hood setpoint", targetHoodAngleOverride);
+            // Logger.recordOutput("NewHopper/Shooter/Hood/Overriding hood", isOverrideAngle);
 
             // Outtake logs
-            // Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
-            // Logger.recordOutput("Rebuilt/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
-            // Logger.recordOutput("Rebuilt/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
+            // Logger.recordOutput("NewHopper/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
+            // Logger.recordOutput("NewHopper/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
+            // Logger.recordOutput("NewHopper/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
 
-            // Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
+            // Logger.recordOutput("NewHopper/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
         }
     }
 
@@ -434,59 +434,59 @@ public class ShooterSubsystem extends SubsystemBase {
     // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
-            // cachedDistanceToTarget = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
-            // switch (coordSub.getCurrentZone()) {
+            cachedDistanceToTarget = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+            switch (coordSub.getCurrentZone()) {
 
-            //     case SHOOTING_ZONE:
-            //         targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         break;
+                case SHOOTING_ZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    break;
 
-            //     case CLIMB_DEADZONE:
-            //         targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         break;
+                case CLIMB_DEADZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    break;
 
-            //     case FERRY_ZONE_TOP:
-            //         targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         // if(cachedDistanceToTarget > 14.55) {
-            //         //     targetShooterVeloc = 90; //TODO: PRACTICE: remove? recalc?
-            //         // }
-            //         break;
+                case FERRY_ZONE_TOP:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // if(cachedDistanceToTarget > 14.55) {
+                    //     targetShooterVeloc = 90; //TODO: PRACTICE: remove? recalc?
+                    // }
+                    break;
                     
-            //     case FERRY_ZONE_BOTTOM:
-            //         targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         // if(cachedDistanceToTarget > 14.55) {
-            //         //     targetShooterVeloc = 90; //TODO: PRACTICE: remove? recalc?
-            //         // }
-            //         break;
+                case FERRY_ZONE_BOTTOM:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // if(cachedDistanceToTarget > 14.55) {
+                    //     targetShooterVeloc = 90; //TODO: PRACTICE: remove? recalc?
+                    // }
+                    break;
 
-            //     case FERRY_ZONE_MID:
-            //         targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         // if(cachedDistanceToTarget > 14.55) {
-            //         //     targetShooterVeloc = 60; //TODO: PRACTICE: remove? recalc?
-            //         // }
-            //         break;
+                case FERRY_ZONE_MID:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // if(cachedDistanceToTarget > 14.55) {
+                    //     targetShooterVeloc = 60; //TODO: PRACTICE: remove? recalc?
+                    // }
+                    break;
                     
-            //     case SOFT_TRENCH_DEADZONE:
-            //         targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         break;
+                case SOFT_TRENCH_DEADZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    break;
 
-            //     case HARD_TRENCH_DEADZONE:
-            //         targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
-            //         break;
+                case HARD_TRENCH_DEADZONE:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                    break;
 
-            //     case BACK_SHOOT:
-            //         targetShooterVeloc = 70;
-            //         break;
-            //     case SHOOT_OVER_NET:
-            //         targetShooterVeloc = 90;
-            //         break;
+                case BACK_SHOOT:
+                    targetShooterVeloc = 70;
+                    break;
+                case SHOOT_OVER_NET:
+                    targetShooterVeloc = 90;
+                    break;
 
-            //     default:
-            //         break;
-            // }
-            // if(VisionSubsystem.getInstance().getUsingCustomTarget()) {
-            //     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
-            // }
+                default:
+                    break;
+            }
+            if(VisionSubsystem.getInstance().getUsingCustomTarget()) {
+                targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+            }
         }
         else {
             targetShooterVeloc = logTuningShooterVelocity.get();
@@ -497,51 +497,51 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterAngle() {
         if(!isOverrideAngle) {
-            // double distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
-            // switch (coordSub.getCurrentZone()) {
-            //     case SHOOTING_ZONE:
-            //         targetHoodHeight = hoodAngleFunction(distance);
-            //         break;
-            //     case CLIMB_DEADZONE:
-            //         targetHoodHeight = hoodAngleFunction(distance);
-            //         break;
+            double distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+            switch (coordSub.getCurrentZone()) {
+                case SHOOTING_ZONE:
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    break;
+                case CLIMB_DEADZONE:
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    break;
                     
-            //     case FERRY_ZONE_TOP:
-            //         // targetHoodHeight = hoodAngleFunction(distance);
-            //         targetHoodHeight = hoodFerryMotorRev;
-            //         break; 
+                case FERRY_ZONE_TOP:
+                    // targetHoodHeight = hoodAngleFunction(distance);
+                    targetHoodHeight = hoodFerryMotorRev;
+                    break; 
                     
-            //     case FERRY_ZONE_BOTTOM:
-            //         // targetHoodHeight = hoodAngleFunction(distance);
-            //         targetHoodHeight = hoodFerryMotorRev;
-            //         break;
+                case FERRY_ZONE_BOTTOM:
+                    // targetHoodHeight = hoodAngleFunction(distance);
+                    targetHoodHeight = hoodFerryMotorRev;
+                    break;
 
-            //     case FERRY_ZONE_MID:
-            //         targetHoodHeight = hoodFerryMotorRev;
-            //         break;
+                case FERRY_ZONE_MID:
+                    targetHoodHeight = hoodFerryMotorRev;
+                    break;
 
-            //     case HARD_TRENCH_DEADZONE:
-            //         setAngleState(AngleState.STORING);
-            //         break;
+                case HARD_TRENCH_DEADZONE:
+                    setAngleState(AngleState.STORING);
+                    break;
 
-            //     case SOFT_TRENCH_DEADZONE:
-            //         targetHoodHeight = hoodAngleFunction(distance);
-            //         break;
+                case SOFT_TRENCH_DEADZONE:
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    break;
 
-            //     case BACK_SHOOT:
-            //         targetHoodHeight = MathUtil.clamp(getAsRevs(20), hoodAngleMin, hoodAngleMax);
-            //         break;
+                case BACK_SHOOT:
+                    targetHoodHeight = MathUtil.clamp(getAsRevs(20), hoodAngleMin, hoodAngleMax);
+                    break;
 
-            //     case SHOOT_OVER_NET:
-            //         targetHoodHeight = hoodAngleFunctionShootOverNet(distance);
-            //         break;
+                case SHOOT_OVER_NET:
+                    targetHoodHeight = hoodAngleFunctionShootOverNet(distance);
+                    break;
 
-            //     default:
-            //         return 0;
-            // }
-            // if(VisionSubsystem.getInstance().getUsingCustomTarget()) {
-            //     targetHoodHeight = hoodAngleFunction(distance);
-            // }
+                default:
+                    return 0;
+            }
+            if(VisionSubsystem.getInstance().getUsingCustomTarget()) {
+                targetHoodHeight = hoodAngleFunction(distance);
+            }
             
         }
         else {

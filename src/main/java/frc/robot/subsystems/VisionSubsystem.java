@@ -253,8 +253,8 @@ public class VisionSubsystem extends SubsystemBase {
             bumpMeasurmentCount = 0;
         }
 
-        // Logger.recordOutput("Rebuilt/Vision/Odom Pose outside Field", odomPoseOutsideField);
-        // Logger.recordOutput("Rebuilt/Vision/Bump Detected", bumpDetected);
+        // Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);
+        // Logger.recordOutput("NewHopper/Vision/Bump Detected", bumpDetected);
 
         List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
         for (LimelightObject limelight : LIMELIGHT_LIST) {
@@ -295,7 +295,7 @@ public class VisionSubsystem extends SubsystemBase {
             VisionMeasurement vm = createVisionMeasurement(snap);
             if (vm.isValid()) {
                 measurements.add(vm);
-                // Logger.recordOutput("Rebuilt/Vision/" + snap.name + "/Pose 3D", snap.megaTagEstimate.pose);
+                // Logger.recordOutput("NewHopper/Vision/" + snap.name + "/Pose 3D", snap.megaTagEstimate.pose);
             }
         }
 
@@ -327,7 +327,7 @@ public class VisionSubsystem extends SubsystemBase {
         });
 
         // Store snapshots for logging to reuse — no re-reads needed
-        // Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
+        // Logger.recordOutput("NewHopper/Vision/ValidCameraCount", measurements.size());
     }
 
     /**
@@ -401,7 +401,7 @@ public class VisionSubsystem extends SubsystemBase {
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
-                    if (!yawValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidYawDiff", yawDiff);
+                    if (!yawValid) Logger.recordOutput("NewHopper/Vision/" + llData.name + "/InvalidYawDiff", yawDiff);
                 }
             }
         }
@@ -501,44 +501,44 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private void publishLogs() {
         // Overall vision state
-        Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Pose", lastVisionPose);
-        Logger.recordOutput("Rebuilt/Vision/Ferrying Top", ferryingTop);
-        // Logger.recordOutput("Rebuilt/Vision/Total/Last Fused Pose", lastFusedPose);
-        // Logger.recordOutput("Rebuilt/Vision/Total/Last Target Pose", lastTargetPose);
-        // Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
+        Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
+        Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
+        // Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
+        // Logger.recordOutput("NewHopper/Vision/Total/Last Target Pose", lastTargetPose);
+        // Logger.recordOutput("NewHopper/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
         // Standard deviations
-        // Logger.recordOutput("Rebuilt/Vision/Config/StdDev X", currentVisionStdDevX);
-        // Logger.recordOutput("Rebuilt/Vision/Config/StdDev Y", currentVisionStdDevY);
-        // Logger.recordOutput("Rebuilt/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
+        // Logger.recordOutput("NewHopper/Vision/Config/StdDev X", currentVisionStdDevX);
+        // Logger.recordOutput("NewHopper/Vision/Config/StdDev Y", currentVisionStdDevY);
+        // Logger.recordOutput("NewHopper/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
 
-        // Logger.recordOutput("Rebuilt/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
+        // Logger.recordOutput("NewHopper/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
         
         // Fusion thresholds
-        // Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
-        // Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
+        // Logger.recordOutput("NewHopper/Vision/Config/Max Translation Diff", maxTranslationDiff);
+        // Logger.recordOutput("NewHopper/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
 
-        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+        Logger.recordOutput("NewHopper/Vision/CurrentZone", currentZone);
 
-        // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
-        Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
+        // Logger.recordOutput("NewHopper/Vision/Bump Measurement Count", bumpMeasurmentCount);
+        Logger.recordOutput("NewHopper/Vision/CurrentFerryZone", currentFerryZone);
         if (loopOffset > 5) {
             loopOffset = 0;
-            Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
+            Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
         } else {
             loopOffset++;
         }
-        Logger.recordOutput("Rebuilt/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
+        Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
 
-        // Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+        // Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
         // for (LimelightObject limelight : LIMELIGHT_LIST) {
         //     String llName = limelight.getName();
         //     IMUData llIMUData = LimelightHelpers.getIMUData(llName);
-        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Robot Yaw", llIMUData.robotYaw);
-        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Raw Yaw", llIMUData.Yaw);
-        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Roll", llIMUData.Roll);
-        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Pitch", llIMUData.Pitch);
+        //     Logger.recordOutput("NewHopper/Vision/" + llName + "/IMU Data/Robot Yaw", llIMUData.robotYaw);
+        //     Logger.recordOutput("NewHopper/Vision/" + llName + "/IMU Data/Raw Yaw", llIMUData.Yaw);
+        //     Logger.recordOutput("NewHopper/Vision/" + llName + "/IMU Data/Roll", llIMUData.Roll);
+        //     Logger.recordOutput("NewHopper/Vision/" + llName + "/IMU Data/Pitch", llIMUData.Pitch);
         // }
 
         if (logDebuggingToggle.get()) {
@@ -548,50 +548,50 @@ public class VisionSubsystem extends SubsystemBase {
                 LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(name);
                 
                 if (results != null) {
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Valid", results.valid);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Priority Tag", LimelightHelpers.getFiducialID(name));
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Pipeline Latency", results.latency_pipeline);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Capture Latency", results.latency_capture);
+                    Logger.recordOutput("NewHopper/Vision/" + name + "/Valid", results.valid);
+                    Logger.recordOutput("NewHopper/Vision/" + name + "/Priority Tag", LimelightHelpers.getFiducialID(name));
+                    Logger.recordOutput("NewHopper/Vision/" + name + "/Pipeline Latency", results.latency_pipeline);
+                    Logger.recordOutput("NewHopper/Vision/" + name + "/Capture Latency", results.latency_capture);
                     
                     // Get botpose data if available
                     double[] botpose = LimelightHelpers.getBotPose_wpiBlue(name);
                     if (botpose != null && botpose.length >= 6) {
-                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/X", botpose[0]);
-                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Y", botpose[1]);
-                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Z", botpose[2]);
-                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Roll", botpose[3]);
-                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Pitch", botpose[4]);
-                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Yaw", botpose[5]);
+                        Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/X", botpose[0]);
+                        Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Y", botpose[1]);
+                        Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Z", botpose[2]);
+                        Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Roll", botpose[3]);
+                        Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Pitch", botpose[4]);
+                        Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Yaw", botpose[5]);
                     }
                     
                     // Ambiguity for this camera
-                    // Logger.recordOutput("Rebuilt/Vision/" + name + "/Ambiguity", computeAmbiguity(name));
+                    // Logger.recordOutput("NewHopper/Vision/" + name + "/Ambiguity", computeAmbiguity(name));
                 }
             }
             
             // Robot state
-            Logger.recordOutput("Rebuilt/Vision/Robot/Pigeon Yaw", 
+            Logger.recordOutput("NewHopper/Vision/Robot/Pigeon Yaw", 
                 drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
             // Current bot pose
-            // Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
-            Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
-            Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
-            Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
-            Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
-            // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
-            Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
-            Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
-            Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
-            Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
+            // Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);
+            Logger.recordOutput("NewHopper/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
+            Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);
+            Logger.recordOutput("NewHopper/Vision/Alliance", DriverStation.getAlliance().toString());
+            Logger.recordOutput("NewHopper/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
+            // Logger.recordOutput("NewHopper/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
+            Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
+            Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
+            Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
+            Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
             // getAdjustedFutureTarget(.5);
 
         }
 
         // Fault detection
-        Logger.recordOutput("Rebuilt/Vision/Faults/Drivetrain instance null?", drivetrain == null);
-        Logger.recordOutput("Rebuilt/Vision/Faults/Limelight List Empty?", LIMELIGHT_LIST.isEmpty());
-        Logger.recordOutput("Rebuilt/Vision/Faults/Limelight Count", LIMELIGHT_LIST.size());
+        Logger.recordOutput("NewHopper/Vision/Faults/Drivetrain instance null?", drivetrain == null);
+        Logger.recordOutput("NewHopper/Vision/Faults/Limelight List Empty?", LIMELIGHT_LIST.isEmpty());
+        Logger.recordOutput("NewHopper/Vision/Faults/Limelight Count", LIMELIGHT_LIST.size());
     }
 
     // -------------------------
@@ -746,8 +746,8 @@ public class VisionSubsystem extends SubsystemBase {
         Transform2d futurePoseToAdjustedTarget = new Transform2d(getAdjustedTarget(futurePoseToTarget.getTranslation(), futurePoseToTarget.getTranslation()), new Rotation2d());
 
         // Logging
-        Logger.recordOutput("Rebuilt/Vision/FuturePose", futurePoseWRTField);
-        Logger.recordOutput("Rebuilt/Vision/FutureTarget", futurePoseWRTField.plus(futurePoseToAdjustedTarget));
+        Logger.recordOutput("NewHopper/Vision/FuturePose", futurePoseWRTField);
+        Logger.recordOutput("NewHopper/Vision/FutureTarget", futurePoseWRTField.plus(futurePoseToAdjustedTarget));
 
         return getAdjustedTarget(futurePoseToTarget.getTranslation(), futurePoseToTarget.getTranslation());
 

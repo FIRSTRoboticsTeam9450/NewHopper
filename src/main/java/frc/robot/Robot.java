@@ -10,9 +10,14 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -22,6 +27,9 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
+    private final Field2d field2d = new Field2d();
+    private NetworkTable networkTable;
+    private final SendableBuilderImpl sendableBuilder = new SendableBuilderImpl();
 
     private int updateValuesOffset = 0;
 
@@ -39,9 +47,28 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
+    public void robotInit() {
+        
+        // Creates a network table which is read by Elastic (Seems like advantage scope doesn't see it)
+        networkTable = NetworkTableInstance.getDefault()
+                .getTable("FieldTable") // Name of the folder Field2d is stored in
+                .getSubTable("Field2d"); // Name of the Field2d
+        
+        // Makes the builder attached to the network table to send the feild2d
+        sendableBuilder.setTable(networkTable); 
+
+        // initiate the field2d and builder
+        field2d.initSendable(sendableBuilder);
+        sendableBuilder.startListeners();
+    }
+
+    @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
+
+        field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
+        sendableBuilder.update();
     }
 
     @Override
@@ -73,6 +100,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void autonomousInit() {
+        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }

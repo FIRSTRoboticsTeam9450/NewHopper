@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -62,10 +63,13 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
     private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
+    private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationVolts", -3);
+    private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationVolts", 3);
 
     private double angleDeployStore = 5; // Motor revolutions // TODO: Store angle
     private double angleDeployIntake = logDeploySetpoint.get(); //17.798; // Motor revolutions // TODO: Intake angle
     private double angleDeployAgitate = angleDeployIntake - 1; // Motor revolutions // TODO: Agitation angle
+    private double angleDeployAgitateLimit = 2; // Motor revolutions // TODO: Agitation angle
 
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -81,7 +85,10 @@ public class IntakeSubsystem extends SubsystemBase {
     private double deployAgitationTolerance = 0.3;
 
     private boolean agitateTowardIntake = false;
-
+    private double agitationInVolts = logAgitationInVolts.get();
+    private double agitationOutVolts = logAgitationOutVolts.get();
+    private Timer agitationTimer = new Timer();
+    private Timer waitTimer = new Timer();
 
     private IntakeSubsystem() {
         configureDeployMotors();
@@ -172,17 +179,22 @@ public class IntakeSubsystem extends SubsystemBase {
                 sendSetpoint();
                 break;
             case AGITATE:
-                double deploySetpoint = agitateTowardIntake
-                        ? angleDeployIntake
-                        : angleDeployAgitate;
-                
-                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
-
-                double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
-                if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
-                    agitateTowardIntake = !agitateTowardIntake;
+                if(waitTimer.hasElapsed(2)) {
+                    double voltage = agitateTowardIntake
+                        ? -agitationInVolts
+                        : agitationOutVolts;
+                    
+                    deployMotor.setVoltage(deploySetpoint);
+                    if (agitationTimer.hasElapsed(1) 
+                    || (deployMotor.getPosition().getValueAsDouble() > angleDeployIntake && voltage < 0) 
+                    || (deployMotor.getPosition().getValueAsDouble() < angleDeployAgitateLimit && voltage > 0)) {
+                        agitateTowardIntake = !agitateTowardIntake;
+                        agitationTimer.restart();
+                    }
                 }
-
+                else {
+                    deployMotor.setVoltage(0);
+                }
                 break;
 
         }
@@ -204,7 +216,6 @@ public class IntakeSubsystem extends SubsystemBase {
                 break;
         }
     }
-
     private void sendSetpoint() {
         double error = Math.abs(deploySetpoint - deployMotor.getPosition().getValueAsDouble());
         if(error > .2) {
@@ -243,6 +254,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public void updateConstants() {
         angleDeployIntake = logDeploySetpoint.get();
         angleDeployAgitate = angleDeployIntake - 1;
+        agitationInVolts = logAgitationInVolts.get();
+        agitationOutVolts = logAgitationOutVolts.get();
         if (
             deployMotorConfig.MotionMagic.MotionMagicAcceleration != logDeployAccel.get() ||
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logDeployVeloc.get() ||
@@ -256,6 +269,9 @@ public class IntakeSubsystem extends SubsystemBase {
         ) configureDeployMotors();
     }
 
+    public DeployState getDeployState() {
+        return deployState;
+    }
     public static IntakeSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new IntakeSubsystem();
         return INSTANCE;
@@ -266,9 +282,12 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setDeployState(DeployState state) {
-        print(state)
         if(deployState != state){
             setpointCounter = 0;
+        }
+        if(deployState != DeployState.AGITATE && state == DeployState.AGITATE) {
+            waitTimer.restart();
+            agitationTimer.restart();
         }
         deployState = state;
         if(deployState == DeployState.ZEROING) {
