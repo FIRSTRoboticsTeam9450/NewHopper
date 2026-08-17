@@ -34,10 +34,10 @@ public class SidesweeperSubsystem extends SubsystemBase {
     private RampState rampState = RampState.IDLE;
     private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
 
-    private double speedRampTransfer = 2; // Volts // TODO: Transfer speed
+    private double speedRampTransfer = 10; // Volts // TODO: Transfer speed
     private double speedRampIdle = 0; // Volts
     
-    private double speedSidesweeperTransfer = 2; // Volts // TODO: Transfer speed
+    private double speedSidesweeperTransfer = 10; // Volts // TODO: Transfer speed
     private double speedSidesweeperIdle = 0; // Volts
 
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);

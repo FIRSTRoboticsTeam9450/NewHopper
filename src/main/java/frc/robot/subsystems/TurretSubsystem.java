@@ -76,8 +76,8 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
     
     // Physical limits (degrees) - degree° total range depends on the constant
-    private static final double MIN_ANGLE_DEG = -90;//-(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = 180;//(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MIN_ANGLE_DEG = 0;//-(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = 180; //(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;

@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
 public class IntakeSubsystem extends SubsystemBase {
     private static IntakeSubsystem INSTANCE;
@@ -63,8 +64,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0);
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
     private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
-    private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationVolts", -3);
-    private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationVolts", 3);
+    private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationInVolts", -5);
+    private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationOutVolts", 5);
 
     private double angleDeployStore = 5; // Motor revolutions // TODO: Store angle
     private double angleDeployIntake = logDeploySetpoint.get(); //17.798; // Motor revolutions // TODO: Intake angle
@@ -89,6 +90,15 @@ public class IntakeSubsystem extends SubsystemBase {
     private double agitationOutVolts = logAgitationOutVolts.get();
     private Timer agitationTimer = new Timer();
     private Timer waitTimer = new Timer();
+    private double lastSwitchTime = 0.0;
+    private int agitationStage = 0;
+    private double agitationStage0InSetpoint = 18;
+    private double agitationStage1InSetpoint = 2;
+    private double agitationStage1OutSetpoint = 6;
+    private double agitationStage2InSetpoint = 2;
+    private double agitationStage2OutSetpoint = 10;
+
+
 
     private IntakeSubsystem() {
         configureDeployMotors();
@@ -179,18 +189,50 @@ public class IntakeSubsystem extends SubsystemBase {
                 sendSetpoint();
                 break;
             case AGITATE:
-                if(waitTimer.hasElapsed(2)) {
-                    double voltage = agitateTowardIntake
-                        ? -agitationInVolts
-                        : agitationOutVolts;
+                if(waitTimer.hasElapsed(1.5)) {
+                    // double voltage = agitateTowardIntake
+                    //     ? agitationInVolts
+                    //     : agitationOutVolts;
                     
-                    deployMotor.setVoltage(deploySetpoint);
-                    if (agitationTimer.hasElapsed(1) 
-                    || (deployMotor.getPosition().getValueAsDouble() > angleDeployIntake && voltage < 0) 
-                    || (deployMotor.getPosition().getValueAsDouble() < angleDeployAgitateLimit && voltage > 0)) {
-                        agitateTowardIntake = !agitateTowardIntake;
-                        agitationTimer.restart();
+                    // deployMotor.setVoltage(voltage);
+                    // if (Timer.getFPGATimestamp() - lastSwitchTime >= 0.5
+                    // || (deployMotor.getPosition().getValueAsDouble() > angleDeployIntake && voltage > 0) 
+                    // || (deployMotor.getPosition().getValueAsDouble() < angleDeployAgitateLimit && voltage < 0)) {
+                    //     agitateTowardIntake = !agitateTowardIntake;
+                    //     lastSwitchTime = Timer.getFPGATimestamp();
+                    // }
+
+                    if(agitationStage == 0) {
+                        deploySetpoint = agitationStage0InSetpoint;
                     }
+                    else if(agitationStage == 1) {
+                        deploySetpoint = agitationStage1InSetpoint;
+                    }
+                    else if(agitationStage == 2) {
+                        deploySetpoint = agitationStage1OutSetpoint;
+                    }
+                    else if(agitationStage == 3) {
+                        deploySetpoint = agitationStage2InSetpoint;
+                    }
+                    // else if(agitationStage == 3) {
+                    //     deploySetpoint = agitationStage2OutSetpoint;
+                    // }
+                    // else if(agitationStage == 4) {
+                    //     deploySetpoint = agitationStage2InSetpoint;
+                    // }
+                    // else if(agitationStage == 5) {
+                    //     deploySetpoint = agitationStage2OutSetpoint;
+                    // }
+                    deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+
+                    double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
+                    if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
+                        if(agitationStage == 3) {
+                            agitationStage = 1;
+                        }
+                        agitationStage++;
+                    }
+
                 }
                 else {
                     deployMotor.setVoltage(0);
@@ -233,6 +275,10 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
     }
+
+    // private boolean checkStall() {
+    //     // if(intakeLeftMotor.)
+    // }
     private void publishLogs() {
         Logger.recordOutput("NewHopper/Intake/Angle State", deployState);
         Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
@@ -241,7 +287,11 @@ public class IntakeSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Intake/Intake Voltage Setpoint", intakeSetpoint);
         Logger.recordOutput("NewHopper/Intake/Intake Left Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("NewHopper/Intake/Intake Right Voltage (follower)", intakeRightMotor.getMotorVoltage().getValueAsDouble());
-
+        Logger.recordOutput("NewHopper/Intake/Agitation/WaitTimer", waitTimer.hasElapsed(2));
+        Logger.recordOutput("NewHopper/Intake/Agitation/AgitationTimer", Timer.getFPGATimestamp() - lastSwitchTime);
+        Logger.recordOutput("NewHopper/Intake/Agitation/agitateTowardIntake", agitateTowardIntake);
+        Logger.recordOutput("NewHopper/Intake/Agitation/AgitationStage", agitationStage);
+        Logger.recordOutput("NewHopper/Intake/iszeroingdone", isZeroingDone);
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Intake/Deploy Voltage", deployMotor.getMotorVoltage().getValueAsDouble());
@@ -287,10 +337,22 @@ public class IntakeSubsystem extends SubsystemBase {
         }
         if(deployState != DeployState.AGITATE && state == DeployState.AGITATE) {
             waitTimer.restart();
-            agitationTimer.restart();
+            deployMotorConfig.MotionMagic.MotionMagicAcceleration = 100;
+            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 50;
+
+            deployMotor.getConfigurator().apply(deployMotorConfig);
+            lastSwitchTime = Timer.getFPGATimestamp();
+            agitationStage = 0;
+        }
+        if(deployState == DeployState.AGITATE && state != DeployState.AGITATE) {
+            
+            deployMotorConfig.MotionMagic.MotionMagicAcceleration = 400;
+            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
+
+            deployMotor.getConfigurator().apply(deployMotorConfig);
         }
         deployState = state;
-        if(deployState == DeployState.ZEROING) {
+        if(state == DeployState.ZEROING) {
             isZeroingDone = false;
         }
     }

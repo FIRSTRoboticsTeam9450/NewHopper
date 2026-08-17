@@ -297,10 +297,10 @@ public class ShooterSubsystem extends SubsystemBase {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
             setState(currentShooterState, AngleState.TUNING);
-            // coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+            coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             return true;
         }
-        return false;
+        return false; // TODO CHANGE BACK TO FALSE
     }
 
     public void zeroEncoder() {

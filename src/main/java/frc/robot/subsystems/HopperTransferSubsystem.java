@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
@@ -27,7 +28,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private TransferState transferState = TransferState.IDLE;
 
-    private double speedTransferTransfer = 1; // Volts // TODO: Transfer speed
+    private double speedTransferTransfer = 5; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
 
     private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -40,6 +41,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private LoggedNetworkBoolean logTransferDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Transfer", false);
 
     private double transferSetpoint = 0;
+    private double pauseForSideSweep = 0;
     
     private HopperTransferSubsystem() {
         configureTransferMotors();
@@ -80,8 +82,14 @@ public class HopperTransferSubsystem extends SubsystemBase {
                 transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
                 break;
             case TRANSFER:
-                transferSetpoint = speedTransferTransfer;
-                transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
+                if(Timer.getFPGATimestamp() - pauseForSideSweep > .25) {
+                    transferSetpoint = speedTransferTransfer;
+                    transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
+                }
+                else {
+                    transferSetpoint = 0;
+                    transferUpperMotor.setControl(transferRequest.withOutput(0));
+                }
                 break;
             case EJECT:
                 transferSetpoint = -4;
@@ -107,6 +115,9 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     public void setTransferState(TransferState state) {
         transferState = state;
+        if(state == TransferState.TRANSFER) {
+            pauseForSideSweep = Timer.getFPGATimestamp();
+        }
     }
 
     public InstantCommand setTransferStateCommand(TransferState state) {

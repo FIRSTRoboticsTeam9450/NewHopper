@@ -145,13 +145,13 @@ public class CoordinationSubsystem extends SubsystemBase {
         AngleState shooterHoodState = AngleState.DISABLED;
         TransferState transferState = TransferState.IDLE;
         IntakeState intakeWheelState = IntakeState.IDLE;
-        DeployState intakeDeployState = DeployState.STORE;
-        if(isIntaking) {
-            intakeDeployState = DeployState.DEPLOY;
-            intakeWheelState = IntakeState.INTAKE;
-        }
+        DeployState intakeDeployState = DeployState.DEPLOY;
         SidesweeperState sidesweepState = SidesweeperState.IDLE;
         RampState rampState = RampState.IDLE;
+        if(isIntaking) {
+            // intakeDeployState = DeployState.AGITATE;
+            intakeWheelState = IntakeState.INTAKE;
+        }
         switch(currentState) {
             case INIT:
                 turretState = TurretState.INIT;
@@ -171,9 +171,8 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if (!isIntaking) {
-                    intakeDeployState = DeployState.AGITATE;
-                }
+                intakeDeployState = DeployState.AGITATE;
+                intakeWheelState = IntakeState.INTAKE;
                 break;
             case STORING:
                 turretState = TurretState.STORING;
@@ -197,8 +196,8 @@ public class CoordinationSubsystem extends SubsystemBase {
         ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
         IntakeSubsystem.getInstance().setDeployState(intakeDeployState);
         IntakeSubsystem.getInstance().setIntakeState(intakeWheelState);
-        HopperTransferSubsystem.getInstance().setTransferState(transferState);
         SidesweeperSubsystem.getInstance().setSidesweeperState(sidesweepState);
+        HopperTransferSubsystem.getInstance().setTransferState(transferState);
         SidesweeperSubsystem.getInstance().setRampState(rampState);
 
     }
@@ -208,7 +207,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/Intakeing", isIntaking);
         Logger.recordOutput("NewHopper/Coord/Firing", driverAllowingShooting);
         // Logger.recordOutput("NewHopper/Coord/Supercharged", fastTransfer);
-
+        Logger.recordOutput("NewHopper/Coord/Zeroing", checkZeroing);
         Logger.recordOutput("NewHopper/Coord/Current State", currentState);
         // Logger.recordOutput("NewHopper/Coord/Driver Allows Shooting", driverAllowingShooting);
         // Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
@@ -220,7 +219,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     public boolean isZeroingDone() {
         boolean zeroingDone = ShooterSubsystem.getInstance().getCurrentAngleState() != AngleState.ZEROING 
         && IntakeSubsystem.getInstance().getDeployState() != DeployState.ZEROING;
+        Logger.recordOutput("NewHopper/Coord/zeroingDonebyBoth", zeroingDone);
         if(zeroingDone) {
+            System.out.println("so you did it.");
             setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             checkZeroing = false;
         }
@@ -232,12 +233,14 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isShooterReady() {
-        return ShooterSubsystem.getInstance().isShooterReady();
+        // return ShooterSubsystem.getInstance().isShooterReady();
+        return true;
     }
 
     public boolean isTurretReady() {
-        // return true;
-        return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isTurretGoodToFire();
+        return true;
+        // return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isTurretGoodToFire();
+
     }
 
     public boolean areShooterAndTurretReady() {
@@ -291,6 +294,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setStateCommand(AbsoluteStates state, boolean forceStateChange) {
         return new InstantCommand(() -> setState(state, forceStateChange));
     }
+    
     public void setIntake(boolean intaking) {
         isIntaking = intaking;
     }

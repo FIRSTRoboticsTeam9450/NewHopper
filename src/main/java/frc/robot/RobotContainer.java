@@ -180,12 +180,14 @@ public class RobotContainer {
         }
         // DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
         // DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
-        DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
-            new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE))
-        ));
-        DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.INTAKE)).alongWith(
-            new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
-        ));
+        // DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
+        //     new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE))
+        // ));
+        // DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.INTAKE)).alongWith(
+        //     new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
+        // ));
+        DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand());
+
         DRIVER.x().onTrue(CoordinationSubsystem.getInstance().decreaseManualAdjust());
         DRIVER.b().onTrue(CoordinationSubsystem.getInstance().increaseManualAdjust());
         DRIVER.a().onTrue(CoordinationSubsystem.getInstance().resetManualAdjust());
@@ -201,14 +203,17 @@ public class RobotContainer {
         // DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));
         // DRIVER.rightBumper().onFalse(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)));
 
-        DRIVER.rightTrigger().onTrue(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.TRANSFER)).alongWith(
-            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.TRANSFER)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)))));
-        DRIVER.rightTrigger().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
-            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
-
-        DRIVER.rightBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.EJECT)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.EJECT))));
-        DRIVER.rightBumper().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
-            new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
+        // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.TRANSFER)).alongWith(
+        //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.TRANSFER)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)))));
+        // DRIVER.rightTrigger().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
+        //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
+        DRIVER.rightTrigger().onTrue(coordSub.setFireCommand());
+        DRIVER.rightBumper().onTrue(coordSub.setRejectingCommand(true));
+        DRIVER.rightBumper().onFalse(coordSub.setRejectingCommand(false));
+        
+        // DRIVER.rightBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.EJECT)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.EJECT))));
+        // DRIVER.rightBumper().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
+        //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
 
         // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(17.6)));
         // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));
@@ -249,8 +254,8 @@ public class RobotContainer {
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
-        autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
-        autoChooser.addOption("Left Half Sweep + Depot", drivetrain.getAutoPath("HST - FPSD", false));
+        // autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
+        // autoChooser.addOption("Left Half Sweep + Depot", drivetrain.getAutoPath("HST - FPSD", false));
     }
 
     public Command getAutonomousCommand() {
