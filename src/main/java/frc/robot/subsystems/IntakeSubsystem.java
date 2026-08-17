@@ -65,6 +65,15 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
     private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
 
+    // Slot 1
+    private LoggedNetworkNumber logDeploySlot1KS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kS", 0);
+    private LoggedNetworkNumber logDeploySlot1KV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kV", 0.1);
+    private LoggedNetworkNumber logDeploySlot1KA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kA", 0);
+    private LoggedNetworkNumber logDeploySlot1KP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kP", 60);
+    private LoggedNetworkNumber logDeploySlot1KI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kI", 0);
+    private LoggedNetworkNumber logDeploySlot1KD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kD", 0);
+    private LoggedNetworkNumber logDeploySlot1KG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kG", 0);
+
     private LoggedNetworkNumber logDeploySlot =  new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot", 0);
 
     private double angleDeployStore = 5; // Motor revolutions // TODO: Store angle
@@ -119,13 +128,13 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotorConfig.Slot0 = slot0Config;
         
         
-        Slot1Configs slot1Config = new Slot1Configs().withKS(logDeployKS.get())
-                                                     .withKV(logDeployKV.get())
-                                                     .withKA(logDeployKA.get())
-                                                     .withKP(logDeployKP.get())
-                                                     .withKI(logDeployKI.get())
-                                                     .withKD(logDeployKD.get())
-                                                     .withKG(logDeployKG.get())
+        Slot1Configs slot1Config = new Slot1Configs().withKS(logDeploySlot1KS.get())
+                                                     .withKV(logDeploySlot1KV.get())
+                                                     .withKA(logDeploySlot1KA.get())
+                                                     .withKP(logDeploySlot1KP.get())
+                                                     .withKI(logDeploySlot1KI.get())
+                                                     .withKD(logDeploySlot1KD.get())
+                                                     .withKG(logDeploySlot1KG.get())
                                                      .withGravityType(GravityTypeValue.Elevator_Static);
 
         deployMotorConfig.Slot1 = slot1Config;
@@ -271,7 +280,15 @@ public class IntakeSubsystem extends SubsystemBase {
             deployMotorConfig.Slot0.kP != logDeployKP.get() ||
             deployMotorConfig.Slot0.kI != logDeployKI.get() ||
             deployMotorConfig.Slot0.kD != logDeployKD.get() ||
-            deployMotorConfig.Slot0.kG != logDeployKG.get()
+            deployMotorConfig.Slot0.kG != logDeployKG.get() ||
+            
+            deployMotorConfig.Slot1.kS != logDeploySlot1KS.get() ||
+            deployMotorConfig.Slot1.kV != logDeploySlot1KV.get() ||
+            deployMotorConfig.Slot1.kA != logDeploySlot1KA.get() ||
+            deployMotorConfig.Slot1.kP != logDeploySlot1KP.get() ||
+            deployMotorConfig.Slot1.kI != logDeploySlot1KI.get() ||
+            deployMotorConfig.Slot1.kD != logDeploySlot1KD.get() ||
+            deployMotorConfig.Slot1.kG != logDeploySlot1KG.get() 
         ) configureDeployMotors();
     }
 
