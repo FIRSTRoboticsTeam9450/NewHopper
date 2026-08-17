@@ -4,6 +4,8 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -63,6 +65,17 @@ public class IntakeSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
     private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
 
+    // Slot 1
+    private LoggedNetworkNumber logDeploySlot1KS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kS", 0);
+    private LoggedNetworkNumber logDeploySlot1KV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kV", 0.1);
+    private LoggedNetworkNumber logDeploySlot1KA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kA", 0);
+    private LoggedNetworkNumber logDeploySlot1KP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kP", 60);
+    private LoggedNetworkNumber logDeploySlot1KI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kI", 0);
+    private LoggedNetworkNumber logDeploySlot1KD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kD", 0);
+    private LoggedNetworkNumber logDeploySlot1KG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot1/kG", 0);
+
+    private LoggedNetworkNumber logDeploySlot =  new LoggedNetworkNumber("/Tuning/Intake/Deploy/Slot", 0);
+
     private double angleDeployStore = 5; // Motor revolutions // TODO: Store angle
     private double angleDeployIntake = logDeploySetpoint.get(); //17.798; // Motor revolutions // TODO: Intake angle
     private double angleDeployAgitate = angleDeployIntake - 1; // Motor revolutions // TODO: Agitation angle
@@ -103,14 +116,28 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotorConfig.MotionMagic.MotionMagicAcceleration = logDeployAccel.get();
         deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = logDeployVeloc.get();
 
-        deployMotorConfig.Slot0.kS = logDeployKS.get();
-        deployMotorConfig.Slot0.kV = logDeployKV.get();
-        deployMotorConfig.Slot0.kA = logDeployKA.get();
-        deployMotorConfig.Slot0.kP = logDeployKP.get();
-        deployMotorConfig.Slot0.kI = logDeployKI.get();
-        deployMotorConfig.Slot0.kD = logDeployKD.get();
-        deployMotorConfig.Slot0.kG = logDeployKG.get();
-        deployMotorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
+        Slot0Configs slot0Config = new Slot0Configs().withKS(logDeployKS.get())
+                                                     .withKV(logDeployKV.get())
+                                                     .withKA(logDeployKA.get())
+                                                     .withKP(logDeployKP.get())
+                                                     .withKI(logDeployKI.get())
+                                                     .withKD(logDeployKD.get())
+                                                     .withKG(logDeployKG.get())
+                                                     .withGravityType(GravityTypeValue.Elevator_Static);
+        
+        deployMotorConfig.Slot0 = slot0Config;
+        
+        
+        Slot1Configs slot1Config = new Slot1Configs().withKS(logDeploySlot1KS.get())
+                                                     .withKV(logDeploySlot1KV.get())
+                                                     .withKA(logDeploySlot1KA.get())
+                                                     .withKP(logDeploySlot1KP.get())
+                                                     .withKI(logDeploySlot1KI.get())
+                                                     .withKD(logDeploySlot1KD.get())
+                                                     .withKG(logDeploySlot1KG.get())
+                                                     .withGravityType(GravityTypeValue.Elevator_Static);
+
+        deployMotorConfig.Slot1 = slot1Config;
 
         deployMotor.getConfigurator().apply(deployMotorConfig);
     }
@@ -176,7 +203,7 @@ public class IntakeSubsystem extends SubsystemBase {
                         ? angleDeployIntake
                         : angleDeployAgitate;
                 
-                deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                deployMotor.setControl(deployRequest.withPosition(deploySetpoint).withSlot((int) logDeploySlot.get()));
 
                 double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
                 if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
@@ -217,7 +244,7 @@ public class IntakeSubsystem extends SubsystemBase {
             deployMotor.setVoltage(0);
         }
         else {
-            deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+            deployMotor.setControl(deployRequest.withPosition(deploySetpoint).withSlot(0));
 
         }
 
@@ -243,6 +270,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void updateConstants() {
         angleDeployIntake = logDeploySetpoint.get();
         angleDeployAgitate = angleDeployIntake - 1;
+        
         if (
             deployMotorConfig.MotionMagic.MotionMagicAcceleration != logDeployAccel.get() ||
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logDeployVeloc.get() ||
@@ -252,7 +280,15 @@ public class IntakeSubsystem extends SubsystemBase {
             deployMotorConfig.Slot0.kP != logDeployKP.get() ||
             deployMotorConfig.Slot0.kI != logDeployKI.get() ||
             deployMotorConfig.Slot0.kD != logDeployKD.get() ||
-            deployMotorConfig.Slot0.kG != logDeployKG.get()
+            deployMotorConfig.Slot0.kG != logDeployKG.get() ||
+            
+            deployMotorConfig.Slot1.kS != logDeploySlot1KS.get() ||
+            deployMotorConfig.Slot1.kV != logDeploySlot1KV.get() ||
+            deployMotorConfig.Slot1.kA != logDeploySlot1KA.get() ||
+            deployMotorConfig.Slot1.kP != logDeploySlot1KP.get() ||
+            deployMotorConfig.Slot1.kI != logDeploySlot1KI.get() ||
+            deployMotorConfig.Slot1.kD != logDeploySlot1KD.get() ||
+            deployMotorConfig.Slot1.kG != logDeploySlot1KG.get() 
         ) configureDeployMotors();
     }
 
