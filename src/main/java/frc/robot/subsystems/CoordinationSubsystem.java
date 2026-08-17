@@ -218,8 +218,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
     
     public boolean isZeroingDone() {
-        boolean zeroingDone = ShooterSubsystem.getInstance().getCurrentAngleState() != AngleState.ZEROING 
-        && IntakeSubsystem.getInstance().getDeployState() != DeployState.ZEROING;
+        boolean zeroingDone = !ShooterSubsystem.getInstance().getCurrentAngleState().equals(AngleState.ZEROING)  
+        && !IntakeSubsystem.getInstance().getDeployState().equals(DeployState.ZEROING);
         if(zeroingDone) {
             setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             checkZeroing = false;
