@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -95,7 +96,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 50); // 62.5
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.21);
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.185);
     private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.0115);
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
@@ -189,6 +190,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     //Testing Stuff
     public double testTargetSetpoint = 0;
+    private double manualSetpoint = 0;
     
     // ========================= Constructor =========================
     
@@ -302,7 +304,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withKS(logKS.get())
             .withKV(logKV.get())
             .withKA(logKA.get());
-        
+        slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseClosedLoopSign;
         motorConfig.Slot0 = slot0;
         
         // Fused CANcoder feedback
@@ -466,7 +468,6 @@ public class TurretSubsystem extends SubsystemBase {
         double turretVelocityWRTField = (deltaTurretAngleWRTField.getDegrees()) / (timestamp - previousVelocityTimestamp); //degrees/second
 
         turretVeloictyWRTRobot = turretVelocityWRTField - robotYawVelocWRTField; //degrees/second
-    
         // Logger.recordOutput("NewHopper/Turret/Velocity/Previous Angle WRT Field", previousTurretAngleWRTField);
         // Logger.recordOutput("NewHopper/Turret/Velocity/Previous Timestamp", previousVelocityTimestamp);
 
@@ -641,7 +642,7 @@ public class TurretSubsystem extends SubsystemBase {
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
                     break;
                 case MANUAL:
-                    profiledSetpointDeg = 90;
+                    profiledSetpointDeg = manualSetpoint;
                     if(useManualAdjust) {
                         profiledSetpointDeg += manualShift;
                     }
@@ -651,7 +652,7 @@ public class TurretSubsystem extends SubsystemBase {
                         MAX_ANGLE_DEG
                     );
                     
-                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    commandTurret(manualSetpoint, 0.0, 0.0);
 
                     break;
             }
@@ -678,6 +679,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert degrees to motor rotations
         double positionMotorRevs = positionDeg;
         double velocityMotorRevsPerSec = velocityDegPerSec;
+        double velocityRotPerSec = velocityDegPerSec / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
         double accelerationMotorRevsPerSecSq = accelerationDegPerSecSq;
         
         // Convert to encoder units (accounting for offset and encoder ratio)
@@ -687,7 +689,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
         double feedforwardVolts = feedforward.calculate(
-            velocityMotorRevsPerSec,
+            velocityRotPerSec,
             accelerationMotorRevsPerSecSq
         );
         
@@ -695,7 +697,7 @@ public class TurretSubsystem extends SubsystemBase {
         turretMotor.setControl(
             positionRequest
                 .withPosition(positionEncoderRevs - (turretOffset / encoderToAngleMultiplier))
-                .withFeedForward(feedforwardVolts)
+                .withVelocity(velocityRotPerSec)
         );
     }
     
@@ -854,7 +856,6 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentMotorPos", turretMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentMotorPos", turretMotor.getRotorPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
-
         Logger.recordOutput("NewHopper/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());
         
         // Velocity tracking
@@ -959,6 +960,9 @@ public class TurretSubsystem extends SubsystemBase {
         this.fieldRelativeGoalAngle = angle;
     }
     
+    public void setManualTurretSetpoint(double setpoint) {
+        manualSetpoint = setpoint;
+    }
     /**
      * Changes the turret's operating state.
      * 

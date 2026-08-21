@@ -46,7 +46,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
       public static final double ROTOR_TO_SENSOR_RATIO = 52.5;//01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.711;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.711;
 
       public static final double TURRET_OFFSET_TO_ZERO = 360;
       public static final double TURRET_OFFSET_TO_TARGET = 0.25; // 1.25
@@ -126,7 +126,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
                 public static final double LOCATION_X = 0.271457252;
                 public static final double LOCATION_Y = -0.26510724;
                 public static final double LOCATION_Z = 0.22526;
-                public static final double PITCH = 28.1;
+                public static final double PITCH = 40;
                 public static final double ROLL = 0;
                 public static final double YAW = 45;
                 public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
@@ -134,23 +134,23 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
             public static final class Right {
                 public static final String NAME = "limelight-r";
-                public static final double LOCATION_X = 0.271457252;
-                public static final double LOCATION_Y = 0.26510724;
-                public static final double LOCATION_Z = 0.22526;
-                public static final double PITCH = 28.1;
+                public static final double LOCATION_X = -0.0862;
+                public static final double LOCATION_Y = -0.3114;
+                public static final double LOCATION_Z = 0.0906;
+                public static final double PITCH = 40;
                 public static final double ROLL = 0;
-                public static final double YAW = -45;
+                public static final double YAW = -90;
                 public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
             }
 
-            public static final class Back {
+            public static final class Back { // Check these values
                 public static final String NAME = "limelight-b";
-                public static final double LOCATION_X = -0.271457252;
-                public static final double LOCATION_Y = -0.26510724;
-                public static final double LOCATION_Z = 0.22526;
-                public static final double PITCH = 28.1;
+                public static final double LOCATION_X = -0.2635;
+                public static final double LOCATION_Y = -0.109;
+                public static final double LOCATION_Z = 0.2271;
+                public static final double PITCH = 40;
                 public static final double ROLL = 0;
-                public static final double YAW = 135;
+                public static final double YAW = 180;
                 public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
             }
         }

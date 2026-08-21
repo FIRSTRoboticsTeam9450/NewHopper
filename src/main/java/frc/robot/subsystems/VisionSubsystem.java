@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.TurretConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.VisionConstants.Limelights.Back;
 import frc.robot.Constants.VisionConstants.Limelights.Right;
 import frc.robot.Constants.VisionConstants.Limelights.Left;
@@ -501,6 +502,8 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private void publishLogs() {
         // Overall vision state
+        Logger.recordOutput("NewHopper/Vision/Right/pose", VisionConstants.Limelights.Right.POSE);
+        Logger.recordOutput("NewHopper/Vision/Back/pose", VisionConstants.Limelights.Back.POSE);
         Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
@@ -546,7 +549,6 @@ public class VisionSubsystem extends SubsystemBase {
             for (LimelightObject limelight : LIMELIGHT_LIST) {
                 String name = limelight.getName();
                 LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(name);
-                
                 if (results != null) {
                     Logger.recordOutput("NewHopper/Vision/" + name + "/Valid", results.valid);
                     Logger.recordOutput("NewHopper/Vision/" + name + "/Priority Tag", LimelightHelpers.getFiducialID(name));
