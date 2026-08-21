@@ -195,6 +195,8 @@ public class RobotContainer {
         DRIVER.leftStick().onFalse(CoordinationSubsystem.getInstance().setManualTurret(true));
         DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().addManualHoodShift()));
         DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualHoodShift()));
+        // DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(12)));
+        // DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(0)));
         DRIVER.povLeft().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualHoodShift()));
         
         DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));

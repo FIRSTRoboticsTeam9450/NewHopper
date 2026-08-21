@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean swappedMotors = false;
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
-
+    private double manualHoodSetpoint = 0;
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
     private double manualHoodShift = 0;
     private double wheelWareAdjustment = 1.5 - 3.5;
@@ -423,7 +423,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 angleMotor.setControl(hoodMMRequest.withPosition(targetAngle).withSlot(slotNum));
                 break;
             case MANUAL:
-                angleMotor.setControl(hoodMMRequest.withPosition(manualHoodShift).withSlot(slotNum));
+                angleMotor.setControl(hoodMMRequest.withPosition(manualHoodSetpoint + manualHoodShift).withSlot(slotNum));
                 
             default:
                 break;
@@ -587,6 +587,10 @@ public class ShooterSubsystem extends SubsystemBase {
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 
+    public void setManualHoodSetpoint(double setpoint) {
+        manualHoodSetpoint = setpoint;
+    }
+
     public double getHoodAngleDegrees() {
         return angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero; // add + 15 if you want true angle
     }
@@ -625,7 +629,7 @@ public class ShooterSubsystem extends SubsystemBase {
             return (isAngleWithinTolerance() && isVelocityWithinTolerance());
         }
         // return false;
-        return (isAngleWithinTolerance() && isVelocityWithinTolerance(20));
+        return (isAngleWithinTolerance() && isVelocityWithinTolerance(20)); // TODO: PROB WHAT IS CAUSING THE PAUSES the is velocity within tolerance 20
         // return (isAngleWithinTolerance());
         // return true;
     }
