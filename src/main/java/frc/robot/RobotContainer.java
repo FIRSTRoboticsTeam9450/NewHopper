@@ -202,6 +202,9 @@ public class RobotContainer {
         DRIVER.povLeft().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualHoodShift()));
         
         DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
+        DRIVER.rightBumper().onTrue(new InstantCommand(() -> SidesweeperSubsystem.getInstance().setSlow()).alongWith(
+            new InstantCommand(() -> HopperTransferSubsystem.getInstance().setSlowHopper())
+        ));
         // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
         // DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));

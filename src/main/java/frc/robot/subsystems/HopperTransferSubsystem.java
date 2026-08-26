@@ -42,6 +42,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private double transferSetpoint = 0;
     private double pauseForSideSweep = 0;
+
+    private boolean slowHopper = false;
     
     private HopperTransferSubsystem() {
         configureTransferMotors();
@@ -117,6 +119,16 @@ public class HopperTransferSubsystem extends SubsystemBase {
         transferState = state;
         if(state == TransferState.TRANSFER) {
             pauseForSideSweep = Timer.getFPGATimestamp();
+        }
+    }
+
+    public void setSlowHopper() {
+        slowHopper = !slowHopper;
+        if(slowHopper) {
+            speedTransferTransfer = 2;
+        }
+        else {
+            speedTransferTransfer = 5;
         }
     }
 

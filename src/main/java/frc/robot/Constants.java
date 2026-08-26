@@ -41,7 +41,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         }
         
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-.1079, -.1824), new Rotation2d(0)); // .1778
-      public static final double ENCODER_MAGNET_OFFSET =  -0.155029296875;//0.134521484375;
+      public static final double ENCODER_MAGNET_OFFSET =  -0.354248046875;//0.134521484375;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
@@ -49,9 +49,9 @@ public final class Constants { // TODO: Replace -1 IDs with real values
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.711;
 
       public static final double TURRET_OFFSET_TO_ZERO = 360;
-      public static final double TURRET_OFFSET_TO_TARGET = 0.25; // 1.25
+      public static final double TURRET_OFFSET_TO_TARGET = 0; // 0.25; // 1.25
 
-      public static final double TOTAL_ROTATION_DEGREES = 270; //320
+      public static final double TOTAL_ROTATION_DEGREES = 320; //320
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 6.857142857; //2.24;
@@ -134,12 +134,12 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
             public static final class Right {
                 public static final String NAME = "limelight-r";
-                public static final double LOCATION_X = -0.0862;
-                public static final double LOCATION_Y = -0.3114;
-                public static final double LOCATION_Z = 0.0906;
+                public static final double LOCATION_X = -0.0862; // Forward
+                public static final double LOCATION_Y = -0.3114; // Right
+                public static final double LOCATION_Z = 0.0906; // Up
                 public static final double PITCH = 40;
                 public static final double ROLL = 0;
-                public static final double YAW = -90;
+                public static final double YAW = 90;
                 public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
             }
 

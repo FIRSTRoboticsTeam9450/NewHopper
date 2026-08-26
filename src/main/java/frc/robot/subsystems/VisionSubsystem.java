@@ -154,7 +154,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 
     // DEBUGGING
-    private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", true);
     double loopOffset = 0;
 
     private boolean useCustomTarget = false;
@@ -184,7 +184,7 @@ public class VisionSubsystem extends SubsystemBase {
         LimelightObject limelightLeft = new LimelightObject(Left.NAME)
                                         .withLocation(Location.LEFT)
                                         .withPose3d(Left.POSE);
-        LIMELIGHT_LIST.add(limelightLeft);
+        // LIMELIGHT_LIST.add(limelightLeft);
 
         // Front Right Limelight
         LimelightObject limelightRight = new LimelightObject(Right.NAME)
@@ -506,14 +506,14 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Vision/Back/pose", VisionConstants.Limelights.Back.POSE);
         Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
-        // Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
+        Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Target Pose", lastTargetPose);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
         // Standard deviations
-        // Logger.recordOutput("NewHopper/Vision/Config/StdDev X", currentVisionStdDevX);
-        // Logger.recordOutput("NewHopper/Vision/Config/StdDev Y", currentVisionStdDevY);
-        // Logger.recordOutput("NewHopper/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
+        Logger.recordOutput("NewHopper/Vision/Config/StdDev X", currentVisionStdDevX);
+        Logger.recordOutput("NewHopper/Vision/Config/StdDev Y", currentVisionStdDevY);
+        Logger.recordOutput("NewHopper/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
 
         // Logger.recordOutput("NewHopper/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
         

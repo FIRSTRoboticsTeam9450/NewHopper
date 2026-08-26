@@ -60,6 +60,8 @@ public class SidesweeperSubsystem extends SubsystemBase {
     private double verticalRollerSetpoint = 0;
     private double sidesweeperSetpoint = 0;
 
+    private boolean slow = false;
+
     public SidesweeperSubsystem() {
         configureRampMotors();
         configureSidesweeperMotors();
@@ -172,6 +174,18 @@ public class SidesweeperSubsystem extends SubsystemBase {
             
             Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Velocity", sidesweeperUpperMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Position", sidesweeperUpperMotor.getPosition().getValueAsDouble());
+        }
+    }
+
+    public void setSlow() {
+        slow = !slow;
+        if(slow) {
+            speedRampTransfer = 2;
+            speedSidesweeperTransfer = 2;
+        }
+        else {
+            speedRampTransfer = 10;
+            speedSidesweeperTransfer = 10;
         }
     }
 

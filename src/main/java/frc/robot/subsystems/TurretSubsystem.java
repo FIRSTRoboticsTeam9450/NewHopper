@@ -78,7 +78,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Physical limits (degrees) - degree° total range depends on the constant
     private static final double MIN_ANGLE_DEG = -90;//-(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = 180; //(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = 180;//(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -390,7 +390,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         double robotYawVeloc = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
         // Logger.recordOutput("NewHopper/Turret/Robot Yaw Veloc", robotYawVeloc);
-
+        
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) {
             targetVeloc = 0.0;
         } else {
@@ -500,7 +500,8 @@ public class TurretSubsystem extends SubsystemBase {
                 robotToTarget.getY()
             );
 
-            
+            Logger.recordOutput("NewHopper/Turret/x", robotToTarget.getX());
+            Logger.recordOutput("NewHopper/Turret/y", robotToTarget.getY());
             // Update field-relative goal
             fieldRelativeGoalAngle = angleToTarget;
         }
@@ -846,7 +847,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         // State information
         Logger.recordOutput("NewHopper/Turret/State/CurrentState", currentState);
-        // Logger.recordOutput("NewHopper/Turret/State/TargetMode", currentTargetMode);
+        Logger.recordOutput("NewHopper/Turret/State/TargetMode", currentTargetMode);
         
         // Position tracking
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
@@ -857,7 +858,7 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentMotorPos", turretMotor.getRotorPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
         Logger.recordOutput("NewHopper/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());
-        
+        Logger.recordOutput("NewHopper/Turret/TargetMode", getTargetMode());
         // Velocity tracking
         // Logger.recordOutput("NewHopper/Turret/Pos/CurrentVelocityDegPerSec", 
             // cachedMotorVelocity * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);

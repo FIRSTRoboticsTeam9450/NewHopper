@@ -96,7 +96,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double agitationStage1InSetpoint = 2;
     private double agitationStage1OutSetpoint = 6;
     private double agitationStage2InSetpoint = 2;
-    private double agitationStage2OutSetpoint = 10;
+    // private double agitationStage2OutSetpoint = 10;
 
 
 
