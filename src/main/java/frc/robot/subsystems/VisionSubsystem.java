@@ -57,30 +57,6 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 public class VisionSubsystem extends SubsystemBase {
 
     // -------------------------
-    // Singleton instance
-    // -------------------------
-    private static volatile VisionSubsystem instance;
-
-    /**
-     * Singleton accessor method.
-     * Ensures only one instance exists and is globally accessible.
-     *
-     * @param drivetrain Drivetrain instance for updating pose with vision
-     * @return VisionSubsystem instance
-     */
-    public static synchronized VisionSubsystem getInstance() {
-        if (instance == null) {
-            instance = new VisionSubsystem();
-            instance.initizalize();
-        }
-        return instance;
-    }
-
-    public void initizalize() {
-        
-    }
-
-    // -------------------------
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
@@ -165,7 +141,7 @@ public class VisionSubsystem extends SubsystemBase {
     // Constructor (private for singleton)
     // -------------------------
 
-    private VisionSubsystem() {
+    public VisionSubsystem() {
         drivetrain = RobotContainer.drivetrain;
 
         // Configure camera offsets and add to internal list
@@ -531,7 +507,7 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             loopOffset++;
         }
-        Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
+        //Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
 
         // Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
@@ -585,7 +561,7 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
             Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
             Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
-            Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
+            //Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
             // getAdjustedFutureTarget(.5);
 
         }
@@ -764,10 +740,10 @@ public class VisionSubsystem extends SubsystemBase {
         double timeToShoot = 1.2;
         // TODO: UNCOMMENT LATER //
         if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-            timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = RobotContainer.shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
         }
         else {
-            timeToShoot = ShooterSubsystem.getInstance().getFerryingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = RobotContainer.shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
         }
         return timeToShoot;
     }
@@ -850,7 +826,7 @@ public class VisionSubsystem extends SubsystemBase {
         double currentX = currentPose.getX();
         double currentY = currentPose.getY();
 
-        Pose2d turretPose = TurretSubsystem.getInstance().getTurretPose();
+        Pose2d turretPose = RobotContainer.turretSub.getTurretPose();
         double turretX = turretPose.getX();
         double turretY = turretPose.getY();
         if(currentX > ZoneConstantsWelded.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsWelded.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsWelded.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED

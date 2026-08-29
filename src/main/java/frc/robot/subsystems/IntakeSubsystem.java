@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import frc.robot.util.PIDVals;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -20,11 +21,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private static IntakeSubsystem INSTANCE;
-    
+
     public enum DeployState {
         ZEROING,
         DEPLOY,
@@ -49,20 +48,16 @@ public class IntakeSubsystem extends SubsystemBase {
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);
     private TalonFX intakeLeftMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, RobotConstants.RIO_BUS);
     private TalonFX intakeRightMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeRightMotorID, RobotConstants.RIO_BUS);
-    
+
     private TalonFXConfiguration deployMotorConfig = new TalonFXConfiguration();
     private TalonFXConfiguration intakeMotorConfig = new TalonFXConfiguration();
 
     // TODO: Motion Magic tuning
     private LoggedNetworkNumber logDeployAccel = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Accel", 400);
     private LoggedNetworkNumber logDeployVeloc = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Veloc",200);
-    private LoggedNetworkNumber logDeployKS = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kS", 0);
-    private LoggedNetworkNumber logDeployKV = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kV", 0.1);
-    private LoggedNetworkNumber logDeployKA = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kA", 0);
-    private LoggedNetworkNumber logDeployKP = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kP", 60);
-    private LoggedNetworkNumber logDeployKI = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kI", 0);
-    private LoggedNetworkNumber logDeployKD = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kD", 0);
-    private LoggedNetworkNumber logDeployKG = new LoggedNetworkNumber("/Tuning/Intake/Deploy/kG", 0);
+
+    private PIDVals deployPID = new PIDVals("/Tuning/Intake/Deploy/",0,0.1,0,60,0,0,0);
+
     private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
     private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationInVolts", -5);
     private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationOutVolts", 5);
@@ -82,7 +77,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double tuningDeploySetpoint = 0;
     private double setpointCounter = 0;
     private boolean isZeroingDone = false;
-    
+
     private double deployAgitationTolerance = 0.3;
 
     private boolean agitateTowardIntake = false;
@@ -100,7 +95,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
 
-    private IntakeSubsystem() {
+    public IntakeSubsystem() {
         configureDeployMotors();
         configureIntakeMotors();
         setpointCounter = 0;
@@ -120,13 +115,8 @@ public class IntakeSubsystem extends SubsystemBase {
         deployMotorConfig.MotionMagic.MotionMagicAcceleration = logDeployAccel.get();
         deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = logDeployVeloc.get();
 
-        deployMotorConfig.Slot0.kS = logDeployKS.get();
-        deployMotorConfig.Slot0.kV = logDeployKV.get();
-        deployMotorConfig.Slot0.kA = logDeployKA.get();
-        deployMotorConfig.Slot0.kP = logDeployKP.get();
-        deployMotorConfig.Slot0.kI = logDeployKI.get();
-        deployMotorConfig.Slot0.kD = logDeployKD.get();
-        deployMotorConfig.Slot0.kG = logDeployKG.get();
+        deployPID.setMotorPID0(deployMotorConfig);
+
         deployMotorConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
 
         deployMotor.getConfigurator().apply(deployMotorConfig);
@@ -193,10 +183,10 @@ public class IntakeSubsystem extends SubsystemBase {
                     // double voltage = agitateTowardIntake
                     //     ? agitationInVolts
                     //     : agitationOutVolts;
-                    
+
                     // deployMotor.setVoltage(voltage);
                     // if (Timer.getFPGATimestamp() - lastSwitchTime >= 0.5
-                    // || (deployMotor.getPosition().getValueAsDouble() > angleDeployIntake && voltage > 0) 
+                    // || (deployMotor.getPosition().getValueAsDouble() > angleDeployIntake && voltage > 0)
                     // || (deployMotor.getPosition().getValueAsDouble() < angleDeployAgitateLimit && voltage < 0)) {
                     //     agitateTowardIntake = !agitateTowardIntake;
                     //     lastSwitchTime = Timer.getFPGATimestamp();
@@ -295,7 +285,7 @@ public class IntakeSubsystem extends SubsystemBase {
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Intake/Deploy Voltage", deployMotor.getMotorVoltage().getValueAsDouble());
-            
+
             Logger.recordOutput("NewHopper/Intake/Intake Velocity", intakeLeftMotor.getVelocity().getValueAsDouble());
             // Logger.recordOutput("NewHopper/Intake/Intake Position", intakeLeftMotor.getPosition().getValueAsDouble());
         }
@@ -306,25 +296,11 @@ public class IntakeSubsystem extends SubsystemBase {
         angleDeployAgitate = angleDeployIntake - 1;
         agitationInVolts = logAgitationInVolts.get();
         agitationOutVolts = logAgitationOutVolts.get();
-        if (
-            deployMotorConfig.MotionMagic.MotionMagicAcceleration != logDeployAccel.get() ||
-            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logDeployVeloc.get() ||
-            deployMotorConfig.Slot0.kS != logDeployKS.get() ||
-            deployMotorConfig.Slot0.kV != logDeployKV.get() ||
-            deployMotorConfig.Slot0.kA != logDeployKA.get() ||
-            deployMotorConfig.Slot0.kP != logDeployKP.get() ||
-            deployMotorConfig.Slot0.kI != logDeployKI.get() ||
-            deployMotorConfig.Slot0.kD != logDeployKD.get() ||
-            deployMotorConfig.Slot0.kG != logDeployKG.get()
-        ) configureDeployMotors();
+        if (deployPID.updateMotorPID(deployMotorConfig)) configureDeployMotors();
     }
 
     public DeployState getDeployState() {
         return deployState;
-    }
-    public static IntakeSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new IntakeSubsystem();
-        return INSTANCE;
     }
 
     public void setDeploySetpoint(double setpoint) {
@@ -345,7 +321,7 @@ public class IntakeSubsystem extends SubsystemBase {
             agitationStage = 0;
         }
         if(deployState == DeployState.AGITATE && state != DeployState.AGITATE) {
-            
+
             deployMotorConfig.MotionMagic.MotionMagicAcceleration = 400;
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
 

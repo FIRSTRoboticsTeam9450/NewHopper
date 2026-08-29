@@ -73,18 +73,18 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledInit() {
-        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
-        VisionSubsystem.getInstance().setThrottle(VisionConstants.kDisabledThrottle);
-        VisionSubsystem.getInstance().setLLIMUModes(VisionConstants.kDisabledIMUMode);
+        RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.disabledStdDev);
+        RobotContainer.visionSub.setThrottle(VisionConstants.kDisabledThrottle);
+        RobotContainer.visionSub.setLLIMUModes(VisionConstants.kDisabledIMUMode);
         updateValuesOffset = 0;
     }
 
     @Override
     public void disabledPeriodic() {
-        if (updateValuesOffset == 15) IntakeSubsystem.getInstance().updateConstants();
-        else if (updateValuesOffset == 30) ShooterSubsystem.getInstance().updateShooterConstants();
+        if (updateValuesOffset == 15) RobotContainer.intakeSub.updateConstants();
+        else if (updateValuesOffset == 30) RobotContainer.shooterSub.updateShooterConstants();
         else if (updateValuesOffset >= 45) {
-            TurretSubsystem.getInstance().updateTunableParameters();
+            RobotContainer.turretSub.updateTunableParameters();
             updateValuesOffset = 0;
         }
         updateValuesOffset++;
@@ -92,15 +92,15 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
-        VisionSubsystem.getInstance().setThrottle(VisionConstants.kEnabledThrottle);
-        VisionSubsystem.getInstance().setLLIMUModes(VisionConstants.kEnabledIMUMode);
+        RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.enabledMT2StdDev);
+        RobotContainer.visionSub.setThrottle(VisionConstants.kEnabledThrottle);
+        RobotContainer.visionSub.setLLIMUModes(VisionConstants.kEnabledIMUMode);
         // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
     }
 
     @Override
     public void autonomousInit() {
-        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
+        RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.enabledMT2StdDev);
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }

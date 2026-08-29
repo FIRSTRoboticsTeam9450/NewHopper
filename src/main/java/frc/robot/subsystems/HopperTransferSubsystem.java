@@ -18,7 +18,6 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.TransferConstants;
 
 public class HopperTransferSubsystem extends SubsystemBase {
-    private static HopperTransferSubsystem INSTANCE;
     
     public enum TransferState {
         TRANSFER,
@@ -45,7 +44,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private boolean slowHopper = false;
     
-    private HopperTransferSubsystem() {
+    public HopperTransferSubsystem() {
         configureTransferMotors();
         // transferUpperMotor.setControl(transferRequest.withOutput(4));
     }
@@ -108,11 +107,6 @@ public class HopperTransferSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Transfer/Transfer Position", transferUpperMotor.getPosition().getValueAsDouble());
         }
-    }
-
-    public static HopperTransferSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new HopperTransferSubsystem();
-        return INSTANCE;
     }
 
     public void setTransferState(TransferState state) {

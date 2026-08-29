@@ -5,6 +5,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class ResetIMU extends Command {
   private CommandSwerveDrivetrain drivetrain;
+  private boolean finished = false;
 
   public ResetIMU(CommandSwerveDrivetrain drivetrain) {
     addRequirements(drivetrain);
@@ -14,16 +15,11 @@ public class ResetIMU extends Command {
   @Override
   public void initialize() {
     drivetrain.seedFieldCentric();
+    finished = true;
   }
 
   @Override
-  public void execute() {}
-
-  @Override
-  public void end(boolean interrupted) {}
-
-  @Override
   public boolean isFinished() {
-    return true;
+    return finished;
   }
 }

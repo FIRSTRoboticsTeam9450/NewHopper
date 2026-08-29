@@ -17,7 +17,6 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SidesweeperConstants;
 
 public class SidesweeperSubsystem extends SubsystemBase {
-    private static SidesweeperSubsystem INSTANCE;
 
     public enum RampState {
         TRANSFER,
@@ -187,11 +186,6 @@ public class SidesweeperSubsystem extends SubsystemBase {
             speedRampTransfer = 10;
             speedSidesweeperTransfer = 10;
         }
-    }
-
-    public static SidesweeperSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new SidesweeperSubsystem();
-        return INSTANCE;
     }
     
     public void setRampState(RampState state) {
