@@ -296,7 +296,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.TUNING);
+            setState(currentShooterState, AngleState.AIMING);
             coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             return true;
         }
