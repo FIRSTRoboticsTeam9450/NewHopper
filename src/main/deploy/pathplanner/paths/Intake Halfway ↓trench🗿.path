@@ -1,0 +1,84 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.467156626506024,
+        "y": 0.67
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.871024096385542,
+        "y": 0.7027831325301203
+      },
+      "isLocked": false,
+      "linkedName": "intake↓trenchStartPoint"
+    },
+    {
+      "anchor": {
+        "x": 7.800108433734941,
+        "y": 3.6088192771084344
+      },
+      "prevControl": {
+        "x": 8.226289156626507,
+        "y": 0.4507108433734932
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "IntakeHalfwayEnd"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.10539419087136957,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 102.82567437647624
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.6223325062034715,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.49131513647642855,
+      "endWaypointRelativePos": 1.0,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 95.0
+  },
+  "reversed": false,
+  "folder": "2056 Paths",
+  "idealStartingState": {
+    "velocity": 1.5,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

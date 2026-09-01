@@ -1,0 +1,66 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.800108433734941,
+        "y": 3.6088192771084344
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.117240963855424,
+        "y": 3.335626506024097
+      },
+      "isLocked": false,
+      "linkedName": "IntakeHalfwayEnd"
+    },
+    {
+      "anchor": {
+        "x": 3.4727349397590364,
+        "y": 2.4176987951807236
+      },
+      "prevControl": {
+        "x": 5.417867469879608,
+        "y": 2.363060240959859
+      },
+      "nextControl": null,
+      "isLocked": true,
+      "linkedName": "RetreatHalfwayEndpoint"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.10539419087136827,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.2987593052109183,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.75,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "2056 Paths",
+  "idealStartingState": {
+    "velocity": 1.0,
+    "rotation": 95.0
+  },
+  "useDefaultConstraints": false
+}
