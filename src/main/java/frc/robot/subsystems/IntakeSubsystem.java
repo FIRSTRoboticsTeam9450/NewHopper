@@ -42,7 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
-    private double speedIntakeIntake = 8; // Volts // TODO: Intake speed
+    private double speedIntakeIntake = 4; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);

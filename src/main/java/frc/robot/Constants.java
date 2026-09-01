@@ -41,7 +41,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
         }
         
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-.1079, -.1824), new Rotation2d(0)); // .1778
-      public static final double ENCODER_MAGNET_OFFSET =  -0.354248046875;//0.134521484375;
+      public static final double ENCODER_MAGNET_OFFSET = -0.153564453125;//0.134521484375;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
@@ -49,7 +49,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.711;
 
       public static final double TURRET_OFFSET_TO_ZERO = 360;
-      public static final double TURRET_OFFSET_TO_TARGET = 0; // 0.25; // 1.25
+      public static final double TURRET_OFFSET_TO_TARGET = 90; // 0.25; // 1.25
 
       public static final double TOTAL_ROTATION_DEGREES = 320; //320
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
@@ -83,7 +83,7 @@ public final class Constants { // TODO: Replace -1 IDs with real values
             public static final int kRightShooterMotorID = 37;
         }
         public static final class HoodConstants {
-            public static final double degreesPerMotorRev = 0;
+            public static final double degreesPerMotorRev = 2.2040816372; //2.0571428571429;
         }
     }
 
@@ -122,8 +122,8 @@ public final class Constants { // TODO: Replace -1 IDs with real values
 
         public enum Limelight {
 
-            LEFT("limelight-l",0.271457252,-0.26510724,0.22526,40,0,45),
-            RIGHT("limelight-r",-0.0862,-0.3114,0.0906,40,0,90),
+            LEFT("limelight-l",-0.25,-0.312,0.289,40,0,90),
+            RIGHT("limelight-r",-0.0862,0.3114,0.0906,40,0,-90),
             BACK("limelight-b",-0.2635,-0.109,0.2271,40,0,180);
 
             public final String NAME;

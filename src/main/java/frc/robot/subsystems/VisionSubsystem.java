@@ -160,7 +160,7 @@ public class VisionSubsystem extends SubsystemBase {
         LimelightObject limelightLeft = new LimelightObject(LEFT.NAME)
                                         .withLocation(Location.LEFT)
                                         .withPose3d(LEFT.POSE);
-        // LIMELIGHT_LIST.add(limelightLeft);
+        LIMELIGHT_LIST.add(limelightLeft);
 
         // Front Right Limelight
         LimelightObject limelightRight = new LimelightObject(RIGHT.NAME)
@@ -509,7 +509,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         //Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
 
-        // Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+        Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
         // for (LimelightObject limelight : LIMELIGHT_LIST) {
         //     String llName = limelight.getName();
