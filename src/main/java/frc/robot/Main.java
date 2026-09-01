@@ -5,11 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.util.Logging;
 
 public final class Main {
   private Main() {}
 
   public static void main(String... args) {
+      Logging.log(ShooterSubsystem.class);
     RobotBase.startRobot(Robot::new);
   }
 }
