@@ -18,9 +18,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.VisionConstants.Limelights.Back;
-import frc.robot.Constants.VisionConstants.Limelights.Right;
-import frc.robot.Constants.VisionConstants.Limelights.Left;
+import static frc.robot.Constants.VisionConstants.Limelight.LEFT;
+import static frc.robot.Constants.VisionConstants.Limelight.RIGHT;
+import static frc.robot.Constants.VisionConstants.Limelight.BACK;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.FieldConstants;
@@ -157,21 +157,21 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void configureLimelights() {
         // Front Left Limelight
-        LimelightObject limelightLeft = new LimelightObject(Left.NAME)
+        LimelightObject limelightLeft = new LimelightObject(LEFT.NAME)
                                         .withLocation(Location.LEFT)
-                                        .withPose3d(Left.POSE);
+                                        .withPose3d(LEFT.POSE);
         // LIMELIGHT_LIST.add(limelightLeft);
 
         // Front Right Limelight
-        LimelightObject limelightRight = new LimelightObject(Right.NAME)
+        LimelightObject limelightRight = new LimelightObject(RIGHT.NAME)
                                         .withLocation(Location.RIGHT)
-                                        .withPose3d(Right.POSE);
+                                        .withPose3d(RIGHT.POSE);
         LIMELIGHT_LIST.add(limelightRight);
 
         // Back Left Limelight
-        LimelightObject limelightBack = new LimelightObject(Back.NAME)
+        LimelightObject limelightBack = new LimelightObject(BACK.NAME)
                                         .withLocation(Location.BACK)
-                                        .withPose3d(Back.POSE);
+                                        .withPose3d(BACK.POSE);
         LIMELIGHT_LIST.add(limelightBack);
 
     }
@@ -478,8 +478,8 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private void publishLogs() {
         // Overall vision state
-        Logger.recordOutput("NewHopper/Vision/Right/pose", VisionConstants.Limelights.Right.POSE);
-        Logger.recordOutput("NewHopper/Vision/Back/pose", VisionConstants.Limelights.Back.POSE);
+        Logger.recordOutput("NewHopper/Vision/Right/pose", RIGHT.POSE);
+        Logger.recordOutput("NewHopper/Vision/Back/pose", BACK.POSE);
         Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
         Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
