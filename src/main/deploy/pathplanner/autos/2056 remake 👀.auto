@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake Halfway ↓trench🗿"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "retreat from halfway ↑trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot from ↑ to ↓ trench "
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake Halfway ↓trench lower 2ndRound "
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake to back of hub"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "retreat from back of hub"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot from ↑ to ↓ trench "
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake Halfway ↓trench🗿"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
