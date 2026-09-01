@@ -1,0 +1,100 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.467156626506024,
+        "y": 0.67
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.559982348027982,
+        "y": 0.67
+      },
+      "isLocked": false,
+      "linkedName": "intake↓trenchStartPoint"
+    },
+    {
+      "anchor": {
+        "x": 5.90961445782766,
+        "y": 1.0954457831278683
+      },
+      "prevControl": {
+        "x": 5.5722688241755955,
+        "y": 0.7188739130046327
+      },
+      "nextControl": {
+        "x": 6.37950602409272,
+        "y": 1.6199759036097976
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.122590361445783,
+        "y": 3.4011927710843373
+      },
+      "prevControl": {
+        "x": 6.630843373493977,
+        "y": 2.2865662650602405
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "IntakeHalfway2ndRoundEndPoint"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.9643153526970911,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 1.814107883817418,
+      "rotationDegrees": 70.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 1.5980148883374643,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.5617866004962758,
+      "endWaypointRelativePos": 2.0,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 95.0
+  },
+  "reversed": false,
+  "folder": "2056 Paths",
+  "idealStartingState": {
+    "velocity": 1.5,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
