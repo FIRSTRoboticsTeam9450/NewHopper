@@ -145,6 +145,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Data tables
     InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
     InterpolatingDoubleTreeMap shootingDistanceToVelocity = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap shootingDistanceToAngle = new InterpolatingDoubleTreeMap();
 
     InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
     InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
@@ -182,7 +183,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addData() {
-
+        shootingDistanceToAngle.put(4.242, 10.4);
         shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment - .25);
         shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment + .5);
         shootingDistanceToVelocity.put(5.095, 46.0 + wheelWareAdjustment + .75);
@@ -571,6 +572,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // if(distance >= distanceAwayToUseHighDegree && coordSub.getCurrentZone() != ZoneState.SHOOTING_ZONE) {
         //     wantedRevs = hoodAngleMax;
         // }
+        Logger.recordOutput("NewHopper/Shooter/Hood/wantedAngle", wantedAngle);
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 
