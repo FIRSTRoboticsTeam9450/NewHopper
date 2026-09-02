@@ -6,7 +6,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import frc.robot.util.Logging;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.Logging;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -17,7 +21,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -26,18 +29,13 @@ import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
-import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.HopperTransferSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SidesweeperSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.HopperTransferSubsystem.TransferState;
 import frc.robot.subsystems.IntakeSubsystem.DeployState;
-import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.SidesweeperSubsystem.RampState;
-import frc.robot.subsystems.SidesweeperSubsystem.SidesweeperState;
 import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
@@ -88,13 +86,21 @@ public class RobotContainer {
 
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("NewHopper/Auto Chooser");
 
-    public static final Logging testLog =  new Logging("NewHopper/");
+    public static final Logging testLog = new Logging("NewHopper/", LogLevel.MINIMAL);
 
     public RobotContainer() {
         configureBindings();
         configureNamedCommands();
         configureAutos();
-        testLog.add(turretSub);
+        testLog.addHandler(new Logging.Handler(Pose2d.class) {
+            @Override
+            public void handle(String path, Object o) {
+                Pose2d pose = (Pose2d) o;
+                Logger.recordOutput(path, pose);
+            }
+        });
+        testLog.addLoggedObject(turretSub);
+        testLog.addLoggedObject(visionSub);
     }
 
     private void configureBindings() {

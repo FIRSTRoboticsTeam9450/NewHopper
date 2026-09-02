@@ -9,27 +9,21 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.TurretConstants;
-import frc.robot.Constants.VisionConstants;
+
 import static frc.robot.Constants.VisionConstants.Limelight.LEFT;
 import static frc.robot.Constants.VisionConstants.Limelight.RIGHT;
 import static frc.robot.Constants.VisionConstants.Limelight.BACK;
 import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
-import frc.robot.util.BezierCurve;
-import frc.robot.util.LimelightHelpers;
-import frc.robot.util.LimelightObject;
+import frc.robot.util.*;
 import frc.robot.util.LimelightHelpers.IMUData;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -42,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.ToLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -99,7 +95,7 @@ public class VisionSubsystem extends SubsystemBase {
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
 
     // Logging
-    private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
+    private volatile Pose2d lastFusedPose = null; // Last fused pose from vision
     private volatile Translation2d lastTargetPose = null;
     private volatile Translation2d lastAdjustedTargetPose = null;
     private String currentFerryZone = "none";
