@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import frc.robot.util.Logging;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -87,10 +88,13 @@ public class RobotContainer {
 
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("NewHopper/Auto Chooser");
 
+    public static final Logging testLog =  new Logging("NewHopper/");
+
     public RobotContainer() {
         configureBindings();
         configureNamedCommands();
         configureAutos();
+        testLog.add(turretSub);
     }
 
     private void configureBindings() {
