@@ -77,8 +77,8 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
     
     // Physical limits (degrees) - degree° total range depends on the constant
-    private static final double MIN_ANGLE_DEG = -90;//-(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = 180;//(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -245,7 +245,7 @@ public class TurretSubsystem extends SubsystemBase {
         //IRL
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         
-        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.8;
+        encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
@@ -349,7 +349,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Find best angle considering wrapping and limits
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
-
+        Logger.recordOutput("NewHopper/Turret/RobotRelativeTargetAngle", robotRelativeTargetAngleDeg);
         // Convert RPS to degrees/sec
         double currentVelocityDegPerSec = cachedMotorVelocity 
             * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
@@ -477,7 +477,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Logger.recordOutput("NewHopper/Turret/Velocity/Velocity WRT Field", turretVelocityWRTField);
         // Logger.recordOutput("NewHopper/Turret/Velocity/Current Timestamp", timestamp);
         // Logger.recordOutput("NewHopper/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
-        // Logger.recordOutput("NewHopper/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
+        Logger.recordOutput("NewHopper/Turret/Velocity/turretVelocityWRTField", turretVelocityWRTField);
 
         return turretVeloictyWRTRobot;
     }
@@ -500,8 +500,9 @@ public class TurretSubsystem extends SubsystemBase {
                 robotToTarget.getY()
             );
 
-            Logger.recordOutput("NewHopper/Turret/x", robotToTarget.getX());
-            Logger.recordOutput("NewHopper/Turret/y", robotToTarget.getY());
+            // Logger.recordOutput("NewHopper/Turret/x", robotToTarget.getX());
+            // Logger.recordOutput("NewHopper/Turret/y", robotToTarget.getY());
+            Logger.recordOutput("NewHopper/Turret/fieldRelativeAngle", angleToTarget.getDegrees());
             // Update field-relative goal
             fieldRelativeGoalAngle = angleToTarget;
         }
@@ -680,25 +681,27 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert degrees to motor rotations
         double positionMotorRevs = positionDeg;
         double velocityMotorRevsPerSec = velocityDegPerSec;
-        double velocityRotPerSec = velocityDegPerSec / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+        // double velocityRotPerSec = velocityDegPerSec / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
         double accelerationMotorRevsPerSecSq = accelerationDegPerSecSq;
         
         // Convert to encoder units (accounting for offset and encoder ratio)
         double positionEncoderRevs = 
             (positionMotorRevs) / encoderToAngleMultiplier;
         
+        Logger.recordOutput("NewHopper/Turret/PositionMotorRevs", positionMotorRevs);
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
-        double feedforwardVolts = feedforward.calculate(
-            velocityRotPerSec,
-            accelerationMotorRevsPerSecSq
-        );
+        // double feedforwardVolts = feedforward.calculate(
+        //     velocityMotorRevsPerSec,
+        //     accelerationMotorRevsPerSecSq
+        // );
         
         // Send position command with feedforward
         turretMotor.setControl(
             positionRequest
                 .withPosition(positionEncoderRevs - (turretOffset / encoderToAngleMultiplier))
-                .withVelocity(velocityRotPerSec)
+                .withVelocity(velocityMotorRevsPerSec)
+                // .withFeedForward(feedforwardVolts)
         );
     }
     
