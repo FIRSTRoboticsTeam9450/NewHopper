@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.util.log.LogLevel;
 import frc.robot.util.log.Logging;
 import org.littletonrobotics.junction.Logger;
@@ -91,19 +92,13 @@ public class RobotContainer {
         configureBindings();
         configureNamedCommands();
         configureAutos();
-        testLog.addHandler(new Logging.Handler(Pose2d.class) {
+        testLog.addHandler(new Logging.Handler<Pose2d>() {
             @Override
-            public void handle(String path, Object o) {
-                Pose2d pose = (Pose2d) o;
-                Logger.recordOutput(path, pose);
+            public void handle(String path, Pose2d o) {
+                Logger.recordOutput(path,o);
             }
         });
-        testLog.addLoggedObject(turretSub);
-        testLog.addLoggedObject(visionSub);
-        testLog.addLoggedObject(intakeSub);
-        testLog.addLoggedObject(shooterSub);
-        testLog.addLoggedObject(sidesweeperSub);
-        testLog.addLoggedObject(transferSub);
+        testLog.addLoggedObject(turretSub, visionSub, intakeSub, shooterSub, sidesweeperSub, transferSub);
     }
 
     private void configureBindings() {
@@ -260,7 +255,6 @@ public class RobotContainer {
     private void configureNamedCommands() { // Set up the named commands (Using NamedCommands.registerCommand())
         NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
         // NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
-
         NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
         NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
@@ -283,8 +277,8 @@ public class RobotContainer {
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
-        // autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
-        // autoChooser.addOption("Left Half Sweep + Depot", drivetrain.getAutoPath("HST - FPSD", false));
+        autoChooser.addDefaultOption("Test Auto", drivetrain.getAutoPath("4414 remake", false));
+        autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", true));
     }
 
     public Command getAutonomousCommand() {

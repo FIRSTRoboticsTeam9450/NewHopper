@@ -50,8 +50,7 @@ public class Robot extends LoggedRobot {
                 .getSubTable("Field2d"); // Name of the Field2d
         
         // Makes the builder attached to the network table to send the feild2d
-        sendableBuilder.setTable(networkTable); 
-
+        sendableBuilder.setTable(networkTable);
         // initiate the field2d and builder
         field2d.initSendable(sendableBuilder);
         sendableBuilder.startListeners();

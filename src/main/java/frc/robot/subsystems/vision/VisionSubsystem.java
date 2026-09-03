@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.ToLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -56,6 +58,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
 
+    @ToLog(level = LogLevel.MINIMAL)
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
