@@ -7,15 +7,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.HopperTransferSubsystem.TransferState;
-import frc.robot.subsystems.IntakeSubsystem.DeployState;
-import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.ShooterSubsystem.AngleState;
-import frc.robot.subsystems.ShooterSubsystem.ShooterState;
-import frc.robot.subsystems.SidesweeperSubsystem.RampState;
-import frc.robot.subsystems.SidesweeperSubsystem.SidesweeperState;
-import frc.robot.subsystems.TurretSubsystem.TurretState;
-import frc.robot.subsystems.VisionSubsystem.ZoneState;
+import frc.robot.subsystems.hopper.HopperTransferSubsystem.TransferState;
+import frc.robot.subsystems.intake.IntakeSubsystem.DeployState;
+import frc.robot.subsystems.intake.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.shooter.ShooterSubsystem.AngleState;
+import frc.robot.subsystems.shooter.ShooterSubsystem.ShooterState;
+import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem.RampState;
+import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem.SidesweeperState;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
+import frc.robot.subsystems.vision.VisionSubsystem.ZoneState;
 
 public class CoordinationSubsystem extends SubsystemBase {
 

@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.sidesweeper;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
@@ -14,7 +14,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.SidesweeperConstants;
 
 public class SidesweeperSubsystem extends SubsystemBase {
 

@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.util.log.LogLevel;
 import frc.robot.util.log.Logging;
 import org.littletonrobotics.junction.Logger;
@@ -27,15 +26,15 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
-import frc.robot.subsystems.HopperTransferSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SidesweeperSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.IntakeSubsystem.DeployState;
+import frc.robot.subsystems.hopper.HopperTransferSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem.DeployState;
 import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
@@ -86,7 +85,7 @@ public class RobotContainer {
 
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("NewHopper/Auto Chooser");
 
-    public static final Logging testLog = new Logging("NewHopper/", LogLevel.MINIMAL);
+    public static final Logging testLog = new Logging("NewHopper/", LogLevel.NORMAL);
 
     public RobotContainer() {
         configureBindings();
@@ -101,6 +100,10 @@ public class RobotContainer {
         });
         testLog.addLoggedObject(turretSub);
         testLog.addLoggedObject(visionSub);
+        testLog.addLoggedObject(intakeSub);
+        testLog.addLoggedObject(shooterSub);
+        testLog.addLoggedObject(sidesweeperSub);
+        testLog.addLoggedObject(transferSub);
     }
 
     private void configureBindings() {
