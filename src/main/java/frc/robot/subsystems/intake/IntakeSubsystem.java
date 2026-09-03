@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -136,7 +135,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeLeftMotor.getConfigurator().apply(intakeMotorConfig);
         intakeRightMotor.getConfigurator().apply(intakeMotorConfig);
 
-        intakeRightMotor.setControl(new Follower(Constants.IntakeConstants.DeviceIDs.kIntakeLeftMotorID, MotorAlignmentValue.Opposed));
+        intakeRightMotor.setControl(new Follower(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, MotorAlignmentValue.Opposed));
     }
 
     @Override

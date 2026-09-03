@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.TransferConstants;
 
 public class HopperTransferSubsystem extends SubsystemBase {
     
@@ -30,8 +29,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private double speedTransferTransfer = 5; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
 
-    private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX transferLowerMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX transferUpperMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX transferLowerMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private TalonFXConfiguration transferMotorConfig = new TalonFXConfiguration();
 
