@@ -3,6 +3,8 @@ package frc.robot.subsystems.turret;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.util.PIDVals;
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.ToLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -101,6 +103,7 @@ public class TurretSubsystem extends SubsystemBase {
     private boolean goodToMove = true;
 
     // Cached values
+    @ToLog(level = LogLevel.MINIMAL)
     private double cachedAngleDeg = 0.0;
     private double cachedMotorVelocity = 0.0;
     private double cachedMaxVelocity = logMaxVelocityDegPerSec.get();
@@ -677,7 +680,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert to encoder units (accounting for offset and encoder ratio)
         double positionEncoderRevs =
             (positionMotorRevs) / encoderToAngleMultiplier;
-        
+
         Logger.recordOutput("NewHopper/Turret/PositionMotorRevs", positionMotorRevs);
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
@@ -685,7 +688,7 @@ public class TurretSubsystem extends SubsystemBase {
         //     velocityMotorRevsPerSec,
         //     accelerationMotorRevsPerSecSq
         // );
-        
+
         // Send position command with feedforward
         turretMotor.setControl(
             positionRequest
