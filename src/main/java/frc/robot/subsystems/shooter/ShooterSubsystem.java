@@ -68,9 +68,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Motors TODO: FIX THE MOTOR IDS BEING SWAPPED ONCE THE LEFT MOTOR COMES BACK
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-
+    private TalonFX shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
 
@@ -160,8 +160,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    public void addData() {
+    public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
         shootingDistanceToAngle.put(4.242, 10.4);
+        
         shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment - .25);
         shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment + .5);
         shootingDistanceToVelocity.put(5.095, 46.0 + wheelWareAdjustment + .75);
@@ -247,7 +248,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shooterRightMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        // shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     public boolean autoZeroing() {
