@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.hopper;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
@@ -15,10 +15,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.TransferConstants;
 
 public class HopperTransferSubsystem extends SubsystemBase {
-    private static HopperTransferSubsystem INSTANCE;
     
     public enum TransferState {
         TRANSFER,
@@ -31,8 +29,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private double speedTransferTransfer = 5; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
 
-    private TalonFX transferUpperMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private TalonFX transferLowerMotor = new TalonFX(TransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX transferUpperMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX transferLowerMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private TalonFXConfiguration transferMotorConfig = new TalonFXConfiguration();
 
@@ -45,7 +43,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private boolean slowHopper = false;
     
-    private HopperTransferSubsystem() {
+    public HopperTransferSubsystem() {
         configureTransferMotors();
         // transferUpperMotor.setControl(transferRequest.withOutput(4));
     }
@@ -108,11 +106,6 @@ public class HopperTransferSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Transfer/Transfer Position", transferUpperMotor.getPosition().getValueAsDouble());
         }
-    }
-
-    public static HopperTransferSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new HopperTransferSubsystem();
-        return INSTANCE;
     }
 
     public void setTransferState(TransferState state) {

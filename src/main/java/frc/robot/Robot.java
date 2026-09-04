@@ -16,12 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.CoordinationSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.vision.VisionConstants;
 
 public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
@@ -55,8 +50,7 @@ public class Robot extends LoggedRobot {
                 .getSubTable("Field2d"); // Name of the Field2d
         
         // Makes the builder attached to the network table to send the feild2d
-        sendableBuilder.setTable(networkTable); 
-
+        sendableBuilder.setTable(networkTable);
         // initiate the field2d and builder
         field2d.initSendable(sendableBuilder);
         sendableBuilder.startListeners();
@@ -69,22 +63,23 @@ public class Robot extends LoggedRobot {
 
         field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
         sendableBuilder.update();
+        //RobotContainer.testLog.run();
     }
 
     @Override
     public void disabledInit() {
-        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
-        VisionSubsystem.getInstance().setThrottle(VisionConstants.kDisabledThrottle);
-        VisionSubsystem.getInstance().setLLIMUModes(VisionConstants.kDisabledIMUMode);
+        RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.disabledStdDev);
+        RobotContainer.visionSub.setThrottle(VisionConstants.kDisabledThrottle);
+        RobotContainer.visionSub.setLLIMUModes(VisionConstants.kDisabledIMUMode);
         updateValuesOffset = 0;
     }
 
     @Override
     public void disabledPeriodic() {
-        if (updateValuesOffset == 15) IntakeSubsystem.getInstance().updateConstants();
-        else if (updateValuesOffset == 30) ShooterSubsystem.getInstance().updateShooterConstants();
+        if (updateValuesOffset == 15) RobotContainer.intakeSub.updateConstants();
+        else if (updateValuesOffset == 30) RobotContainer.shooterSub.updateShooterConstants();
         else if (updateValuesOffset >= 45) {
-            TurretSubsystem.getInstance().updateTunableParameters();
+            RobotContainer.turretSub.updateTunableParameters();
             updateValuesOffset = 0;
         }
         updateValuesOffset++;
@@ -92,15 +87,15 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void disabledExit() {
-        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
-        VisionSubsystem.getInstance().setThrottle(VisionConstants.kEnabledThrottle);
-        VisionSubsystem.getInstance().setLLIMUModes(VisionConstants.kEnabledIMUMode);
+        RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.enabledMT2StdDev);
+        RobotContainer.visionSub.setThrottle(VisionConstants.kEnabledThrottle);
+        RobotContainer.visionSub.setLLIMUModes(VisionConstants.kEnabledIMUMode);
         // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
     }
 
     @Override
     public void autonomousInit() {
-        VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
+        RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.enabledMT2StdDev);
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }

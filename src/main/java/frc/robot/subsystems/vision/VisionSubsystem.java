@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -9,27 +9,22 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.TurretConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.VisionConstants.Limelights.Back;
-import frc.robot.Constants.VisionConstants.Limelights.Right;
-import frc.robot.Constants.VisionConstants.Limelights.Left;
+import frc.robot.subsystems.turret.TurretConstants;
+
+import static frc.robot.subsystems.vision.VisionConstants.Limelight.LEFT;
+import static frc.robot.subsystems.vision.VisionConstants.Limelight.RIGHT;
+import static frc.robot.subsystems.vision.VisionConstants.Limelight.BACK;
 import frc.robot.Constants;
-import frc.robot.Robot;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
-import frc.robot.util.BezierCurve;
-import frc.robot.util.LimelightHelpers;
-import frc.robot.util.LimelightObject;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
+import frc.robot.util.*;
 import frc.robot.util.LimelightHelpers.IMUData;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -42,6 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.ToLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -57,34 +54,11 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 public class VisionSubsystem extends SubsystemBase {
 
     // -------------------------
-    // Singleton instance
-    // -------------------------
-    private static volatile VisionSubsystem instance;
-
-    /**
-     * Singleton accessor method.
-     * Ensures only one instance exists and is globally accessible.
-     *
-     * @param drivetrain Drivetrain instance for updating pose with vision
-     * @return VisionSubsystem instance
-     */
-    public static synchronized VisionSubsystem getInstance() {
-        if (instance == null) {
-            instance = new VisionSubsystem();
-            instance.initizalize();
-        }
-        return instance;
-    }
-
-    public void initizalize() {
-        
-    }
-
-    // -------------------------
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
 
+    @ToLog(level = LogLevel.MINIMAL)
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
@@ -123,7 +97,7 @@ public class VisionSubsystem extends SubsystemBase {
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
 
     // Logging
-    private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
+    private volatile Pose2d lastFusedPose = null; // Last fused pose from vision
     private volatile Translation2d lastTargetPose = null;
     private volatile Translation2d lastAdjustedTargetPose = null;
     private String currentFerryZone = "none";
@@ -165,7 +139,7 @@ public class VisionSubsystem extends SubsystemBase {
     // Constructor (private for singleton)
     // -------------------------
 
-    private VisionSubsystem() {
+    public VisionSubsystem() {
         drivetrain = RobotContainer.drivetrain;
 
         // Configure camera offsets and add to internal list
@@ -181,21 +155,21 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void configureLimelights() {
         // Front Left Limelight
-        LimelightObject limelightLeft = new LimelightObject(Left.NAME)
+        LimelightObject limelightLeft = new LimelightObject(LEFT.NAME)
                                         .withLocation(Location.LEFT)
-                                        .withPose3d(Left.POSE);
+                                        .withPose3d(LEFT.POSE);
         LIMELIGHT_LIST.add(limelightLeft);
 
         // Front Right Limelight
-        LimelightObject limelightRight = new LimelightObject(Right.NAME)
+        LimelightObject limelightRight = new LimelightObject(RIGHT.NAME)
                                         .withLocation(Location.RIGHT)
-                                        .withPose3d(Right.POSE);
+                                        .withPose3d(RIGHT.POSE);
         LIMELIGHT_LIST.add(limelightRight);
 
         // Back Left Limelight
-        LimelightObject limelightBack = new LimelightObject(Back.NAME)
+        LimelightObject limelightBack = new LimelightObject(BACK.NAME)
                                         .withLocation(Location.BACK)
-                                        .withPose3d(Back.POSE);
+                                        .withPose3d(BACK.POSE);
         LIMELIGHT_LIST.add(limelightBack);
 
     }
@@ -502,8 +476,8 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private void publishLogs() {
         // Overall vision state
-        Logger.recordOutput("NewHopper/Vision/Right/pose", VisionConstants.Limelights.Right.POSE);
-        Logger.recordOutput("NewHopper/Vision/Back/pose", VisionConstants.Limelights.Back.POSE);
+        Logger.recordOutput("NewHopper/Vision/Right/pose", RIGHT.POSE);
+        Logger.recordOutput("NewHopper/Vision/Back/pose", BACK.POSE);
         Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
         Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
@@ -531,7 +505,7 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             loopOffset++;
         }
-        Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
+        //Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
 
         Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
@@ -585,7 +559,7 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
             Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
             Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
-            Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
+            //Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
             // getAdjustedFutureTarget(.5);
 
         }
@@ -764,10 +738,10 @@ public class VisionSubsystem extends SubsystemBase {
         double timeToShoot = 1.2;
         // TODO: UNCOMMENT LATER //
         if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-            timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = RobotContainer.shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
         }
         else {
-            timeToShoot = ShooterSubsystem.getInstance().getFerryingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = RobotContainer.shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
         }
         return timeToShoot;
     }
@@ -850,7 +824,7 @@ public class VisionSubsystem extends SubsystemBase {
         double currentX = currentPose.getX();
         double currentY = currentPose.getY();
 
-        Pose2d turretPose = TurretSubsystem.getInstance().getTurretPose();
+        Pose2d turretPose = RobotContainer.turretSub.getTurretPose();
         double turretX = turretPose.getX();
         double turretY = turretPose.getY();
         if(currentX > ZoneConstantsWelded.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsWelded.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsWelded.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED

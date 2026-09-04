@@ -6,6 +6,10 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.Logging;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -16,38 +20,33 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.ResetIMU;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.swerve.TunerConstants;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
-import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
-import frc.robot.subsystems.HopperTransferSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SidesweeperSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.HopperTransferSubsystem.TransferState;
-import frc.robot.subsystems.IntakeSubsystem.DeployState;
-import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.SidesweeperSubsystem.RampState;
-import frc.robot.subsystems.SidesweeperSubsystem.SidesweeperState;
+import frc.robot.subsystems.hopper.HopperTransferSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem.DeployState;
 import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
     public static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public static final VisionSubsystem visionSub = VisionSubsystem.getInstance();
-    public static final HopperTransferSubsystem transferSub = HopperTransferSubsystem.getInstance();
-    public static final IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
-    public static final ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
-    public static final SidesweeperSubsystem sidesweeperSub = SidesweeperSubsystem.getInstance();
-    public static final TurretSubsystem turretSub = TurretSubsystem.getInstance();
-    public static final CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+    public static final VisionSubsystem visionSub = new VisionSubsystem();
+    public static final HopperTransferSubsystem transferSub = new HopperTransferSubsystem();
+    public static final IntakeSubsystem intakeSub = new IntakeSubsystem();
+    public static final ShooterSubsystem shooterSub = new ShooterSubsystem();
+    public static final SidesweeperSubsystem sidesweeperSub = new SidesweeperSubsystem();
+    public static final TurretSubsystem turretSub = new TurretSubsystem();
+    public static final CoordinationSubsystem coordSub = new CoordinationSubsystem();
+
     
     public static final CommandXboxController DRIVER = new CommandXboxController(RobotConstants.DRIVER_CONTROLLER_PORT);
     public static final CommandXboxController OPERATOR = new CommandXboxController(RobotConstants.OPERATOR_CONTROLLER_PORT);
@@ -59,8 +58,8 @@ public class RobotContainer {
         //  Operator:
     
     /**
-     * Woojins Drive: 117.4, 0.054, 91.4, 0.76, 0.1, 0.01
-     * Woojins Rotate: 120.1, 0.145, 92.2, 0.362, 0.035, 0.03
+     * Woojin's Drive: 117.4, 0.054, 91.4, 0.76, 0.1, 0.01
+     * Woojin's Rotate: 120.1, 0.145, 92.2, 0.362, 0.035, 0.03
      */
     public static BezierCurve driveBezier = new BezierCurve("drive", 151.0, 0.137, 116, 0.646, 0.1, 0.01);
     public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
@@ -86,10 +85,19 @@ public class RobotContainer {
 
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("NewHopper/Auto Chooser");
 
+    //public static final Logging testLog = new Logging("NewHopper/", LogLevel.NORMAL);
+
     public RobotContainer() {
         configureBindings();
         configureNamedCommands();
         configureAutos();
+        /*testLog.addHandler(new Logging.Handler<Pose2d>() {
+            @Override
+            public void handle(String path, Pose2d o) {
+                Logger.recordOutput(path,o);
+            }
+        });
+        testLog.addLoggedObject(turretSub, visionSub, intakeSub, shooterSub, sidesweeperSub, transferSub);*/
     }
 
     private void configureBindings() {
@@ -101,25 +109,18 @@ public class RobotContainer {
                 // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
                 double driveX = DRIVER.getLeftY();
                 double driveY = DRIVER.getLeftX();
+
                 boolean xNegative = driveX < 0;
                 boolean yNegative = driveY < 0;
+
                 driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
                 driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
+
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
                 double joyX = -DRIVER.getLeftX();
                 double joyY = DRIVER.getLeftY();
                 double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed;
-                double rotation = Math.atan(joyY / joyX);
-                if(joyY < 0 && joyX < 0) rotation = Math.PI - rotation;
-                else if(joyY > 0 && joyX < 0) rotation = Math.PI - rotation;
-                else if(joyY < 0 && joyX > 0) rotation *= -1;
-                else if(joyY > 0 && joyX > 0) rotation *= -1;
-                else if(joyY > 0 && joyX == 0) rotation = -Math.PI/2;
-                else if(joyY < 0 && joyX == 0) rotation = Math.PI/2;
-                else if(joyY == 0 && joyX < 0) rotation = Math.PI;
-                else if (joyY == 0 && joyX > 0) rotation = 0;
-                else if(joyY == 0 && joyX > 0) rotation = 0;
-                else if(joyY == 0 && joyX == 0) rotation = 0;
+                double rotation = getRotation(joyY, joyX);
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
                 
@@ -162,8 +163,8 @@ public class RobotContainer {
         /* ========== OPERATOR KEYBINDS ========== */
         // Normal
         DRIVER.povDown()
-            .onTrue(VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true))
-            .onFalse(VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false));
+            .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
+            .onFalse(visionSub.setOperatorOverrideVisionTrustCommand(false));
 
         // No SysID
         if (!enableSysIdKeybinds) {
@@ -190,20 +191,20 @@ public class RobotContainer {
 
         // DRIVER.x().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().setManualTurretSetpoint(180)));
         // DRIVER.b().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().setManualTurretSetpoint(0)));
-        DRIVER.x().onTrue(CoordinationSubsystem.getInstance().decreaseManualAdjust());
-        DRIVER.b().onTrue(CoordinationSubsystem.getInstance().increaseManualAdjust());
-        DRIVER.a().onTrue(CoordinationSubsystem.getInstance().resetManualAdjust());
-        DRIVER.leftStick().onTrue(CoordinationSubsystem.getInstance().setManualTurret(false));
-        DRIVER.leftStick().onFalse(CoordinationSubsystem.getInstance().setManualTurret(true));
-        DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().addManualHoodShift()));
-        DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualHoodShift()));
+        DRIVER.x().onTrue(coordSub.decreaseManualAdjust());
+        DRIVER.b().onTrue(coordSub.increaseManualAdjust());
+        DRIVER.a().onTrue(coordSub.resetManualAdjust());
+        DRIVER.leftStick().onTrue(coordSub.setManualTurret(false));
+        DRIVER.leftStick().onFalse(coordSub.setManualTurret(true));
+        DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
+        DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
         // DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(12)));
         // DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(0)));
-        DRIVER.povLeft().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualHoodShift()));
+        DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
         
         DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
-        DRIVER.rightBumper().onTrue(new InstantCommand(() -> SidesweeperSubsystem.getInstance().setSlow()).alongWith(
-            new InstantCommand(() -> HopperTransferSubsystem.getInstance().setSlowHopper())
+        DRIVER.rightBumper().onTrue(new InstantCommand(sidesweeperSub::setSlow).alongWith(
+            new InstantCommand(transferSub::setSlowHopper)
         ));
         // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
@@ -226,7 +227,22 @@ public class RobotContainer {
         // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));
     }
 
-    
+    private static double getRotation(double joyY, double joyX) {
+        double rotation = Math.atan(joyY / joyX);
+
+        if(joyY < 0 && joyX < 0) rotation = Math.PI - rotation;
+        else if(joyY > 0 && joyX < 0) rotation = Math.PI - rotation;
+        else if(joyY < 0 && joyX > 0) rotation *= -1;
+        else if(joyY > 0 && joyX > 0) rotation *= -1;
+        else if(joyY > 0) rotation = -Math.PI/2;
+        else if(joyY < 0) rotation = Math.PI/2;
+        else if(joyX < 0) rotation = Math.PI;
+        else if (joyX > 0) rotation = 0;
+        else rotation = 0;
+        return rotation;
+    }
+
+
     public ChassisSpeeds getRobotFieldCentricVeloc() {
         return new ChassisSpeeds(
             -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed,
@@ -238,31 +254,30 @@ public class RobotContainer {
     private void configureNamedCommands() { // Set up the named commands (Using NamedCommands.registerCommand())
         NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
         // NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
-
-        NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
-        NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
+        NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
+        NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
         // NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
         // NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
 
-        NamedCommands.registerCommand("SetFerryTargetBottom", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
-        NamedCommands.registerCommand("SetFerryTargetTop", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
+        NamedCommands.registerCommand("SetFerryTargetBottom", new InstantCommand(() -> visionSub.setFerryTarget("bottom")));
+        NamedCommands.registerCommand("SetFerryTargetTop", new InstantCommand(() -> visionSub.setFerryTarget("top")));
 
-        NamedCommands.registerCommand("LowerShooterPower", new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()));
-        NamedCommands.registerCommand("IncreaseShooterPower", new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift(.25)));
+        NamedCommands.registerCommand("LowerShooterPower", new InstantCommand(shooterSub::subtractManualVelocityShift));
+        NamedCommands.registerCommand("IncreaseShooterPower", new InstantCommand(() -> shooterSub.addManualVelocityShift(.25)));
         
-        NamedCommands.registerCommand("LeftTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
-        NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
+        NamedCommands.registerCommand("LeftTurretAngle", new InstantCommand(turretSub::increaseManualAdjust));
+        NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(turretSub::decreaseManualAdjust));
 
         // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
-        NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
-        NamedCommands.registerCommand("UseCustomTarget", VisionSubsystem.getInstance().setUseCustomTarget());
+        NamedCommands.registerCommand("ForceTrench", coordSub.setForceTrenchCommand());
+        NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
-        // autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
-        // autoChooser.addOption("Left Half Sweep + Depot", drivetrain.getAutoPath("HST - FPSD", false));
+        autoChooser.addDefaultOption("Test Auto", drivetrain.getAutoPath("4414 remake", false));
+        autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", true));
     }
 
     public Command getAutonomousCommand() {
