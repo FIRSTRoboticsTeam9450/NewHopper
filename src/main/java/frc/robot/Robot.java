@@ -63,7 +63,7 @@ public class Robot extends LoggedRobot {
 
         field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
         sendableBuilder.update();
-        RobotContainer.testLog.run();
+        //RobotContainer.testLog.run();
     }
 
     @Override

@@ -254,7 +254,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.TUNING);
+            setState(currentShooterState, AngleState.AIMING);
             RobotContainer.coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             return true;
         }
@@ -692,7 +692,7 @@ public class ShooterSubsystem extends SubsystemBase {
             isTuningShooterVelocity = logIsTuningShooterVelocity.get();
         }
 
-        if (outtakePID.updateMotorPID(shooterMotorsConfig)) {
+        if (outtakePID.updateMotorPID(shooterMotorsConfig) || shooterMotorsConfig.MotionMagic.MotionMagicAcceleration != logOuttakeVAccel.get() || outtakeVKFF != logOuttakeVKFF.get()) {
 
             outtakeVKFF = logOuttakeVKFF.get();
 
@@ -701,7 +701,7 @@ public class ShooterSubsystem extends SubsystemBase {
             configureShooterMotors();
         }
 
-        if (hoodPID.updateMotorPID(angleMotorConfig)) {
+        if (hoodPID.updateMotorPID(angleMotorConfig) || angleMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logHoodMMVeloc.get() || angleMotorConfig.MotionMagic.MotionMagicAcceleration != logHoodMMAccel.get()) {
 
             configureAngleMotors();
 

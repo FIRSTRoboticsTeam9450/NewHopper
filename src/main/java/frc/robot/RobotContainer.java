@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.util.log.LogLevel;
 import frc.robot.util.log.Logging;
 import org.littletonrobotics.junction.Logger;
@@ -86,19 +85,19 @@ public class RobotContainer {
 
     private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("NewHopper/Auto Chooser");
 
-    public static final Logging testLog = new Logging("NewHopper/", LogLevel.NORMAL);
+    //public static final Logging testLog = new Logging("NewHopper/", LogLevel.NORMAL);
 
     public RobotContainer() {
         configureBindings();
         configureNamedCommands();
         configureAutos();
-        testLog.addHandler(new Logging.Handler<Pose2d>() {
+        /*testLog.addHandler(new Logging.Handler<Pose2d>() {
             @Override
             public void handle(String path, Pose2d o) {
                 Logger.recordOutput(path,o);
             }
         });
-        testLog.addLoggedObject(turretSub, visionSub, intakeSub, shooterSub, sidesweeperSub, transferSub);
+        testLog.addLoggedObject(turretSub, visionSub, intakeSub, shooterSub, sidesweeperSub, transferSub);*/
     }
 
     private void configureBindings() {
