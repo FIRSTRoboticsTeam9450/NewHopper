@@ -28,6 +28,7 @@ import frc.robot.commands.ResetIMU;
 import frc.robot.subsystems.swerve.TunerConstants;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.hopper.HopperTransferSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
@@ -202,7 +203,8 @@ public class RobotContainer {
         // DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(0)));
         DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
         
-        DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
+        // DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
+        DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         DRIVER.rightBumper().onTrue(new InstantCommand(sidesweeperSub::setSlow).alongWith(
             new InstantCommand(transferSub::setSlowHopper)
         ));

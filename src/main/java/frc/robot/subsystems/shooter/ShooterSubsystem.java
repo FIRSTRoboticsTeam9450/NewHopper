@@ -166,6 +166,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
         shootingDistanceToAngle.put(4.242, 10.4);
+        shootingDistanceToAngle.put(4.242, 10.4);
         
         shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment - .25);
         shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment + .5);
@@ -234,7 +235,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
    private void configureShooterMotors() {
         shooterMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -249,7 +250,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterLeftMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         shooterRightMotor.getConfigurator().apply(shooterMotorsConfig);
 
         shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
