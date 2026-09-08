@@ -77,7 +77,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double setpointCounter = 0;
     private boolean isZeroingDone = false;
 
-    private double deployAgitationTolerance = 0.3;
+    // private double deployAgitationTolerance = 0.3;
 
     private boolean agitateTowardIntake = false;
     private double agitationInVolts = logAgitationInVolts.get();
@@ -85,11 +85,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private Timer agitationTimer = new Timer();
     private Timer waitTimer = new Timer();
     private double lastSwitchTime = 0.0;
-    private int agitationStage = 0;
-    private double agitationStage0InSetpoint = 18;
-    private double agitationStage1InSetpoint = 2;
-    private double agitationStage1OutSetpoint = 6;
-    private double agitationStage2InSetpoint = 2;
+    // private int agitationStage = 0;
+    // private double agitationStage0InSetpoint = 18;
+    // private double agitationStage1InSetpoint = 2;
+    // private double agitationStage1OutSetpoint = 6;
+    // private double agitationStage2InSetpoint = 2;
     // private double agitationStage2OutSetpoint = 10;
 
 
@@ -178,7 +178,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 sendSetpoint();
                 break;
             case AGITATE:
-                if(waitTimer.hasElapsed(1.5)) {
+                // if(waitTimer.hasElapsed(1.5)) {
                     // double voltage = agitateTowardIntake
                     //     ? agitationInVolts
                     //     : agitationOutVolts;
@@ -191,18 +191,18 @@ public class IntakeSubsystem extends SubsystemBase {
                     //     lastSwitchTime = Timer.getFPGATimestamp();
                     // }
 
-                    if(agitationStage == 0) {
-                        deploySetpoint = agitationStage0InSetpoint;
-                    }
-                    else if(agitationStage == 1) {
-                        deploySetpoint = agitationStage1InSetpoint;
-                    }
-                    else if(agitationStage == 2) {
-                        deploySetpoint = agitationStage1OutSetpoint;
-                    }
-                    else if(agitationStage == 3) {
-                        deploySetpoint = agitationStage2InSetpoint;
-                    }
+                    // if(agitationStage == 0) {
+                    //     deploySetpoint = agitationStage0InSetpoint;
+                    // }
+                    // else if(agitationStage == 1) {
+                    //     deploySetpoint = agitationStage1InSetpoint;
+                    // }
+                    // else if(agitationStage == 2) {
+                    //     deploySetpoint = agitationStage1OutSetpoint;
+                    // }
+                    // else if(agitationStage == 3) {
+                    //     deploySetpoint = agitationStage2InSetpoint;
+                    // }
                     // else if(agitationStage == 3) {
                     //     deploySetpoint = agitationStage2OutSetpoint;
                     // }
@@ -212,20 +212,21 @@ public class IntakeSubsystem extends SubsystemBase {
                     // else if(agitationStage == 5) {
                     //     deploySetpoint = agitationStage2OutSetpoint;
                     // }
+                    deploySetpoint = 4;
                     deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
 
-                    double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
-                    if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
-                        if(agitationStage == 3) {
-                            agitationStage = 1;
-                        }
-                        agitationStage++;
-                    }
+                    // double deployMotorPosition = deployMotor.getPosition().getValueAsDouble();
+                    // if (Math.abs(deployMotorPosition - deploySetpoint) <= deployAgitationTolerance) {
+                    //     if(agitationStage == 3) {
+                    //         agitationStage = 1;
+                    //     }
+                    //     agitationStage++;
+                    // }
 
-                }
-                else {
-                    deployMotor.setVoltage(0);
-                }
+                // }
+                // else {
+                //     deployMotor.setVoltage(0);
+                // }
                 break;
 
         }
@@ -279,7 +280,7 @@ public class IntakeSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Intake/Agitation/WaitTimer", waitTimer.hasElapsed(2));
         Logger.recordOutput("NewHopper/Intake/Agitation/AgitationTimer", Timer.getFPGATimestamp() - lastSwitchTime);
         Logger.recordOutput("NewHopper/Intake/Agitation/agitateTowardIntake", agitateTowardIntake);
-        Logger.recordOutput("NewHopper/Intake/Agitation/AgitationStage", agitationStage);
+        // Logger.recordOutput("NewHopper/Intake/Agitation/AgitationStage", agitationStage);
         Logger.recordOutput("NewHopper/Intake/iszeroingdone", isZeroingDone);
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());
@@ -313,17 +314,15 @@ public class IntakeSubsystem extends SubsystemBase {
         if(deployState != DeployState.AGITATE && state == DeployState.AGITATE) {
             waitTimer.restart();
             deployMotorConfig.MotionMagic.MotionMagicAcceleration = 100;
-            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 50;
-
+            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
             deployMotor.getConfigurator().apply(deployMotorConfig);
+
             lastSwitchTime = Timer.getFPGATimestamp();
-            agitationStage = 0;
+            // agitationStage = 0;
         }
         if(deployState == DeployState.AGITATE && state != DeployState.AGITATE) {
-
             deployMotorConfig.MotionMagic.MotionMagicAcceleration = 400;
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
-
             deployMotor.getConfigurator().apply(deployMotorConfig);
         }
         deployState = state;
