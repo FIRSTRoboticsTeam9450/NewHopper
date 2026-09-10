@@ -7,6 +7,12 @@
         {
           "type": "named",
           "data": {
+            "name": "ForceTrench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SetIntake"
           }
         },
@@ -20,6 +26,12 @@
           "type": "named",
           "data": {
             "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         },
         {
@@ -59,6 +71,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Intake to back of hub"
@@ -91,12 +109,6 @@
         {
           "type": "named",
           "data": {
-            "name": "SetFire"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "SetIntake"
           }
         },
@@ -110,6 +122,18 @@
           "type": "named",
           "data": {
             "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         }
       ]

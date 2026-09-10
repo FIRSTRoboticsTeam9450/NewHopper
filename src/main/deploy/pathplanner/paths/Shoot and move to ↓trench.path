@@ -56,6 +56,17 @@
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 0.8327543424317619,
       "command": null
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.846650124069479,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
     }
   ],
   "globalConstraints": {

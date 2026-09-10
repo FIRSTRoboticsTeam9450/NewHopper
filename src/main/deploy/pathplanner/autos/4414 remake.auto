@@ -7,6 +7,12 @@
         {
           "type": "named",
           "data": {
+            "name": "ForceTrench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SetIntake"
           }
         },
@@ -14,6 +20,12 @@
           "type": "path",
           "data": {
             "pathName": "intake halfway left ↓trench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         },
         {
@@ -86,6 +98,12 @@
           "type": "named",
           "data": {
             "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         }
       ]
