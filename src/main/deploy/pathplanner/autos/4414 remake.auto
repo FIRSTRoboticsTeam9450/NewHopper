@@ -5,9 +5,27 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "intake halfway left ↓trench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         },
         {
@@ -17,9 +35,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Retreat from behind goal"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
           }
         },
         {
@@ -29,15 +65,45 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Shoot and move to ↓trench"
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "intake halfway left ↓trench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         }
       ]

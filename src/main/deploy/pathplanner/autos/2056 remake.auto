@@ -5,9 +5,33 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Intake Halfway ↓trench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         },
         {
@@ -17,9 +41,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Shoot from ↑ to ↓ trench "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
           }
         },
         {
@@ -29,9 +71,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Intake to back of hub"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
           }
         },
         {
@@ -41,15 +95,45 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Shoot from ↑ to ↓ trench "
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Intake Halfway ↓trench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrench"
           }
         }
       ]

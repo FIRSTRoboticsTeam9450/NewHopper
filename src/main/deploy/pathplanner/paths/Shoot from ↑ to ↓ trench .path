@@ -37,7 +37,7 @@
       },
       "prevControl": {
         "x": 3.467156626506024,
-        "y": 0.67
+        "y": 0.6700000000000002
       },
       "nextControl": null,
       "isLocked": false,
@@ -76,6 +76,17 @@
       "waypointRelativePos": 0,
       "endWaypointRelativePos": 1.0,
       "command": null
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.9786600496277886,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
     }
   ],
   "globalConstraints": {
