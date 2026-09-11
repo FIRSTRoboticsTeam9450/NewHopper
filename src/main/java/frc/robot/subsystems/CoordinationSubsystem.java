@@ -259,6 +259,9 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public void setState(AbsoluteStates state, boolean forceStateChange) {
         currentState = state;
+        if(currentState != AbsoluteStates.INIT && state == AbsoluteStates.INIT) {
+            checkZeroing = true;
+        }
         applyState();
     }
 

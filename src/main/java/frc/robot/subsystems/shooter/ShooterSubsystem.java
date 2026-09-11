@@ -166,7 +166,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
         shootingDistanceToAngle.put(4.242, 10.4);
-        shootingDistanceToAngle.put(4.242, 10.4);
+        shootingDistanceToAngle.put(1.334, 1.37); // 65
+        shootingDistanceToAngle.put(2.027, 0.77); // 65
+        shootingDistanceToAngle.put(2.713, 3.43); // 65
+        shootingDistanceToAngle.put(3.455, 5.9); // 65
+        shootingDistanceToAngle.put(3.97, 6.577); // 73
+        shootingDistanceToAngle.put(4.434, 8.59); // 73
+
         
         shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment - .25);
         shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment + .5);
@@ -402,11 +408,23 @@ public class ShooterSubsystem extends SubsystemBase {
             switch (RobotContainer.coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    if(cachedDistanceToTarget > 3.9) {
+                        targetShooterVeloc = 73;
+                    }
+                    else {
+                        targetShooterVeloc = 65;
+                    }
                     break;
 
                 case CLIMB_DEADZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    if(cachedDistanceToTarget > 3.9) {
+                        targetShooterVeloc = 73;
+                    }
+                    else {
+                        targetShooterVeloc = 65;
+                    }
                     break;
 
                 case FERRY_ZONE_TOP:
@@ -464,10 +482,12 @@ public class ShooterSubsystem extends SubsystemBase {
             double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
             switch (RobotContainer.coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetHoodHeight = hoodAngleFunction(distance);
+                    targetHoodHeight = shootingDistanceToAngle.get(distance);
+                    // targetHoodHeight = hoodAngleFunction(distance);
                     break;
                 case CLIMB_DEADZONE:
-                    targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = hoodAngleFunction(distance);
+                    targetHoodHeight = shootingDistanceToAngle.get(distance);
                     break;
 
                 case FERRY_ZONE_TOP:
