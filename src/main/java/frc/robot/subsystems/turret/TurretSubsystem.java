@@ -721,6 +721,8 @@ public class TurretSubsystem extends SubsystemBase {
         for (int wraps = -2; wraps <= 2; wraps++) {
             double wrappedAngle = targetDegrees + (wraps * 360.0);
 
+            /* TODO: Won't this always be out of limits for any wraps != 0 as total turret rotation is 320?
+              * Even if total turret rotation is over 360, it would have to be 720 to even trigger any |wraps| >= 1 */
             // Skip if outside physical limits
             if (wrappedAngle < MIN_ANGLE_DEG || wrappedAngle > MAX_ANGLE_DEG) {
                 continue;
