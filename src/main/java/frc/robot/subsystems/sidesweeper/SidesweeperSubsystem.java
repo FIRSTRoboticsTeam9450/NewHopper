@@ -32,7 +32,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
     private RampState rampState = RampState.IDLE;
     private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
 
-    private double speedRampTransfer = 10; // Volts // TODO: Transfer speed
+    private double speedRampTransfer = 7; // Volts // TODO: Transfer speed
     private double speedRampIdle = 0; // Volts
     
     private double speedSidesweeperTransfer = 12; // Volts // TODO: Transfer speed
