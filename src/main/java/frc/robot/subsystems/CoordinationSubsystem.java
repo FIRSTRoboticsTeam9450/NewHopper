@@ -42,6 +42,8 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private boolean isIntaking = false;
     private boolean shiftingTurret = true;
+    private boolean isAgitate = true;
+
     public CoordinationSubsystem() {}
 
     @Override
@@ -130,6 +132,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
+                if(RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING && RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                    setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+                }
                 break;
             case PREPARING_FOR_SHOOTING:
                 turretState = TurretState.AIMING;
@@ -143,7 +148,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                intakeDeployState = DeployState.AGITATE;
+                if(isAgitate) {
+                    intakeDeployState = DeployState.AGITATE;
+                }
                 intakeWheelState = IntakeState.INTAKE;
                 break;
             case STORING:
@@ -164,7 +171,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             transferState = TransferState.EJECT;
             sidesweepState = SidesweeperState.EJECT;
         }
-        RobotContainer.turretSub.setState(turretState);
+        // RobotContainer.turretSub.setState(turretState);
         RobotContainer.shooterSub.setState(shooterVelocState, shooterHoodState);
         RobotContainer.intakeSub.setDeployState(intakeDeployState);
         RobotContainer.intakeSub.setIntakeState(intakeWheelState);
@@ -234,6 +241,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setIntakeCommand() {
         return new InstantCommand(() -> isIntaking = !isIntaking)
             .andThen(new InstantCommand(this::applyState));
+    }
+
+    public Command setAgitate() {
+        return new InstantCommand(() -> isAgitate = !isAgitate)
+        .andThen(new InstantCommand(this::applyState));
     }
 
     public Command setIntakeCommand(boolean value) {

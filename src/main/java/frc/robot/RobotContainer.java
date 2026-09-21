@@ -74,7 +74,7 @@ public class RobotContainer {
 
     public static boolean slewMode = false;
 
-    public static double maxSpeed = DEFAULT_MAX_SPEED * 0.2;
+    public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
     public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -205,9 +205,11 @@ public class RobotContainer {
         
         // DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
         DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
-        DRIVER.rightBumper().onTrue(new InstantCommand(sidesweeperSub::setSlow).alongWith(
-            new InstantCommand(transferSub::setSlowHopper)
-        ));
+        // DRIVER.rightBumper().onTrue(new InstantCommand(sidesweeperSub::setSlow).alongWith(
+        //     new InstantCommand(transferSub::setSlowHopper)
+        // ));
+        DRIVER.rightBumper().onTrue(coordSub.setAgitate());
+        DRIVER.rightStick().onTrue(coordSub.setForceTrenchCommand());
         // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
         // DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));
@@ -218,8 +220,8 @@ public class RobotContainer {
         // DRIVER.rightTrigger().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
         //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
         DRIVER.rightTrigger().onTrue(coordSub.setFireCommand());
-        DRIVER.rightBumper().onTrue(coordSub.setRejectingCommand(true));
-        DRIVER.rightBumper().onFalse(coordSub.setRejectingCommand(false));
+        DRIVER.leftBumper().onTrue(coordSub.setRejectingCommand(true));
+        DRIVER.leftBumper().onFalse(coordSub.setRejectingCommand(false));
         
         // DRIVER.rightBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.EJECT)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.EJECT))));
         // DRIVER.rightBumper().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(

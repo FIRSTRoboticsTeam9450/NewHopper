@@ -35,7 +35,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
     private double speedRampTransfer = 7; // Volts // TODO: Transfer speed
     private double speedRampIdle = 0; // Volts
     
-    private double speedSidesweeperTransfer = 10; // Volts // TODO: Transfer speed
+    private double speedSidesweeperTransfer = 12; // Volts // TODO: Transfer speed
     private double speedSidesweeperIdle = 0; // Volts
 
     private TalonFX rampMotor = new TalonFX(SidesweeperConstants.DeviceIDs.kRampMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -129,7 +129,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
                 break;
             case TRANSFER:
                 rampSetpoint = speedRampTransfer;
-                verticalRollerSetpoint = 2;
+                verticalRollerSetpoint = 12;
                 verticalRollerMotor.setControl(verticalRollerRequest.withOutput(verticalRollerSetpoint));
                 rampMotor.setControl(rampRequest.withOutput(rampSetpoint));
                 break;
@@ -165,6 +165,11 @@ public class SidesweeperSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Sidesweeper/Ramp Voltage", rampMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Setpoint", sidesweeperSetpoint);
         Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Voltage", sidesweeperUpperMotor.getMotorVoltage().getValueAsDouble());
+
+        Logger.recordOutput("NewHopper/Sidesweeper/SidesweepSupplyAmp", sidesweeperUpperMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Sidesweeper/SidesweepStatorAmp", sidesweeperUpperMotor.getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Sidesweeper/RampStatorAmp", rampMotor.getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Sidesweeper/RampSupplyAmp", rampMotor.getSupplyCurrent().getValueAsDouble());
 
         if (logSidesweeperDebug.get()) {
             Logger.recordOutput("NewHopper/Sidesweeper/Ramp Velocity", rampMotor.getVelocity().getValueAsDouble());
