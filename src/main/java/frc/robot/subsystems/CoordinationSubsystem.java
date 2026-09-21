@@ -62,9 +62,10 @@ public class CoordinationSubsystem extends SubsystemBase {
             checkZeroing = !isZeroingDone();
         }
         applyZone();
-        if(currentState == AbsoluteStates.SHOOTING || currentState == AbsoluteStates.PREPARING_FOR_SHOOTING) {
-            turretShooterAngle = TurretModel.calculate(new Translation3d(RobotContainer.visionSub.getTargetRelativeToBot()),RobotContainer.visionSub.getVelocityOfTurret(),RobotContainer.shooterSub.getShooterVeloc() * TurretModelConstants.VELOCITY_CONST);
-        }
+        //vI can be changed, should be based on shooter speed
+        turretShooterAngle = TurretModel.calculate(new Translation3d(RobotContainer.visionSub.getTargetRelativeToBot()).plus(new Translation3d(0,0,2)),RobotContainer.visionSub.getVelocityOfTurret(),10);
+        Logger.recordOutput("NewHopper/Coord/Turret Angle", turretShooterAngle[0]*(180/Math.PI));
+        Logger.recordOutput("NewHopper/Coord/Hood Angle", turretShooterAngle[1]*(180/Math.PI));
         publishLogs();
     }
 
