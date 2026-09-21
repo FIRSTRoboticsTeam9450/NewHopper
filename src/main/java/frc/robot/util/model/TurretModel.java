@@ -2,6 +2,7 @@ package frc.robot.util.model;
 
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import org.littletonrobotics.junction.Logger;
 
 public class TurretModel {
 
@@ -12,16 +13,13 @@ public class TurretModel {
     //theta, phi
     //TODO: remove delta_t after testing
     public static double[] calculate(Translation3d P, ChassisSpeeds V, double vI) {
-        long startTime = System.currentTimeMillis();
         TurretModel.P = P;
-        TurretModel.V = new Translation3d(V.vxMetersPerSecond, V.vyMetersPerSecond, 0);
+        TurretModel.V = new Translation3d(-V.vxMetersPerSecond, -V.vyMetersPerSecond, 0);
         TurretModel.vI = vI;
         double t = newtonMethod();
-        try {
-            return new double[]{Math.atan2(Y(t), X(t)), Math.atan2(Math.sqrt(Math.pow(X(t), 2) + Math.pow(Y(t), 2)), Z(t))};
-        } finally {
-            System.out.println("Turret model took " + (System.currentTimeMillis() - startTime) + "ms");
-        }
+        Logger.recordOutput("TurretModel/t", t);
+        Logger.recordOutput("TurretModel/P", P);
+        return new double[]{Math.atan2(Y(t), X(t)), Math.atan2(Math.sqrt(Math.pow(X(t), 2) + Math.pow(Y(t), 2)), Z(t))};
     }
 
     private static double X(double t) {
