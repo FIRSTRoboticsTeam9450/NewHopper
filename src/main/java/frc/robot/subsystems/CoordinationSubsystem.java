@@ -1,6 +1,10 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.RobotContainer;
+import frc.robot.util.model.TurretModel;
+import frc.robot.util.model.TurretModelConstants;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,6 +30,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         SHOOTING,
         TRENCH
     }
+
+    //idx 0 = turret angle, idx 1 = shooter angle
+    public double[] turretShooterAngle = new double[]{0,Math.PI/2};
 
     private AbsoluteStates currentState = AbsoluteStates.INIT;
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
@@ -55,6 +62,9 @@ public class CoordinationSubsystem extends SubsystemBase {
             checkZeroing = !isZeroingDone();
         }
         applyZone();
+        if(currentState == AbsoluteStates.SHOOTING || currentState == AbsoluteStates.PREPARING_FOR_SHOOTING) {
+            turretShooterAngle = TurretModel.calculate(new Translation3d(RobotContainer.visionSub.getTargetRelativeToBot()),RobotContainer.visionSub.getVelocityOfTurret(),RobotContainer.shooterSub.getShooterVeloc() * TurretModelConstants.VELOCITY_CONST);
+        }
         publishLogs();
     }
 
