@@ -190,8 +190,8 @@ public class RobotContainer {
         // ));
         DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand());
 
-        // DRIVER.x().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().setManualTurretSetpoint(180)));
-        // DRIVER.b().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().setManualTurretSetpoint(0)));
+        // DRIVER.x().onTrue(new InstantCommand(() -> turretSub.setManualTurretSetpoint(100)));
+        // DRIVER.b().onTrue(new InstantCommand(() -> turretSub.setManualTurretSetpoint(-100)));
         DRIVER.x().onTrue(coordSub.decreaseManualAdjust());
         DRIVER.b().onTrue(coordSub.increaseManualAdjust());
         DRIVER.a().onTrue(coordSub.resetManualAdjust());

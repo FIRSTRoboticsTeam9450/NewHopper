@@ -346,7 +346,7 @@ public class TurretSubsystem extends SubsystemBase {
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
         Logger.recordOutput("NewHopper/Turret/RobotRelativeTargetAngle", robotRelativeTargetAngleDeg);
         // Convert RPS to degrees/sec
-        double currentVelocityDegPerSec = turretMotor.getVelocity().getValueAsDouble()
+        double currentVelocityDegPerSec = cachedMotorVelocity
             * TurretConstants.DEGREE_CHANGE_PER_MOTOR_ROTATION;
         // Logger.recordOutput("NewHopper/Turret/Pos/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
 
@@ -390,7 +390,7 @@ public class TurretSubsystem extends SubsystemBase {
             targetVeloc = 0.0;
         } else {
             usedVeloc = true;
-            boolean isVelocityPositive = turretMotor.getVelocity().getValueAsDouble() > 0;
+            boolean isVelocityPositive = cachedMotorVelocity > 0;
             boolean allowVeloc = false;
             double maxVelocity = 0.0;
             double currentAngle = cachedAngleDeg;
@@ -474,7 +474,7 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
         Logger.recordOutput("NewHopper/Turret/Velocity/turretVelocityWRTField", turretVelocityWRTField);
 
-        return turretVeloictyWRTRobot;
+        return -turretVeloictyWRTRobot;
     }
 
     /**
@@ -690,7 +690,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
         double feedforwardVolts = feedforward.calculateWithVelocities(
-            turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_ROTATION,
+            cachedMotorVelocity * TurretConstants.DEGREE_CHANGE_PER_MOTOR_ROTATION,
             velocityDegPerSec
         );
         
@@ -852,9 +852,9 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Turret/TargetMode", getTargetMode());
         // Velocity tracking
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentVelocityDegPerSec",
-            turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_ROTATION);
+            cachedMotorVelocity * TurretConstants.DEGREE_CHANGE_PER_MOTOR_ROTATION);
         Logger.recordOutput("NewHopper/Turret/Pos/currentVelocityRotPerSec",
-            turretMotor.getVelocity().getValueAsDouble());
+            cachedMotorVelocity);
         // Logger.recordOutput("NewHopper/Turret/Target/TargetVelocityDegPerSec",
         //     robotRelativeTargetVelocityDegPerSec);
 
@@ -896,7 +896,7 @@ public class TurretSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Turret/Device/MotorOutputAmps",
                 turretMotor.getTorqueCurrent().getValueAsDouble());
             Logger.recordOutput("NewHopper/Turret/Device/MotorVelocity (RPS)",
-                turretMotor.getVelocity().getValueAsDouble());
+                cachedMotorVelocity);
 
             Logger.recordOutput("NewHopper/Turret/Pos/AtGoal", isAtProfiledGoal());
             Logger.recordOutput("NewHopper/Turret/Target/TargetOutOfRange", isTargetOutOfRange());

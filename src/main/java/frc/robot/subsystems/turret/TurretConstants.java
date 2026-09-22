@@ -26,7 +26,8 @@ public final class TurretConstants{
     public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
 
     public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 6.857142857; //2.24;
-    public static final double DEGREE_CHANGE_PER_MOTOR_ROTATION = 360; //2.24;
+    // public static final double DEGREE_CHANGE_PER_MOTOR_ROTATION = 360; //2.24;
+    public static final double DEGREE_CHANGE_PER_MOTOR_ROTATION = 360/(SENSOR_TO_MECHANISM_RATIO*52.5); //2.24;
     public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
 
 }
