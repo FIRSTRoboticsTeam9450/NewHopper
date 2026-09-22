@@ -339,7 +339,7 @@ public class TurretSubsystem extends SubsystemBase {
         updateTargetFromMode();
 
         // Convert field-relative goal to robot-relative
-        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
+        Rotation2d robotRelativeGoalAngle = new Rotation2d(RobotContainer.coordSub.turretShooterAngle[0]*(180/Math.PI)).plus(
             new Rotation2d(Units.degreesToRadians(angleOffsetToZero + degreeOffsetToTarget)));
 
         // Find best angle considering wrapping and limits
