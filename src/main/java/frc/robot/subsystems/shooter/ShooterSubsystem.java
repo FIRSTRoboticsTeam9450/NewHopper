@@ -165,14 +165,16 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
-        shootingDistanceToAngle.put(4.242, 10.4);
         shootingDistanceToAngle.put(1.334, 1.37); // 65
         shootingDistanceToAngle.put(2.027, 2.8); // 65
         shootingDistanceToAngle.put(2.3, 3.35); // 65
         shootingDistanceToAngle.put(2.713, 6.9); // 65
         shootingDistanceToAngle.put(3.455, 8.9); // 65
+        shootingDistanceToAngle.put(3.74, 6.577); // 73
         shootingDistanceToAngle.put(3.97, 6.577); // 73
-        shootingDistanceToAngle.put(4.434, 8.59); // 73
+        shootingDistanceToAngle.put(4.242, 10.4);
+        shootingDistanceToAngle.put(4.434, 11.59); // 73
+        // shootingDistanceToAngle.put(4.434, 8.59); // 73
 
         
         // shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment - .25);
@@ -187,10 +189,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
         // shootingDistanceToTime.put(2.462, 1.29);
 
+        shootingDistanceToTime.put(1.1, 1.25);
         shootingDistanceToTime.put(1.81, 1.25);
         shootingDistanceToTime.put(2.872, 1.1);
         shootingDistanceToTime.put(3.951, 1.292);
         shootingDistanceToTime.put(4.43, 1.2725);
+        shootingDistanceToTime.put(5.61, 1.25);
+        shootingDistanceToTime.put(6.2, 1.25);
         // shootingDistanceToTime.put(5.095, 1.4525);
         // shootingDistanceToTime.put(4.101, 1.374);
         // shootingDistanceToTime.put(3.465, 1.3325);
@@ -415,7 +420,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
                 case SHOOTING_ZONE:
                     // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-                    if(cachedDistanceToTarget > 3.6) {
+                    if(cachedDistanceToTarget > 4.5) {
+                        targetShooterVeloc = 73;
+                    }
+                    else if(cachedDistanceToTarget > 3.6) {
                         targetShooterVeloc = 69;
                     }
                     else {
@@ -425,7 +433,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
                 case CLIMB_DEADZONE:
                     // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-                    if(cachedDistanceToTarget > 3.6) {
+                    if(cachedDistanceToTarget > 4.5) {
+                        targetShooterVeloc = 73;
+                    }
+                    else if(cachedDistanceToTarget > 3.6) {
                         targetShooterVeloc = 69;
                     }
                     else {
