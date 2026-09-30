@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.commands.DriveBrakeCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.subsystems.swerve.TunerConstants;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
@@ -153,20 +154,37 @@ public class RobotContainer {
 
         /* ========== DRIVER KEYBINDS ========== */
         // Normal
+        DRIVER.rightTrigger().onTrue(coordSub.setFireCommand(true).alongWith(coordSub.setForceTrenchCommand(false)))
+                            .onFalse(coordSub.setFireCommand(false).alongWith(coordSub.setForceTrenchCommand(true)));
+        // DRIVER.rightBumper().onTrue(coordSub.setForceTrenchCommand());
+        DRIVER.leftBumper().onTrue(coordSub.setAgitate(true))
+                            .onFalse(coordSub.setAgitate(false));
+        DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand(true))
+                            .onFalse(coordSub.setIntakeCommand(false));
+        DRIVER.rightBumper().onTrue(coordSub.setRejectingCommand(true))
+                            .onFalse(coordSub.setRejectingCommand(false));
+        DRIVER.a().whileTrue(new DriveBrakeCommand(drivetrain));
 
         // No SysID
         if (!enableSysIdKeybinds) {
-            DRIVER.y().onTrue(new ResetIMU(drivetrain));
         }
         
         
 
         /* ========== OPERATOR KEYBINDS ========== */
         // Normal
-        DRIVER.povDown()
+        // OPERATOR.rightTrigger().onTrue(coordSub.setAgitate(true))
+        //                     .onFalse(coordSub.setAgitate(false));
+        OPERATOR.rightBumper().onTrue(coordSub.increaseManualAdjust());
+        OPERATOR.leftBumper().onTrue(coordSub.decreaseManualAdjust());
+        OPERATOR.a().onTrue(coordSub.setManualTurret(true))
+                    .onFalse(coordSub.setManualTurret(false));
+        OPERATOR.y().onTrue(coordSub.resetManualAdjust());
+        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
+        OPERATOR.leftTrigger().onTrue(coordSub.setIntakeOut());
+        OPERATOR.povDown()
             .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
             .onFalse(visionSub.setOperatorOverrideVisionTrustCommand(false));
-
         // No SysID
         if (!enableSysIdKeybinds) {
         }
@@ -180,55 +198,37 @@ public class RobotContainer {
             DRIVER.start().and(DRIVER.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
             DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         }
-        // DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.holdPosition()));
-        // DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.killIntakeWheels()));
-        // DRIVER.leftBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)).alongWith(
-        //     new InstantCommand(() -> intakeSub.setDeployState(DeployState.STORE))
-        // ));
-        // DRIVER.leftTrigger().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.INTAKE)).alongWith(
-        //     new InstantCommand(() -> intakeSub.setDeployState(DeployState.DEPLOY))
-        // ));
-        DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand());
+        else {
+            
+            DRIVER.y().onTrue(new ResetIMU(drivetrain));
+        }
 
+        /* DEBUGGING CONTROLS */
         // DRIVER.x().onTrue(new InstantCommand(() -> turretSub.setManualTurretSetpoint(100)));
         // DRIVER.b().onTrue(new InstantCommand(() -> turretSub.setManualTurretSetpoint(-100)));
-        DRIVER.x().onTrue(coordSub.decreaseManualAdjust());
-        DRIVER.b().onTrue(coordSub.increaseManualAdjust());
-        DRIVER.a().onTrue(coordSub.resetManualAdjust());
-        DRIVER.leftStick().onTrue(coordSub.setManualTurret(false));
-        DRIVER.leftStick().onFalse(coordSub.setManualTurret(true));
-        DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
-        DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
         // DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(12)));
         // DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(0)));
-        DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
-        
-        // DRIVER.povRight().onTrue(new InstantCommand(() -> intakeSub.setDeployState(DeployState.ZEROING)));
-        DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         // DRIVER.rightBumper().onTrue(new InstantCommand(sidesweeperSub::setSlow).alongWith(
         //     new InstantCommand(transferSub::setSlowHopper)
         // ));
-        DRIVER.rightBumper().onTrue(coordSub.setAgitate());
-        DRIVER.rightStick().onTrue(coordSub.setForceTrenchCommand());
-        // DRIVER.leftTrigger().onFalse(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.IDLE)));
 
-        // DRIVER.rightBumper().onTrue(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)));
-        // DRIVER.rightBumper().onFalse(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)));
-
-        // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.TRANSFER)).alongWith(
-        //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.TRANSFER)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.TRANSFER)))));
-        // DRIVER.rightTrigger().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
-        //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
-        DRIVER.rightTrigger().onTrue(coordSub.setFireCommand());
-        DRIVER.leftBumper().onTrue(coordSub.setRejectingCommand(true));
-        DRIVER.leftBumper().onFalse(coordSub.setRejectingCommand(false));
+        /** EVERYTHING ON DRIVER */
+        // DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand());
+        // DRIVER.x().onTrue(coordSub.decreaseManualAdjust());
+        // DRIVER.b().onTrue(coordSub.increaseManualAdjust());
+        // DRIVER.a().onTrue(coordSub.resetManualAdjust());
+        // DRIVER.leftStick().onTrue(coordSub.setManualTurret(false));
+        // DRIVER.leftStick().onFalse(coordSub.setManualTurret(true));
+        DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
+        DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
+        DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
+        // DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
+        // DRIVER.rightBumper().onTrue(coordSub.setAgitate());
+        // DRIVER.rightStick().onTrue(coordSub.setForceTrenchCommand());
+        // DRIVER.rightTrigger().onTrue(coordSub.setFireCommand());
+        // DRIVER.leftBumper().onTrue(coordSub.setRejectingCommand(true));
+        // DRIVER.leftBumper().onFalse(coordSub.setRejectingCommand(false));
         
-        // DRIVER.rightBumper().onTrue(new InstantCommand(() -> intakeSub.setIntakeState(IntakeState.EJECT)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.EJECT))));
-        // DRIVER.rightBumper().onFalse(new InstantCommand(() -> sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE)).alongWith(
-        //     new InstantCommand(() -> sidesweeperSub.setRampState(RampState.IDLE)).alongWith(new InstantCommand(() -> transferSub.setTransferState(TransferState.IDLE)))));
-
-        // DRIVER.x().onTrue(new InstantCommand(() -> intakeSub.setPosition(17.6)));
-        // DRIVER.rightTrigger().onTrue(new InstantCommand(() -> intakeSub.setPosition(1)));
     }
 
     private static double getRotation(double joyY, double joyX) {
@@ -282,6 +282,7 @@ public class RobotContainer {
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
         autoChooser.addDefaultOption("Test Auto", drivetrain.getAutoPath("4414 remake", false));
         autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", true));
+        autoChooser.addOption("Test", drivetrain.getAutoPath("Test Path", false));
     }
 
     public Command getAutonomousCommand() {

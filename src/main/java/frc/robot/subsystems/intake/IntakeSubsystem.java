@@ -128,9 +128,9 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
 
         intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
-        intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
 
@@ -154,12 +154,12 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 15){
+        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
             deployMotor.setPosition(0);
             deployMotor.setVoltage(0);
             zeroingVolts = 0;
             zeroingCount = 0;
-            deployState = DeployState.STORE;
+            deployState = DeployState.DEPLOY;
             return true;
         }
         return false;
