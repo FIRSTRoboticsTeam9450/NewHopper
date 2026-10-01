@@ -280,9 +280,9 @@ public class RobotContainer {
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
-        autoChooser.addDefaultOption("Test Auto", drivetrain.getAutoPath("4414 remake", false));
+        // autoChooser.a("Test Auto", drivetrain.getAutoPath("4414 remake", false));
         autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", true));
-        autoChooser.addOption("Test", drivetrain.getAutoPath("Test Path", false));
+        autoChooser.addDefaultOption("Test", drivetrain.getAutoPath("Test Path", false));
     }
 
     public Command getAutonomousCommand() {

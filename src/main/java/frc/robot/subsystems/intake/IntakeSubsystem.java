@@ -57,7 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private PIDVals deployPID = new PIDVals("/Tuning/Intake/Deploy/",0,0.1,0,60,0,0,0);
 
-    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
+    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 14.5);
     private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationInVolts", -5);
     private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationOutVolts", 5);
 
