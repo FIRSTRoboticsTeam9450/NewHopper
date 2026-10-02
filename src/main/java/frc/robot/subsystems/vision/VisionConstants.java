@@ -3,11 +3,12 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 public final class VisionConstants { // TODO: Vision constants (Including Limelight names)
     public static final int kDisabledThrottle = 200;
-    public static final int kEnabledThrottle = 100;
+    public static final int kEnabledThrottle = 0;
     public static final int kDisabledIMUMode = VisionConstants.IMUMode.EXTERNAL_SEED;
     public static final int kEnabledIMUMode = VisionConstants.IMUMode.EXTERNAL_ONLY;
 
@@ -31,9 +32,9 @@ public final class VisionConstants { // TODO: Vision constants (Including Limeli
 
     public enum Limelight {
 
-        LEFT("limelight-l",-0.25,-0.312,0.289,40,0,90),
+        LEFT("limelight-l",-0.23,-0.312,0.26,40,180,90),
         RIGHT("limelight-r",-0.0862,0.3114,0.0906,40,0,-90),
-        BACK("limelight-b",-0.2635,-0.109,0.2271,40,0,180);
+        BACK("limelight-b",-0.2635,-0.109,0.3022,40,0,180);
 
         public final String NAME;
         public final double LOCATION_X;
@@ -52,7 +53,7 @@ public final class VisionConstants { // TODO: Vision constants (Including Limeli
             this.PITCH = pitch;
             this.ROLL = roll;
             this.YAW = yaw;
-            this.POSE = new Pose3d(new Translation3d(location_x,location_y,location_z),new Rotation3d(roll,pitch,yaw));
+            this.POSE = new Pose3d(new Translation3d(location_x,location_y,location_z),new Rotation3d(Units.degreesToRadians(roll), Units.degreesToRadians(pitch), Units.degreesToRadians(yaw)));
         }
 
     }

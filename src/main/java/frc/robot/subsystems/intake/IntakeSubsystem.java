@@ -41,7 +41,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
-    private double speedIntakeIntake = 4; // Volts // TODO: Intake speed
+    private double speedIntakeIntake = 6; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);
@@ -57,7 +57,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private PIDVals deployPID = new PIDVals("/Tuning/Intake/Deploy/",0,0.1,0,60,0,0,0);
 
-    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
+    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 14.5);
     private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationInVolts", -5);
     private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationOutVolts", 5);
 
@@ -76,6 +76,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private double tuningDeploySetpoint = 0;
     private double setpointCounter = 0;
     private boolean isZeroingDone = false;
+    private double zeroingVolts = 4;
+    private double zeroingCount = 0;
 
     // private double deployAgitationTolerance = 0.3;
 
@@ -126,9 +128,9 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
 
         intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
-        intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
 
@@ -144,6 +146,7 @@ public class IntakeSubsystem extends SubsystemBase {
         if(!isZeroingDone){
             deployState = DeployState.ZEROING;
             isZeroingDone = isZeroingDone();
+            zeroingCount++;
         }
 
         applyState();
@@ -151,10 +154,12 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 1){
+        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
             deployMotor.setPosition(0);
             deployMotor.setVoltage(0);
-            deployState = DeployState.STORE;
+            zeroingVolts = 0;
+            zeroingCount = 0;
+            deployState = DeployState.DEPLOY;
             return true;
         }
         return false;
@@ -163,7 +168,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private void applyState() {
         switch (deployState) {
             case ZEROING:
-                deployMotor.setVoltage(-4);
+                zeroingVolts = 4;
+                deployMotor.setVoltage(-zeroingVolts);
                 break;
             case DEPLOY:
                 deploySetpoint = angleDeployIntake;
@@ -314,7 +320,7 @@ public class IntakeSubsystem extends SubsystemBase {
         if(deployState != DeployState.AGITATE && state == DeployState.AGITATE) {
             waitTimer.restart();
             deployMotorConfig.MotionMagic.MotionMagicAcceleration = 100;
-            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
+            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 8;
             deployMotor.getConfigurator().apply(deployMotorConfig);
 
             lastSwitchTime = Timer.getFPGATimestamp();
@@ -325,10 +331,11 @@ public class IntakeSubsystem extends SubsystemBase {
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
             deployMotor.getConfigurator().apply(deployMotorConfig);
         }
-        deployState = state;
-        if(state == DeployState.ZEROING) {
+        if(state == DeployState.ZEROING && deployState != DeployState.ZEROING) {
             isZeroingDone = false;
+            System.out.println("Yay its working.");
         }
+        deployState = state;
     }
 
     public void setIntakeState(IntakeState state) {

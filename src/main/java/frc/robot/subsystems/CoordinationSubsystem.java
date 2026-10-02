@@ -42,6 +42,8 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private boolean isIntaking = false;
     private boolean shiftingTurret = true;
+    private boolean isAgitate = false;
+    private boolean isIntakeOut = true;
     public CoordinationSubsystem() {}
 
     @Override
@@ -124,12 +126,22 @@ public class CoordinationSubsystem extends SubsystemBase {
             // intakeDeployState = DeployState.AGITATE;
             intakeWheelState = IntakeState.INTAKE;
         }
+        if(!isIntakeOut) {
+            intakeDeployState = DeployState.STORE;
+            intakeWheelState = IntakeState.IDLE;
+        }
+        if(isAgitate) {
+            intakeDeployState = DeployState.AGITATE;
+        }
         switch(currentState) {
             case INIT:
                 turretState = TurretState.INIT;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
+                if(RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING && RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                    setState(AbsoluteStates.TRENCH, false);
+                }
                 break;
             case PREPARING_FOR_SHOOTING:
                 turretState = TurretState.AIMING;
@@ -143,7 +155,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                intakeDeployState = DeployState.AGITATE;
                 intakeWheelState = IntakeState.INTAKE;
                 break;
             case STORING:
@@ -236,6 +247,15 @@ public class CoordinationSubsystem extends SubsystemBase {
             .andThen(new InstantCommand(this::applyState));
     }
 
+    public Command setAgitate() {
+        return new InstantCommand(() -> isAgitate = !isAgitate)
+        .andThen(new InstantCommand(this::applyState));
+    }
+    public Command setAgitate(boolean value) {
+        return new InstantCommand(() -> isAgitate = value)
+        .andThen(new InstantCommand(this::applyState));
+    }
+
     public Command setIntakeCommand(boolean value) {
         return new InstantCommand(() -> isIntaking = value)
             .andThen(new InstantCommand(this::applyState));
@@ -256,9 +276,26 @@ public class CoordinationSubsystem extends SubsystemBase {
         return new InstantCommand(() -> forceTrench = !forceTrench)
         .alongWith(new InstantCommand(() -> update = true));
     }
+    public Command setForceTrenchCommand(boolean value) {
+        return new InstantCommand(() -> forceTrench = value)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIntakeOut() {
+        return new InstantCommand(() -> isIntakeOut = !isIntakeOut)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIntakeOut(boolean value) {
+        return new InstantCommand(() -> isIntakeOut = value)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
 
     public void setState(AbsoluteStates state, boolean forceStateChange) {
         currentState = state;
+        if(currentState != AbsoluteStates.INIT && state == AbsoluteStates.INIT) {
+            checkZeroing = true;
+        }
         applyState();
     }
 

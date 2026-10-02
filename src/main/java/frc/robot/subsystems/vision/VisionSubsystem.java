@@ -1,46 +1,49 @@
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.turret.TurretConstants;
-
+import static frc.robot.subsystems.vision.VisionConstants.Limelight.BACK;
 import static frc.robot.subsystems.vision.VisionConstants.Limelight.LEFT;
 import static frc.robot.subsystems.vision.VisionConstants.Limelight.RIGHT;
-import static frc.robot.subsystems.vision.VisionConstants.Limelight.BACK;
-import frc.robot.Constants;
-import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
-import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
-import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
-import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
-import frc.robot.util.*;
-import frc.robot.util.LimelightHelpers.IMUData;
-import frc.robot.util.LimelightHelpers.PoseEstimate;
-import frc.robot.util.LimelightHelpers.RawFiducial;
-import frc.robot.util.LimelightObject.Location;
-
-import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.hardware.Pigeon2;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import frc.robot.util.log.LogLevel;
-import frc.robot.util.log.ToLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.Pigeon2;
+
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
+import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
+import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
+import frc.robot.subsystems.turret.TurretConstants;
+import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LimelightHelpers.IMUData;
+import frc.robot.util.LimelightHelpers.PoseEstimate;
+import frc.robot.util.LimelightHelpers.RawFiducial;
+import frc.robot.util.LimelightObject;
+import frc.robot.util.LimelightObject.Location;
+import frc.robot.util.log.LogLevel;
+import frc.robot.util.log.ToLog;
 
 /**
  * VisionSubsystem using Limelights with:
@@ -64,7 +67,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Standard deviations for vision measurements (for filtering/fusion)
     public Vector<N3> disabledStdDev = VecBuilder.fill(3, 3, 999999);
-    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.3, 0.3, 999999);
+    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.4, 0.4, 999999); // Used to be 0.3 for both n1 and n2
     public Vector<N3> enabledMT1StdDev = VecBuilder.fill(999999, 999999, 1);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
 
@@ -531,6 +534,7 @@ public class VisionSubsystem extends SubsystemBase {
                     
                     // Get botpose data if available
                     double[] botpose = LimelightHelpers.getBotPose_wpiBlue(name);
+                    PoseEstimate botPose2d = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
                     if (botpose != null && botpose.length >= 6) {
                         Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/X", botpose[0]);
                         Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Y", botpose[1]);
@@ -538,6 +542,11 @@ public class VisionSubsystem extends SubsystemBase {
                         Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Roll", botpose[3]);
                         Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Pitch", botpose[4]);
                         Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Yaw", botpose[5]);
+                    }
+                    
+
+                    Logger.recordOutput("NewHopper/Vision/" + name + "/Botpose/Pose", botPose2d.pose);
+                    if(botPose2d != null) {
                     }
                     
                     // Ambiguity for this camera
