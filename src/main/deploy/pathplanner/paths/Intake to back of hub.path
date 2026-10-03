@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 5.756626506024096,
-        "y": 3.958506024096385
+        "x": 5.973095238095238,
+        "y": 3.982797619047618
       },
       "prevControl": {
-        "x": 6.357650602409638,
-        "y": 4.00221686746988
+        "x": 6.57411933448078,
+        "y": 4.026508462421113
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,19 +50,12 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Intake",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 400.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

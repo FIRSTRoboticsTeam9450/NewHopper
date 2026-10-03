@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.789180722891565,
-        "y": 4.461180722891566
+        "x": 7.755433673469389,
+        "y": 4.467534013605442
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.395783132530121,
-        "y": 3.7399518072289153
+        "x": 7.362036083107944,
+        "y": 3.746305097942791
       },
       "isLocked": true,
       "linkedName": "intakeHalfwayLeftEnd"
     },
     {
       "anchor": {
-        "x": 5.756626506024096,
-        "y": 3.958506024096385
+        "x": 5.973095238095238,
+        "y": 3.982797619047618
       },
       "prevControl": {
-        "x": 6.303012048192771,
-        "y": 3.936650602409639
+        "x": 6.519480780263913,
+        "y": 3.960942197360872
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,19 +50,12 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Intake",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 400.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

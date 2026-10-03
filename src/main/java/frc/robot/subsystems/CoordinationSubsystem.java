@@ -128,7 +128,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         if(!isIntakeOut) {
             intakeDeployState = DeployState.STORE;
-            intakeWheelState = IntakeState.IDLE;
+            intakeWheelState = IntakeState.OFF;
         }
         if(isAgitate) {
             intakeDeployState = DeployState.AGITATE;

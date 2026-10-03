@@ -19,13 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "intake halfway left ↓trench"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ForceTrench"
+            "pathName": "4414 start"
           }
         },
         {
@@ -37,7 +31,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetIntake"
+            "name": "ForceTrench"
           }
         },
         {
@@ -47,63 +41,109 @@
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "SetFire"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "ShootAndIntakeAtDepot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot and move to ↓trench"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetIntake"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetVisionTrustTrue"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetVisionTrustFalse"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "SetFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ShootAndIntakeAtDepot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitate"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitate"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetIntake"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot and move to ↓trench"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "intake halfway left ↓trench"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetIntake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ForceTrench"
           }
         }
       ]

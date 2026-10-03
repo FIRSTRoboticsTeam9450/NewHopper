@@ -107,16 +107,16 @@ public class RobotContainer {
         // Drive
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> {
-                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
-                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
-                double driveX = DRIVER.getLeftY();
-                double driveY = DRIVER.getLeftX();
+                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
+                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+                // double driveX = DRIVER.getLeftY();
+                // double driveY = DRIVER.getLeftX();
 
                 boolean xNegative = driveX < 0;
                 boolean yNegative = driveY < 0;
 
-                driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
-                driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
+                // driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
+                // driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
 
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
                 double joyX = -DRIVER.getLeftX();
@@ -126,10 +126,10 @@ public class RobotContainer {
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
                 
-                // double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
-                double rotate = DRIVER.getRightX();
+                double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
+                // double rotate = DRIVER.getRightX();
                 boolean xRotatePositive = rotate > 0;
-                rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
+                // rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
 
                 return drive.withVelocityX(slewMode ? driveX : yUsed) // Drive forward with negative Y (forward)
                     .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
@@ -260,6 +260,7 @@ public class RobotContainer {
         // NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
         NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
         NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
+        NamedCommands.registerCommand("SetAgitate", coordSub.setAgitate());
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
         // NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
         // NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
@@ -276,13 +277,16 @@ public class RobotContainer {
         // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
         NamedCommands.registerCommand("ForceTrench", coordSub.setForceTrenchCommand());
+        NamedCommands.registerCommand("SetVisionTrustTrue", visionSub.setOperatorOverrideVisionTrustCommand(true));
+        NamedCommands.registerCommand("SetVisionTrustFalse", visionSub.setOperatorOverrideVisionTrustCommand(false));
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
         // autoChooser.a("Test Auto", drivetrain.getAutoPath("4414 remake", false));
-        autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", true));
-        autoChooser.addDefaultOption("Test", drivetrain.getAutoPath("Test Path", false));
+        autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", false));
+        autoChooser.addDefaultOption("Test", drivetrain.getAutoPath("Test", false));
+        autoChooser.addOption("Test of 4414 remake", drivetrain.getAutoPath("Test of 4414 remake", false));
     }
 
     public Command getAutonomousCommand() {

@@ -5,13 +5,14 @@
   "pathFolders": [
     "2056 Paths",
     "4414 Paths",
+    "Test 4414",
     "Push Auto"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 5.0,
-  "defaultMaxAccel": 4.0,
-  "defaultMaxAngVel": 540.0,
-  "defaultMaxAngAccel": 720.0,
+  "defaultMaxVel": 1.0,
+  "defaultMaxAccel": 2.0,
+  "defaultMaxAngVel": 360.0,
+  "defaultMaxAngAccel": 400.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 64.41,
   "robotMOI": 6.883,

@@ -1,0 +1,96 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.6931972789115646,
+        "y": 5.973945578231292
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.064510531923613,
+        "y": 5.984873289074666
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.467156626506024,
+        "y": 7.412
+      },
+      "prevControl": {
+        "x": 2.2160481927710847,
+        "y": 7.542795180722893
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.48381742738589223,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.7235732009925551,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.8306451612903218,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.8327956989247348,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 400.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.5,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Test 4414",
+  "idealStartingState": {
+    "velocity": 0.75,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

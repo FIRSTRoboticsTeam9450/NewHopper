@@ -35,14 +35,16 @@ public class IntakeSubsystem extends SubsystemBase {
         INTAKE,
         BRAKE,
         IDLE,
-        EJECT
+        EJECT,
+        OFF
     }
 
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
     private double speedIntakeIntake = 6; // Volts // TODO: Intake speed
-    private double speedIntakeIdle = 0; // Volts
+    private double speedIntakeIdle = 0.5; // Volts
+    private double speedIntakeOff = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);
     private TalonFX intakeLeftMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, RobotConstants.RIO_BUS);
@@ -57,7 +59,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private PIDVals deployPID = new PIDVals("/Tuning/Intake/Deploy/",0,0.1,0,60,0,0,0);
 
-    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 14.5);
+    private LoggedNetworkNumber logDeploySetpoint = new LoggedNetworkNumber("/Tuning/Intake/Deploy/Setpoint", 18);
     private LoggedNetworkNumber logAgitationInVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationInVolts", -5);
     private LoggedNetworkNumber logAgitationOutVolts = new LoggedNetworkNumber("/Tuning/Intake/Deploy/AgitationOutVolts", 5);
 
@@ -242,6 +244,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 intakeSetpoint = speedIntakeIdle;
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
                 break;
+            case OFF:
+                intakeSetpoint = speedIntakeOff;
+                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
             case INTAKE:
                 intakeSetpoint = speedIntakeIntake;
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
