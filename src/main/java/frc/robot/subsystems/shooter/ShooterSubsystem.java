@@ -62,7 +62,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 14.3;
+    private double hoodAngleMax = 7.5; //old: 14.3
     private double hoodAngleMin = 0; //old: 3.5
     private double hoodFerryMotorRev = 14.15;
     private double degreesPerRev = ShooterConstants.HoodConstants.degreesPerMotorRev;
@@ -235,7 +235,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void configureAngleMotors() {
         angleMotorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        angleMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        angleMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         angleMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         angleMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
