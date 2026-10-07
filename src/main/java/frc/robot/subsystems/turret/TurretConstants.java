@@ -22,7 +22,7 @@ public final class TurretConstants{
     public static final double TURRET_OFFSET_TO_ZERO = 360;
     public static final double TURRET_OFFSET_TO_TARGET = 91; // 0.25; // 1.25
 
-    public static final double TOTAL_ROTATION_DEGREES = 320; //320
+    public static final double TOTAL_ROTATION_DEGREES = 355; //320
     public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
 
     public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 6.857142857; //2.24;
