@@ -33,6 +33,7 @@ import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.hopper.HopperTransferSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
@@ -206,8 +207,8 @@ public class RobotContainer {
         /* DEBUGGING CONTROLS */
         // DRIVER.x().onTrue(new InstantCommand(() -> turretSub.setManualTurretSetpoint(100)));
         // DRIVER.b().onTrue(new InstantCommand(() -> turretSub.setManualTurretSetpoint(-100)));
-        // DRIVER.povUp().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(12)));
-        // DRIVER.povDown().onTrue(new InstantCommand(() -> ShooterSubsystem.getInstance().setManualHoodSetpoint(0)));
+        // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setManualHoodSetpoint(7.5)));
+        // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setManualHoodSetpoint(0)));
         // DRIVER.rightBumper().onTrue(new InstantCommand(sidesweeperSub::setSlow).alongWith(
         //     new InstantCommand(transferSub::setSlowHopper)
         // ));
@@ -228,7 +229,10 @@ public class RobotContainer {
         // DRIVER.rightTrigger().onTrue(coordSub.setFireCommand());
         // DRIVER.leftBumper().onTrue(coordSub.setRejectingCommand(true));
         // DRIVER.leftBumper().onFalse(coordSub.setRejectingCommand(false));
-        
+
+        // DRIVER.povLeft().onTrue(shooterSub.setAngleState(AngleState.STORING));
+        // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.MANUAL));
+        // DRIVER.b().onTrue(new InstantCommand(() -> shooterSub.zeroEncoder()).ignoringDisable(true));
     }
 
     private static double getRotation(double joyY, double joyX) {
