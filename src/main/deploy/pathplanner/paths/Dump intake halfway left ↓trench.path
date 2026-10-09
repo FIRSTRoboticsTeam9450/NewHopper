@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.4965136054421775,
-        "y": 7.569846938775509
+        "x": 4.421938775510204,
+        "y": 7.554931972789115
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.083787251044998,
-        "y": 7.854471088435372
+        "x": 7.009212421113025,
+        "y": 7.839556122448978
       },
       "isLocked": false,
       "linkedName": "DumpTrenchThroughStart"

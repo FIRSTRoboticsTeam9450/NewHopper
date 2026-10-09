@@ -57,7 +57,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 5.0
                       }
                     },
                     {
@@ -111,7 +111,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Dump intake halfway left ↓trench"
+            "pathName": "Dump second sweep"
           }
         },
         {
