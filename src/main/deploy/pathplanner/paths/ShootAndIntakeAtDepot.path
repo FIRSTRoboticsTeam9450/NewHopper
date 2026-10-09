@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.48366265060241,
-        "y": 5.8
+        "x": 3.467380952380953,
+        "y": 5.504124149659864
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.784289156626506,
-        "y": 5.805289156626507
+        "x": 2.768007458405049,
+        "y": 5.509413306286371
       },
       "isLocked": false,
       "linkedName": "retreatFromBehindGoalEndPoint"
     },
     {
       "anchor": {
-        "x": 0.4894698795180723,
-        "y": 5.9473493975903615
+        "x": 0.5216751700680273,
+        "y": 5.988860544217687
       },
       "prevControl": {
-        "x": 1.6040963855469426,
-        "y": 5.936421686749056
+        "x": 1.6363016760968976,
+        "y": 5.977932833376381
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,25 +45,12 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Shoot",
-      "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    },
-    {
-      "name": "Intake",
-      "waypointRelativePos": 0.6640198511166263,
-      "endWaypointRelativePos": 1.0,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 400.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

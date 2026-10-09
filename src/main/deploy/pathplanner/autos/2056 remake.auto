@@ -19,13 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intake Halfway ↓trench"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetIntake"
+            "pathName": "2056 Start"
           }
         },
         {
@@ -47,21 +41,53 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot from ↑ to ↓ trench "
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetFire"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "SetIntake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitate"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitate"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetIntake"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot from ↑ to ↓ trench "
+                }
+              }
+            ]
           }
         },
         {
@@ -83,12 +109,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "SetIntake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "retreat from back of hub"
@@ -101,9 +121,47 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Shoot from ↑ to ↓ trench "
+            "name": "SetIntake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitate"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitate"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Shoot from ↑ to ↓ trench "
+                }
+              }
+            ]
           }
         },
         {
@@ -122,18 +180,6 @@
           "type": "named",
           "data": {
             "name": "SetIntake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetFire"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ForceTrench"
           }
         }
       ]

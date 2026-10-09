@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4894698795180723,
-        "y": 5.9473493975903615
+        "x": 0.5216751700680273,
+        "y": 5.988860544217687
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8607831325301203,
-        "y": 5.958277108433736
+        "x": 2.8929884230800758,
+        "y": 5.999788255061061
       },
       "isLocked": false,
       "linkedName": "IntakeAndShootAtDepot"
@@ -52,14 +52,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Shoot",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": 0.8327543424317619,
-      "command": null
+      "name": "SetFire",
+      "waypointRelativePos": 0.6532258064516141,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
     },
     {
       "name": "ForceTrench",
-      "waypointRelativePos": 0.846650124069479,
+      "waypointRelativePos": 0.659677419354836,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -70,10 +75,10 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 50.0,
+    "maxAngularAcceleration": 120.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -87,5 +92,5 @@
     "velocity": 0.75,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

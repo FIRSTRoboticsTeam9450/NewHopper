@@ -35,14 +35,16 @@ public class IntakeSubsystem extends SubsystemBase {
         INTAKE,
         BRAKE,
         IDLE,
-        EJECT
+        EJECT,
+        OFF
     }
 
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
     private double speedIntakeIntake = 6; // Volts // TODO: Intake speed
-    private double speedIntakeIdle = 0; // Volts
+    private double speedIntakeIdle = 0.5; // Volts
+    private double speedIntakeOff = 0; // Volts
 
     private TalonFX deployMotor = new TalonFX(IntakeConstants.DeviceIDs.kDeployMotorID, RobotConstants.DRIVEBASE_CANBUS);
     private TalonFX intakeLeftMotor = new TalonFX(IntakeConstants.DeviceIDs.kIntakeLeftMotorID, RobotConstants.RIO_BUS);
@@ -128,9 +130,9 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Positive = Intake, Negative = Outtake
 
         intakeMotorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
-        intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        intakeMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        intakeMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         intakeMotorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
 
@@ -154,12 +156,12 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 15){
+        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
             deployMotor.setPosition(0);
             deployMotor.setVoltage(0);
             zeroingVolts = 0;
             zeroingCount = 0;
-            deployState = DeployState.STORE;
+            deployState = DeployState.DEPLOY;
             return true;
         }
         return false;
@@ -242,6 +244,9 @@ public class IntakeSubsystem extends SubsystemBase {
                 intakeSetpoint = speedIntakeIdle;
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
                 break;
+            case OFF:
+                intakeSetpoint = speedIntakeOff;
+                intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
             case INTAKE:
                 intakeSetpoint = speedIntakeIntake;
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));

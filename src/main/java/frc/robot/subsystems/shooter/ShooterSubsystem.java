@@ -62,7 +62,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 14.3;
+    private double hoodAngleMax = 7.5; //old: 14.3
     private double hoodAngleMin = 0; //old: 3.5
     private double hoodFerryMotorRev = 14.15;
     private double degreesPerRev = ShooterConstants.HoodConstants.degreesPerMotorRev;
@@ -169,11 +169,17 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToAngle.put(2.027, 2.8); // 65
         shootingDistanceToAngle.put(2.3, 3.35); // 65
         shootingDistanceToAngle.put(2.713, 6.9); // 65
+        shootingDistanceToAngle.put(3.3, 10.17); // 65
         shootingDistanceToAngle.put(3.455, 8.9); // 65
+        shootingDistanceToAngle.put(3.57, 9.5); // 65
+        
         shootingDistanceToAngle.put(3.74, 6.577); // 73
-        shootingDistanceToAngle.put(3.97, 6.577); // 73
+        shootingDistanceToAngle.put(3.97, 7.577); // 73
         shootingDistanceToAngle.put(4.242, 10.4);
-        shootingDistanceToAngle.put(4.434, 11.59); // 73
+        shootingDistanceToAngle.put(4.434, 11.4); // 73
+        shootingDistanceToAngle.put(4.8, 11.7); // 73
+        shootingDistanceToAngle.put(4.9, 13.00); // 73
+        shootingDistanceToAngle.put(5.4, 13.2); // 73
         // shootingDistanceToAngle.put(4.434, 8.59); // 73
 
         
@@ -189,13 +195,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
         // shootingDistanceToTime.put(2.462, 1.29);
 
-        shootingDistanceToTime.put(1.1, 1.25);
+        shootingDistanceToTime.put(1.21, 1.25);
         shootingDistanceToTime.put(1.81, 1.25);
         shootingDistanceToTime.put(2.872, 1.1);
         shootingDistanceToTime.put(3.951, 1.292);
         shootingDistanceToTime.put(4.43, 1.2725);
-        shootingDistanceToTime.put(5.61, 1.25);
-        shootingDistanceToTime.put(6.2, 1.25);
+        shootingDistanceToTime.put(4.83, 1.23);
+        // shootingDistanceToTime.put(5.61, 1.25);
+        // shootingDistanceToTime.put(6.2, 1.25);
         // shootingDistanceToTime.put(5.095, 1.4525);
         // shootingDistanceToTime.put(4.101, 1.374);
         // shootingDistanceToTime.put(3.465, 1.3325);
@@ -228,7 +235,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void configureAngleMotors() {
         angleMotorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        angleMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        angleMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         angleMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         angleMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
@@ -278,7 +285,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.AIMING);
+            setState(currentShooterState, AngleState.STORING);
             return true;
         }
         return false; // TODO CHANGE BACK TO FALSE
@@ -607,7 +614,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Checks
     public boolean isAngleWithinTolerance() {
-        return isAngleWithinTolerance(2.75);
+        return isAngleWithinTolerance(0.75);
     }
 
     public boolean isAngleWithinTolerance(double tolerance) {
@@ -615,7 +622,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return isVelocityWithinTolerance(16);
+        return isVelocityWithinTolerance(5);
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {

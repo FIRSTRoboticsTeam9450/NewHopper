@@ -49,8 +49,8 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private boolean isIntaking = false;
     private boolean shiftingTurret = true;
-    private boolean isAgitate = true;
-
+    private boolean isAgitate = false;
+    private boolean isIntakeOut = true;
     public CoordinationSubsystem() {}
 
     @Override
@@ -137,6 +137,13 @@ public class CoordinationSubsystem extends SubsystemBase {
             // intakeDeployState = DeployState.AGITATE;
             intakeWheelState = IntakeState.INTAKE;
         }
+        if(!isIntakeOut) {
+            intakeDeployState = DeployState.STORE;
+            intakeWheelState = IntakeState.OFF;
+        }
+        if(isAgitate) {
+            intakeDeployState = DeployState.AGITATE;
+        }
         switch(currentState) {
             case INIT:
                 turretState = TurretState.INIT;
@@ -144,7 +151,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
                 if(RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING && RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
-                    setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+                    setState(AbsoluteStates.TRENCH, false);
                 }
                 break;
             case PREPARING_FOR_SHOOTING:
@@ -159,9 +166,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if(isAgitate) {
-                    intakeDeployState = DeployState.AGITATE;
-                }
                 intakeWheelState = IntakeState.INTAKE;
                 break;
             case STORING:
@@ -182,7 +186,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             transferState = TransferState.EJECT;
             sidesweepState = SidesweeperState.EJECT;
         }
-        // RobotContainer.turretSub.setState(turretState);
+        RobotContainer.turretSub.setState(turretState);
         RobotContainer.shooterSub.setState(shooterVelocState, shooterHoodState);
         RobotContainer.intakeSub.setDeployState(intakeDeployState);
         RobotContainer.intakeSub.setIntakeState(intakeWheelState);
@@ -258,6 +262,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         return new InstantCommand(() -> isAgitate = !isAgitate)
         .andThen(new InstantCommand(this::applyState));
     }
+    public Command setAgitate(boolean value) {
+        return new InstantCommand(() -> isAgitate = value)
+        .andThen(new InstantCommand(this::applyState));
+    }
 
     public Command setIntakeCommand(boolean value) {
         return new InstantCommand(() -> isIntaking = value)
@@ -277,6 +285,20 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setForceTrenchCommand() {
         return new InstantCommand(() -> forceTrench = !forceTrench)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+    public Command setForceTrenchCommand(boolean value) {
+        return new InstantCommand(() -> forceTrench = value)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIntakeOut() {
+        return new InstantCommand(() -> isIntakeOut = !isIntakeOut)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIntakeOut(boolean value) {
+        return new InstantCommand(() -> isIntakeOut = value)
         .alongWith(new InstantCommand(() -> update = true));
     }
 
