@@ -11,7 +11,6 @@ public class TurretModel {
     private static double vI;
 
     //theta, phi
-    //TODO: remove delta_t after testing
     public static double[] calculate(Translation3d P, ChassisSpeeds V, double vI) {
         TurretModel.P = P;
         TurretModel.V = new Translation3d(-V.vxMetersPerSecond, -V.vyMetersPerSecond, 0);
