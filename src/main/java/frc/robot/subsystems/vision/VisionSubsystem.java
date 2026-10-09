@@ -484,6 +484,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
         Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
+        Logger.recordOutput("NewHopper/Vision/OverridingOdom?", operatorForcedVisionTrust);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Target Pose", lastTargetPose);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         

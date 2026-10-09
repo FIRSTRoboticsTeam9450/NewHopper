@@ -194,10 +194,10 @@ public class RobotContainer {
         /* ========== TESTING KEYBINDS ========== */
         // SysID
         if (enableSysIdKeybinds) {
-            DRIVER.back().and(DRIVER.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-            DRIVER.back().and(DRIVER.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-            DRIVER.start().and(DRIVER.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-            DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+            DRIVER.back().and(DRIVER.y()).whileTrue(shooterSub.sysIdDynamic(Direction.kForward));
+            DRIVER.back().and(DRIVER.x()).whileTrue(shooterSub.sysIdDynamic(Direction.kReverse));
+            DRIVER.start().and(DRIVER.y()).whileTrue(shooterSub.sysIdQuasistatic(Direction.kForward));
+            DRIVER.start().and(DRIVER.x()).whileTrue(shooterSub.sysIdQuasistatic(Direction.kReverse));
         }
         else {
             
@@ -263,8 +263,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
         // NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
         NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
+        NamedCommands.registerCommand("SetIntakeTrue", coordSub.setIntakeCommand(true));
+        NamedCommands.registerCommand("SetIntakeFalse", coordSub.setIntakeCommand(false));
         NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
+        NamedCommands.registerCommand("SetFireTrue", coordSub.setFireCommand(true));
+        NamedCommands.registerCommand("SetFireFalse", coordSub.setFireCommand(false));
         NamedCommands.registerCommand("SetAgitate", coordSub.setAgitate());
+        NamedCommands.registerCommand("SetAgitateTrue", coordSub.setAgitate(true));
+        NamedCommands.registerCommand("SetAgitateFalse", coordSub.setAgitate(false));
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
         // NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
         // NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
@@ -278,9 +284,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("LeftTurretAngle", new InstantCommand(turretSub::increaseManualAdjust));
         NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(turretSub::decreaseManualAdjust));
 
+        NamedCommands.registerCommand("setIntakeVolts10", new InstantCommand(() -> intakeSub.setIntakeVolts(10)));
+        NamedCommands.registerCommand("setIntakeVolts8", new InstantCommand(() -> intakeSub.setIntakeVolts(8)));
+
         // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
         NamedCommands.registerCommand("ForceTrench", coordSub.setForceTrenchCommand());
+        NamedCommands.registerCommand("ForceTrenchTrue", coordSub.setForceTrenchCommand(true));
+        NamedCommands.registerCommand("ForceTrenchFalse", coordSub.setForceTrenchCommand(false));
         NamedCommands.registerCommand("SetVisionTrustTrue", visionSub.setOperatorOverrideVisionTrustCommand(true));
         NamedCommands.registerCommand("SetVisionTrustFalse", visionSub.setOperatorOverrideVisionTrustCommand(false));
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
@@ -288,9 +299,10 @@ public class RobotContainer {
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
         // autoChooser.a("Test Auto", drivetrain.getAutoPath("4414 remake", false));
-        autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", false));
+        autoChooser.addOption("4414 remake", drivetrain.getAutoPath("4414 remake", false));
         autoChooser.addDefaultOption("Test", drivetrain.getAutoPath("Test", false));
         autoChooser.addOption("Test of 4414 remake", drivetrain.getAutoPath("Test of 4414 remake", false));
+        autoChooser.addOption("Dump", drivetrain.getAutoPath("Dump", false));
     }
 
     public Command getAutonomousCommand() {

@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.431,
+        "y": 5.504
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.1921513605442176,
+        "y": 7.741369047619047
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.4965136054421775,
+        "y": 7.569846938775509
+      },
+      "prevControl": {
+        "x": 3.36265986394558,
+        "y": 7.608374149659862
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "DumpTrenchThroughStart"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.48381742738589223,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.5,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Dump Double Sweep",
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

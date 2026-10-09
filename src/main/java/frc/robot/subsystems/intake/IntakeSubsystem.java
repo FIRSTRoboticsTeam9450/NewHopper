@@ -42,7 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
-    private double speedIntakeIntake = 6; // Volts // TODO: Intake speed
+    private double speedIntakeIntake = 8; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0.5; // Volts
     private double speedIntakeOff = 0; // Volts
 
@@ -341,6 +341,10 @@ public class IntakeSubsystem extends SubsystemBase {
             System.out.println("Yay its working.");
         }
         deployState = state;
+    }
+
+    public void setIntakeVolts(double volts) {
+        speedIntakeIntake = volts;
     }
 
     public void setIntakeState(IntakeState state) {

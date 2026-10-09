@@ -78,8 +78,10 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
 
     // Physical limits (degrees) - degree° total range depends on the constant
+    // private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    // private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = 144;
 
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -175,7 +177,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double previousVelocityTimestamp = 0.0;
 
     // State tracking
-    private double turretOffset = 0.0;
+    private double turretOffset = 0;
 
     // Motion profiling
     private SlewRateLimiter velocityLimiter;
@@ -280,7 +282,6 @@ public class TurretSubsystem extends SubsystemBase {
         // Calculate motor revolutions for your angle limits
         double minMotorRevs = MIN_ANGLE_DEG / TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
         double maxMotorRevs = MAX_ANGLE_DEG / TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
-
         // Now account for the rotor-to-sensor ratio
         motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxMotorRevs;
         motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minMotorRevs;
@@ -325,8 +326,9 @@ public class TurretSubsystem extends SubsystemBase {
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
 
-        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {//&& CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) { //TODO: ADD BACK
+        if (turretMotor.getPosition().getValueAsDouble() > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE || turretMotor.getPosition().getValueAsDouble() < (MIN_ANGLE_DEG - 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {//&& CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) { //TODO: ADD BACK
             goodToMove = false;
+            System.out.println("COOKED SIGH SIGH");
         } else {
             goodToMove = true;
         }
@@ -720,6 +722,7 @@ public class TurretSubsystem extends SubsystemBase {
         double currentAngle = cachedAngleDeg;
 
         double bestAngle = targetDegrees;
+        Logger.recordOutput("NewHopper/Turret/prewrapping clamp", bestAngle);
         double minDistance = Double.POSITIVE_INFINITY;
 
         // Check wrapped versions: -720°, -360°, 0°, +360°, +720°
@@ -1123,7 +1126,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtProfiledGoal(double toleranceDeg) {
-        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5))
+        if ((Math.abs(profiledSetpointDeg - MAX_ANGLE_DEG) < 0.5) || (Math.abs(profiledSetpointDeg + MIN_ANGLE_DEG) < 0.5))
             return false;
 
         double error = Math.abs(cachedAngleDeg - profiledSetpointDeg);

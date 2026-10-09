@@ -193,9 +193,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/Zeroing", checkZeroing);
         Logger.recordOutput("NewHopper/Coord/Current State", currentState);
         // Logger.recordOutput("NewHopper/Coord/Driver Allows Shooting", driverAllowingShooting);
-        // Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
-        // Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
-        // Logger.recordOutput("NewHopper/Coord/Is Turret Ready?", isTurretReady());
+        Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
+        Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
+        Logger.recordOutput("NewHopper/Coord/Is Turret Ready?", isTurretReady());
         // Logger.recordOutput("NewHopper/Coord/OverridingTrench?", overrideTrench);
     }
 

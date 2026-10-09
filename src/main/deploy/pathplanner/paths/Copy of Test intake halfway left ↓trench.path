@@ -1,0 +1,119 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.467156626506024,
+        "y": 7.412
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.054430272108845,
+        "y": 7.696624149659863
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.868690476190477,
+        "y": 5.056675170068027
+      },
+      "prevControl": {
+        "x": 5.920892857142857,
+        "y": 5.481751700680273
+      },
+      "nextControl": {
+        "x": 5.676406942341191,
+        "y": 3.4909378230095234
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.583911564625851,
+        "y": 3.915680272108842
+      },
+      "prevControl": {
+        "x": 7.051989630324537,
+        "y": 3.3386802077819935
+      },
+      "nextControl": {
+        "x": 8.023903061224491,
+        "y": 4.39295918367347
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.583911564625851,
+        "y": 5.287857142857142
+      },
+      "prevControl": {
+        "x": 8.380711847405442,
+        "y": 5.220331695163956
+      },
+      "nextControl": {
+        "x": 6.7039285714285715,
+        "y": 5.362431972789116
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.1839965986394554,
+        "y": 5.414634353741496
+      },
+      "prevControl": {
+        "x": 5.03345238095238,
+        "y": 5.451921768707482
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4494382022471892,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.0886392009987538,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.0861423220973823,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 3.350811485642957,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Dump Double Sweep",
+  "idealStartingState": {
+    "velocity": 5.0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
