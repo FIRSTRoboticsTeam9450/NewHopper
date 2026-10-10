@@ -128,7 +128,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double manualHoodSetpoint = 0;
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
     private double manualHoodShift = 0;
-    private double wheelWareAdjustment = 1.5 - 3.5;
+    private double wheelWareAdjustment = -0.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -176,16 +176,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
 
-        shootingDistanceToAngle.put(1.4, 0.0); // 65
-        shootingDistanceToAngle.put(2.0, .7); // 65
-        shootingDistanceToAngle.put(3.16, 4.185); // 65
-        shootingDistanceToAngle.put(3.6, 2.44); // 65
-        shootingDistanceToAngle.put(3.61, 2.44); // 65
-        shootingDistanceToAngle.put(3.75, 2.89); // 65
-        shootingDistanceToAngle.put(4.14, 3.97); // 65
-        shootingDistanceToAngle.put(5.0, 4.97); // 65
-        shootingDistanceToAngle.put(5.2, 4.97); // 65
-        shootingDistanceToAngle.put(5.82, 7.97); // 65
+        shootingDistanceToAngle.put(1.4, 0.0 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(2.0, .7 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.16, 4.185 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.6, 2.44 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.61, 2.44 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.75, 2.89 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(4.14, 3.97 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(5.0, 4.97 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(5.2, 4.97 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(5.82, 7.97 + wheelWareAdjustment); // 65
 
         //OLD SHOOTER TABLE
         // shootingDistanceToAngle.put(1.334, 1.37); // 65
