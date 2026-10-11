@@ -13,6 +13,24 @@
         {
           "type": "named",
           "data": {
+            "name": "SetVisionTrustTrue"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dump bump to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "setIntakeVolts8"
           }
         },
@@ -25,13 +43,19 @@
         {
           "type": "named",
           "data": {
+            "name": "SetIntakeFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SetVisionTrustTrue"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.1
           }
         },
         {
@@ -57,7 +81,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.0
+                        "waitTime": 2.5
                       }
                     },
                     {
@@ -69,7 +93,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.0
+                        "waitTime": 2.0
                       }
                     },
                     {
@@ -115,6 +139,18 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dump bump to shoot"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "ForceTrenchFalse"
@@ -135,7 +171,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.1
           }
         },
         {
@@ -151,6 +187,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "SetIntakeFalse"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -158,6 +200,12 @@
                 "type": "sequential",
                 "data": {
                   "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    },
                     {
                       "type": "named",
                       "data": {
@@ -167,7 +215,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 5.0
+                        "waitTime": 2.0
                       }
                     },
                     {
@@ -192,6 +240,12 @@
           "type": "named",
           "data": {
             "name": "SetFireFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetOverrideSpeedFalse"
           }
         }
       ]

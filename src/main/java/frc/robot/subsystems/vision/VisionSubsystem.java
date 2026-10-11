@@ -67,7 +67,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Standard deviations for vision measurements (for filtering/fusion)
     public Vector<N3> disabledStdDev = VecBuilder.fill(3, 3, 999999);
-    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.4, 0.4, 999999); // Used to be 0.3 for both n1 and n2
+    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.3, 0.3, 999999); // Used to be 0.3 for both n1 and n2
     public Vector<N3> enabledMT1StdDev = VecBuilder.fill(999999, 999999, 1);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
 
@@ -104,6 +104,8 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile Translation2d lastTargetPose = null;
     private volatile Translation2d lastAdjustedTargetPose = null;
     private String currentFerryZone = "none";
+    public double maxSpeedMultiplier = 1;
+    private boolean overrideSpeed = false;
 
 
     // Targeting Data
@@ -219,20 +221,22 @@ public class VisionSubsystem extends SubsystemBase {
 
         double robotYaw = robotPoseData.getRotation().getDegrees();
         double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
-        double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble());
+        double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble()) - 180;
         double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;
         }
 
-        if (robotRoll > 6 || robotPitch > 6) {
-            bumpDetected = true;
+        if (robotRoll > 6 || robotPitch > 6) { // TODO: FIX THE BUMP DETECTION
+            bumpDetected = false;
             bumpMeasurmentCount = 0;
         }
 
-        // Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);
-        // Logger.recordOutput("NewHopper/Vision/Bump Detected", bumpDetected);
+        Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);
+        Logger.recordOutput("NewHopper/Vision/Bump Detected", bumpDetected);
+        Logger.recordOutput("NewHopper/Vision/Roll", robotRoll);
+        Logger.recordOutput("NewHopper/Vision/Pitch", robotPitch);
 
         List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
         for (LimelightObject limelight : LIMELIGHT_LIST) {
@@ -485,6 +489,8 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
         Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
         Logger.recordOutput("NewHopper/Vision/OverridingOdom?", operatorForcedVisionTrust);
+        Logger.recordOutput("NewHopper/Vision/Drive Multiplier", maxSpeedMultiplier);
+        Logger.recordOutput("NewHopper/Vision/overrideSpeed", overrideSpeed);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Target Pose", lastTargetPose);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
@@ -501,7 +507,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("NewHopper/Vision/CurrentZone", currentZone);
 
-        // Logger.recordOutput("NewHopper/Vision/Bump Measurement Count", bumpMeasurmentCount);
+        Logger.recordOutput("NewHopper/Vision/Bump Measurement Count", bumpMeasurmentCount);
         Logger.recordOutput("NewHopper/Vision/CurrentFerryZone", currentFerryZone);
         if (loopOffset > 5) {
             loopOffset = 0;
@@ -760,6 +766,9 @@ public class VisionSubsystem extends SubsystemBase {
         return currentZone;
     }
 
+    public double getMaxSpeedMultiplier() {
+        return maxSpeedMultiplier;
+    }
     public boolean trenchNow() {
         double time = 0.95;
         Pose2d futurePoseWRTField = getFuturePoseWRTField(time); // ABSOLUTELY CORRECT
@@ -826,6 +835,11 @@ public class VisionSubsystem extends SubsystemBase {
         return null;
     }
 
+
+    public void setOverrideSpeed(boolean value) {
+        overrideSpeed = value;
+    }
+
     /**
      * Update which zone it's in and target it's in
      */
@@ -841,24 +855,33 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
             currentFerryZone = "Shooting";
+            if(RobotContainer.coordSub.getdriverAllowingShooting() && !overrideSpeed) {
+                maxSpeedMultiplier = 0.2;
+            }
+            else {
+                maxSpeedMultiplier = 1;
+            }
         }
         
         if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_TOP_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_TOP_SECTION_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_TOP;
             currentTarget = ZoneTargets.FERRY_TOP_TARGET;
             currentFerryZone = "Normal";
+            maxSpeedMultiplier = 1;
         }
         
         if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_BOTTOM_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_BOTTOM_SECTION_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_BOTTOM;
             currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
             currentFerryZone = "Normal";
+            maxSpeedMultiplier = 1;
         }
 
         if(currentX > ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
             currentZone = ZoneState.SHOOT_OVER_NET;
             currentTarget = neutralTarget;
             currentFerryZone = "Shoot Over Net";
+            maxSpeedMultiplier = 1;
         }
 
         // Comment out if dont want shoot over net
@@ -866,30 +889,37 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.CLIMB_DEADZONE;
             currentTarget = neutralTarget;
             currentFerryZone = "Push Section V2";
+            maxSpeedMultiplier = 1;
         }
         if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
             currentTarget = ferryTarget;
+            maxSpeedMultiplier = 1;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
             currentTarget = ferryTarget;
+            maxSpeedMultiplier = 1;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
             currentTarget = ferryTarget;
+            maxSpeedMultiplier = 1;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
             currentTarget = ferryTarget;
+            maxSpeedMultiplier = 1;
         }
         else if(turretX > ZoneConstantsWelded.OUR_CLIMB_DEADZONE_X_LOW && turretX < ZoneConstantsWelded.OUR_CLIMB_DEADZONE_X_HIGH && turretY > ZoneConstantsWelded.CLIMB_DEADZONE_Y_LOW && turretY < ZoneConstantsWelded.CLIMB_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.CLIMB_DEADZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
+            maxSpeedMultiplier = 1;
         }
         else if(turretX > ZoneConstantsWelded.THEIR_CLIMB_DEADZONE_X_LOW && turretX < ZoneConstantsWelded.THEIR_CLIMB_DEADZONE_X_HIGH && turretY > ZoneConstantsWelded.CLIMB_DEADZONE_Y_LOW && turretY < ZoneConstantsWelded.CLIMB_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.CLIMB_DEADZONE;
             currentTarget = ferryTarget;
+            maxSpeedMultiplier = 1;
         }
         if(useCustomTarget) {
             currentTarget = customTarget;

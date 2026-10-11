@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private double hoodAngleMax = 7.5; //old: 14.3
     private double hoodAngleMin = 0; //old: 3.5
-    private double hoodFerryMotorRev = 7.5;
+    private double hoodFerryMotorRev = 7.35;
     private double degreesPerRev = ShooterConstants.HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
     private double distanceAwayToUseLowDegree = 1.2;
@@ -243,17 +243,17 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         // Ferrying Data Velocity
-        ferryingDistanceToVelocity.put(4.59, 34.5);
+        // ferryingDistanceToVelocity.put(4.59, 34.5);
         // ferryingDistanceToVelocity.put(4.962, 35.72);
         // ferryingDistanceToVelocity.put(7.622, 42.03);
         // ferryingDistanceToVelocity.put(11.26, 52.0);
         // ferryingDistanceToVelocity.put(16.26, 62.75);
 
-        // ferryingDistanceToVelocity.put(4.59, 34.5 + 2.5);
-        // ferryingDistanceToVelocity.put(4.962, 35.72 + 2.5);
-        // ferryingDistanceToVelocity.put(7.622, 42.03 + 8);
-        // ferryingDistanceToVelocity.put(11.26, 52.0 + 35);
-        // ferryingDistanceToVelocity.put(14.26, 110.0);
+        ferryingDistanceToVelocity.put(4.59, 28.5 + 2.5);
+        ferryingDistanceToVelocity.put(4.962, 29.72 + 2.5);
+        ferryingDistanceToVelocity.put(7.622, 36.03 + 8);
+        ferryingDistanceToVelocity.put(11.26, 46.0);
+        ferryingDistanceToVelocity.put(14.26, 104.0);
 
         // Ferrying Data Time
         ferryingDistanceToTime.put(4.59, 1.41);
@@ -314,7 +314,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.AIMING);
+            setState(currentShooterState, AngleState.STORING);
             return true;
         }
         return false; // TODO CHANGE BACK TO FALSE
@@ -462,7 +462,7 @@ public class ShooterSubsystem extends SubsystemBase {
                         targetShooterVeloc = 44.5;
                     }
                     else if(cachedDistanceToTarget > 4.5) {
-                        targetShooterVeloc = 43;
+                        targetShooterVeloc = 38.15;
                     }
                     else if(cachedDistanceToTarget > 3.3) {
                         targetShooterVeloc = 38;

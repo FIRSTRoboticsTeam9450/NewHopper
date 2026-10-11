@@ -326,7 +326,7 @@ public class TurretSubsystem extends SubsystemBase {
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
 
-        if (turretMotor.getPosition().getValueAsDouble() > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE || turretMotor.getPosition().getValueAsDouble() < (MIN_ANGLE_DEG - 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {//&& CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) { //TODO: ADD BACK
+        if (turretMotor.getPosition().getValueAsDouble() > (MAX_ANGLE_DEG + 10) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE || turretMotor.getPosition().getValueAsDouble() < (MIN_ANGLE_DEG - 10) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {//&& CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) { //TODO: ADD BACK
             goodToMove = false;
             System.out.println("COOKED SIGH SIGH");
         } else {
@@ -801,12 +801,13 @@ public class TurretSubsystem extends SubsystemBase {
     private void updateDriverFeedback() {
         if (driverController != null) {
             if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
-                if (false) { //CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridingTrench()) { // TODO: CHANGE BACK
-                    if (controllersCurrentRumbling != 0.15) {
-                        controllersCurrentRumbling = 0.15;
-                        driverController.setRumble(RumbleType.kBothRumble, 0.15);
-                    }
-                } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
+                // if (false) { //CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridingTrench()) { // TODO: CHANGE BACK
+                //     if (controllersCurrentRumbling != 0.15) {
+                //         controllersCurrentRumbling = 0.15;
+                //         driverController.setRumble(RumbleType.kBothRumble, 0.15);
+                //     }
+                // } else 
+                if (profiledSetpointDeg == MIN_ANGLE_DEG) {
                     if (controllersCurrentRumbling != 0.05) {
                         controllersCurrentRumbling = 0.05;
                         driverController.setRumble(RumbleType.kLeftRumble, 0.15);

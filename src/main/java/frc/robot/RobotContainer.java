@@ -76,7 +76,7 @@ public class RobotContainer {
 
     public static boolean slewMode = false;
 
-    public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
+    public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
     public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -108,10 +108,12 @@ public class RobotContainer {
         // Drive
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> {
-                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
-                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
                 // double driveX = DRIVER.getLeftY();
                 // double driveY = DRIVER.getLeftX();
+                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
 
                 boolean xNegative = driveX < 0;
                 boolean yNegative = driveY < 0;
@@ -122,12 +124,13 @@ public class RobotContainer {
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
                 double joyX = -DRIVER.getLeftX();
                 double joyY = DRIVER.getLeftY();
-                double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed;
+                double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed * visionSub.getMaxSpeedMultiplier();
                 double rotation = getRotation(joyY, joyX);
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
                 
                 double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
+                // double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
                 // double rotate = DRIVER.getRightX();
                 boolean xRotatePositive = rotate > 0;
                 // rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
@@ -136,8 +139,8 @@ public class RobotContainer {
                     .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
                     .withRotationalRate(slewMode ? driveRotate : rotate); // Drive counterclockwise with negative X (left)
                 
-                // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+                // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier()) // Drive forward with negative Y (forward)
+                //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed * visionSub.getMaxSpeedMultiplier())) // Drive left with negative X (left)
                 //     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
             }
             )
@@ -178,14 +181,19 @@ public class RobotContainer {
         //                     .onFalse(coordSub.setAgitate(false));
         OPERATOR.rightBumper().onTrue(coordSub.increaseManualAdjust());
         OPERATOR.leftBumper().onTrue(coordSub.decreaseManualAdjust());
-        OPERATOR.a().onTrue(coordSub.setManualTurret(true))
+        OPERATOR.y().onTrue(coordSub.setManualTurret(true))
                     .onFalse(coordSub.setManualTurret(false));
-        OPERATOR.y().onTrue(coordSub.resetManualAdjust());
+        OPERATOR.a().onTrue(coordSub.resetManualAdjust());
+        OPERATOR.povUp().onTrue(new InstantCommand(() -> visionSub.setOverrideSpeed(true)))
+        .onFalse(new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
         OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         OPERATOR.leftTrigger().onTrue(coordSub.setIntakeOut());
         OPERATOR.povDown()
             .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
             .onFalse(visionSub.setOperatorOverrideVisionTrustCommand(false));
+        
+        OPERATOR.rightTrigger().onTrue(coordSub.setAgitate(true))
+                            .onFalse(coordSub.setAgitate(false));
         // No SysID
         if (!enableSysIdKeybinds) {
         }
@@ -220,9 +228,9 @@ public class RobotContainer {
         // DRIVER.a().onTrue(coordSub.resetManualAdjust());
         // DRIVER.leftStick().onTrue(coordSub.setManualTurret(false));
         // DRIVER.leftStick().onFalse(coordSub.setManualTurret(true));
-        DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
-        DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
-        DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
+        // DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
+        // DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
+        // DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
         // DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         // DRIVER.rightBumper().onTrue(coordSub.setAgitate());
         // DRIVER.rightStick().onTrue(coordSub.setForceTrenchCommand());
@@ -253,8 +261,8 @@ public class RobotContainer {
 
     public ChassisSpeeds getRobotFieldCentricVeloc() {
         return new ChassisSpeeds(
-            -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed,
-            -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed,
+            -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed * visionSub.getMaxSpeedMultiplier(),
+            -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed * visionSub.getMaxSpeedMultiplier(),
             -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate
         );
     }
@@ -295,6 +303,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("SetVisionTrustTrue", visionSub.setOperatorOverrideVisionTrustCommand(true));
         NamedCommands.registerCommand("SetVisionTrustFalse", visionSub.setOperatorOverrideVisionTrustCommand(false));
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
+        NamedCommands.registerCommand("SetOverrideSpeedTrue", new InstantCommand(() -> visionSub.setOverrideSpeed(true)));
+        NamedCommands.registerCommand("SetOverrideSpeedFalse", new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())

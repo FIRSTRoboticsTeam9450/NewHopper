@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.431,
-        "y": 5.504
+        "x": 1.9220759193357067,
+        "y": 5.632740213523132
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.207066326530612,
-        "y": 7.540017006802721
+        "x": 1.6981422458663187,
+        "y": 7.668757220325853
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Dump First Sweep End"
     },
     {
       "anchor": {
