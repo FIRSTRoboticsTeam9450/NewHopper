@@ -105,7 +105,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Shooter Outtake Velocity Motion Magic Parameters
 
     // private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.12696,0.11984,0.023895,0.6,0.0,0.0,0.0); // kP = 0.6
-    private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.13482,0.115,0.020888,0.6,0.0,0.0,0.0); // kP = 0.6
+    private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.13482,0.115,0.020888,0.4,0.0,0.0,0.0); // kP = 0.6
 
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 2.0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 9450);
