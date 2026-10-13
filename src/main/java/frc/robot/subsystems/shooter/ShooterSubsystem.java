@@ -104,7 +104,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Shooter Outtake Velocity Motion Magic Parameters
 
-    private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.12696,0.11984,0.023895,0.6,0.0,0.0,0.0); // kP = 0.6
+    // private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.12696,0.11984,0.023895,0.6,0.0,0.0,0.0); // kP = 0.6
+    private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.13482,0.115,0.020888,0.6,0.0,0.0,0.0); // kP = 0.6
 
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 2.0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 9450);
@@ -401,18 +402,18 @@ public class ShooterSubsystem extends SubsystemBase {
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                // shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
+                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
 
             case NOT_SHOOTING:
-                // shooterLeftMotor.setVoltage(0);
+                shooterLeftMotor.setVoltage(0);
                 break;
 
             case HOLD_IN:
-                // shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
+                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
                 break;
             case MANUAL:
-                // shooterLeftMotor.setVoltage(MathUtil.clamp(manualShift, 0, 12));
+                shooterLeftMotor.setVoltage(MathUtil.clamp(manualShift, 0, 12));
 
             default:
                 break;

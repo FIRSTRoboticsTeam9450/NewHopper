@@ -54,7 +54,7 @@ public class RobotContainer {
     public static final CommandXboxController DRIVER = new CommandXboxController(RobotConstants.DRIVER_CONTROLLER_PORT);
     public static final CommandXboxController OPERATOR = new CommandXboxController(RobotConstants.OPERATOR_CONTROLLER_PORT);
 
-    public static final boolean enableSysIdKeybinds = true; // Enable SysID keybinds, and disable conflicting keybinds!
+    public static final boolean enableSysIdKeybinds = false; // Enable SysID keybinds, and disable conflicting keybinds!
         // Currently disables:
         //  Driver:
         //   Reset IMU
