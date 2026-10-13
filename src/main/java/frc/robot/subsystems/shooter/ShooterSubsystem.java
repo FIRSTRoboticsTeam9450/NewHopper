@@ -128,7 +128,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double manualHoodSetpoint = 0;
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
     private double manualHoodShift = 0;
-    private double wheelWareAdjustment = -0.5;
+    private double wheelWareAdjustment = -1.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -401,18 +401,18 @@ public class ShooterSubsystem extends SubsystemBase {
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
+                // shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
 
             case NOT_SHOOTING:
-                shooterLeftMotor.setVoltage(0);
+                // shooterLeftMotor.setVoltage(0);
                 break;
 
             case HOLD_IN:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
+                // shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
                 break;
             case MANUAL:
-                shooterLeftMotor.setVoltage(MathUtil.clamp(manualShift, 0, 12));
+                // shooterLeftMotor.setVoltage(MathUtil.clamp(manualShift, 0, 12));
 
             default:
                 break;
@@ -780,7 +780,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void resetManualVelocityShift() {
-        manualHoodShift = 0;
+        manualShift = 0;
     }
 
     // -------------------------------------------- UPDATE BASED ON LOGS -------------------------------------------- //

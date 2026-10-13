@@ -856,7 +856,7 @@ public class VisionSubsystem extends SubsystemBase {
             currentTarget = ZoneTargets.SHOOTING_TARGET;
             currentFerryZone = "Shooting";
             if(RobotContainer.coordSub.getdriverAllowingShooting() && !overrideSpeed) {
-                maxSpeedMultiplier = 0.2;
+                maxSpeedMultiplier = 1;//0.2;
             }
             else {
                 maxSpeedMultiplier = 1;

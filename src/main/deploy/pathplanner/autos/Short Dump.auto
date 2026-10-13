@@ -1,0 +1,263 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Short Dump start"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustTrue"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dump bump to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "setIntakeVolts8"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrenchFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntakeFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustTrue"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFireTrue"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitateTrue"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitateFalse"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetIntakeTrue"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFireFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrenchTrue"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dump and move to ↓trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dump second sweep"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dump bump to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ForceTrenchFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntakeFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustTrue"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFireTrue"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetIntakeFalse"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitateTrue"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetAgitateFalse"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetIntakeTrue"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetFireFalse"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetOverrideSpeedFalse"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

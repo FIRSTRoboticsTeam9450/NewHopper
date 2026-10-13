@@ -54,7 +54,7 @@ public class RobotContainer {
     public static final CommandXboxController DRIVER = new CommandXboxController(RobotConstants.DRIVER_CONTROLLER_PORT);
     public static final CommandXboxController OPERATOR = new CommandXboxController(RobotConstants.OPERATOR_CONTROLLER_PORT);
 
-    public static final boolean enableSysIdKeybinds = false; // Enable SysID keybinds, and disable conflicting keybinds!
+    public static final boolean enableSysIdKeybinds = true; // Enable SysID keybinds, and disable conflicting keybinds!
         // Currently disables:
         //  Driver:
         //   Reset IMU
@@ -64,15 +64,18 @@ public class RobotContainer {
      * Woojin's Drive: 117.4, 0.054, 91.4, 0.76, 0.1, 0.01
      * Woojin's Rotate: 120.1, 0.145, 92.2, 0.362, 0.035, 0.03
      */
-    public static BezierCurve driveBezier = new BezierCurve("drive", 151.0, 0.137, 116, 0.646, 0.1, 0.01);
-    public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
+    // public static BezierCurve driveBezier = new BezierCurve("drive", 151.0, 0.137, 116, 0.646, 0.1, 0.01);
+    // public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
     
-    public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(5);
-    public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(5);
-    public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(8.0);
+    public BezierCurve driveBezier = new BezierCurve("drive", 89.4, 0.117, 88.5, 0.896, 0.1, 0.01);
+    public BezierCurve rotateBezier = new BezierCurve("rotate", 89.4, 0.117, 88.5, 0.896, 0.035, 0.03);
+
+    // public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(5);
+    // public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(5);
+    // public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(8.0);
     
     private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
     public static boolean slewMode = false;
 
@@ -112,8 +115,11 @@ public class RobotContainer {
                 // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
                 // double driveX = DRIVER.getLeftY();
                 // double driveY = DRIVER.getLeftX();
-                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
-                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+
+                double driveX = -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier();
+                double driveY = -driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier();
 
                 boolean xNegative = driveX < 0;
                 boolean yNegative = driveY < 0;
@@ -121,7 +127,9 @@ public class RobotContainer {
                 // driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
                 // driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
 
-                double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+                // double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+                
+                double driveRotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
                 double joyX = -DRIVER.getLeftX();
                 double joyY = DRIVER.getLeftY();
                 double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed * visionSub.getMaxSpeedMultiplier();
@@ -310,11 +318,14 @@ public class RobotContainer {
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
         // autoChooser.a("Test Auto", drivetrain.getAutoPath("4414 remake", false));
         autoChooser.addOption("4414 remake", drivetrain.getAutoPath("4414 remake", false));
-        autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
+        // autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("DumpRight", drivetrain.getAutoPath("Dump", true));
         autoChooser.addOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Test of 4414 remake", drivetrain.getAutoPath("Test of 4414 remake", false));
         autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
+        autoChooser.addDefaultOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
+        autoChooser.addOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
+        autoChooser.addOption("Short Dump Right", drivetrain.getAutoPath("Short Dump", true));
     }
 
     public Command getAutonomousCommand() {
