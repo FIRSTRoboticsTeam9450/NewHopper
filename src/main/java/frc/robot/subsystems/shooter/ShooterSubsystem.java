@@ -87,7 +87,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double hoodMMVelocity = logHoodMMVeloc.get();
     private double hoodMMAcceleration = logHoodMMAccel.get();
 
-    private PIDVals hoodPID = new PIDVals("/Tuning/Shooter/Angle/",0.118,0.15,0,30,0,0.1,0.2); 
+    private PIDVals hoodPID = new PIDVals("/Tuning/Shooter/Angle/",0.118,0.15,0,90,0,0.1,0.2); 
     /*
      * 
         kS,
@@ -361,12 +361,14 @@ public class ShooterSubsystem extends SubsystemBase {
         // Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("NewHopper/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Hood/Left Stator Amps", angleMotor.getStatorCurrent().getValueAsDouble());
         // Logger.recordOutput("NewHopper/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
         // Logger.recordOutput("NewHopper/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
         Logger.recordOutput("NewHopper/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("NewHopper/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Left Stator Amps", shooterLeftMotor.getStatorCurrent().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left Position", shooterLeftMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());

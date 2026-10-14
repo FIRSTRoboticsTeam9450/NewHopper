@@ -853,6 +853,7 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentMotorPos", turretMotor.getRotorPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
         Logger.recordOutput("NewHopper/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Turret/Device/Motor Stator Amps", turretMotor.getStatorCurrent().getValueAsDouble());
         Logger.recordOutput("NewHopper/Turret/TargetMode", getTargetMode());
         // Velocity tracking
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentVelocityDegPerSec",

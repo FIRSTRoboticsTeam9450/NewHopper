@@ -335,6 +335,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
             Logger.recordOutput("NewHopper/Intake/Intake Velocity", intakeLeftMotor.getVelocity().getValueAsDouble());
             // Logger.recordOutput("NewHopper/Intake/Intake Position", intakeLeftMotor.getPosition().getValueAsDouble());
+
+            Logger.recordOutput("NewHopper/Intake/Deploy Supply Amps", deployMotor.getSupplyCurrent().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Deploy Stator Amps", deployMotor.getStatorCurrent().getValueAsDouble());
+            
+            Logger.recordOutput("NewHopper/Intake/Intake Supply Amps", intakeLeftMotor.getSupplyCurrent().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Intake/Intake Stator Amps", intakeLeftMotor.getStatorCurrent().getValueAsDouble());
         }
     }
 
