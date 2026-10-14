@@ -7,6 +7,7 @@ import frc.robot.util.model.TurretModel;
 import frc.robot.util.model.TurretModelConstants;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -20,6 +21,8 @@ import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem.RampState;
 import frc.robot.subsystems.sidesweeper.SidesweeperSubsystem.SidesweeperState;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.subsystems.vision.VisionSubsystem.ZoneState;
+import frc.robot.util.HubTracker;
+import frc.robot.util.HubTracker.Shift;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
@@ -40,6 +43,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private boolean driverAllowingShooting = false;
     private boolean checkZeroing = false;
+    private boolean justZeroed = true;
     private boolean update = false;
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
@@ -48,8 +52,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
 
     private boolean isIntaking = false;
-    private boolean shiftingTurret = true;
+    private boolean shiftingTurret = false;
     private boolean isAgitate = false;
+    private boolean isFastAgitate = false;
     private boolean isIntakeOut = true;
     public CoordinationSubsystem() {}
 
@@ -144,6 +149,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(isAgitate) {
             intakeDeployState = DeployState.AGITATE;
         }
+        // if(isFastAgitate) {
+        //     intakeDeployState = DeployState.AGITATE_FAST;
+        // }
         switch(currentState) {
             case INIT:
                 turretState = TurretState.INIT;
@@ -151,8 +159,10 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
                 if(RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING && RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                    intakeDeployState = DeployState.DEPLOY;
                     setState(AbsoluteStates.TRENCH, false);
                 }
+                // justZeroed = false;
                 break;
             case PREPARING_FOR_SHOOTING:
                 turretState = TurretState.AIMING;
@@ -197,6 +207,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public void publishLogs() {
+        Logger.recordOutput("NewHopper/Match Data/Our Hub Active?", HubTracker.isActive());
+        Logger.recordOutput("NewHopper/Match Data/We Win Auto?", DriverStation.getAlliance().isPresent() && HubTracker.getAutoWinner().isPresent() ? DriverStation.getAlliance().get() == HubTracker.getAutoWinner().get() : false);
+        Logger.recordOutput("NewHopper/Match Data/Time Left Until Shift Change", HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1);
+        Logger.recordOutput("NewHopper/Match Data/Shift", HubTracker.getCurrentShift().isPresent() ? HubTracker.getCurrentShift().get() : Shift.AUTO);
 
         Logger.recordOutput("NewHopper/Coord/Intakeing", isIntaking);
         Logger.recordOutput("NewHopper/Coord/Firing", driverAllowingShooting);
@@ -204,9 +218,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/Zeroing", checkZeroing);
         Logger.recordOutput("NewHopper/Coord/Current State", currentState);
         // Logger.recordOutput("NewHopper/Coord/Driver Allows Shooting", driverAllowingShooting);
-        // Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
-        // Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
-        // Logger.recordOutput("NewHopper/Coord/Is Turret Ready?", isTurretReady());
+        Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
+        Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
+        Logger.recordOutput("NewHopper/Coord/justZeroed", justZeroed);
+
         // Logger.recordOutput("NewHopper/Coord/OverridingTrench?", overrideTrench);
     }
 
@@ -253,6 +268,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         return new InstantCommand(() -> driverAllowingShooting = value);
     }
 
+    public boolean getdriverAllowingShooting() {
+        return driverAllowingShooting;
+    }
     public Command setIntakeCommand() {
         return new InstantCommand(() -> isIntaking = !isIntaking)
             .andThen(new InstantCommand(this::applyState));
@@ -264,6 +282,15 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
     public Command setAgitate(boolean value) {
         return new InstantCommand(() -> isAgitate = value)
+        .andThen(new InstantCommand(this::applyState));
+    }
+
+    public Command setFastAgitate() {
+        return new InstantCommand(() -> isFastAgitate = !isFastAgitate)
+        .andThen(new InstantCommand(this::applyState));
+    }
+    public Command setFastAgitate(boolean value) {
+        return new InstantCommand(() -> isFastAgitate = value)
         .andThen(new InstantCommand(this::applyState));
     }
 
@@ -305,7 +332,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     public void setState(AbsoluteStates state, boolean forceStateChange) {
         currentState = state;
         if(currentState != AbsoluteStates.INIT && state == AbsoluteStates.INIT) {
-            checkZeroing = true;
+            justZeroed = true;
         }
         applyState();
     }

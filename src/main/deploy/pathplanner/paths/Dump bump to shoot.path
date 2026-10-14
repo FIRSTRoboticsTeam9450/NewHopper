@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.266975088967973,
+        "y": 5.632740213523132
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.750533807829182,
+        "y": 5.6112218268090155
+      },
+      "isLocked": false,
+      "linkedName": "dump start end"
+    },
+    {
+      "anchor": {
+        "x": 1.9220759193357067,
+        "y": 5.632740213523132
+      },
+      "prevControl": {
+        "x": 2.4600355871886133,
+        "y": 5.600462633451957
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Dump First Sweep End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Dump Double Sweep",
+  "idealStartingState": {
+    "velocity": 2.0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

@@ -26,7 +26,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private TransferState transferState = TransferState.IDLE;
 
-    private double speedTransferTransfer = 5; // Volts // TODO: Transfer speed
+    private double speedTransferTransfer = 10; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
 
     private TalonFX transferUpperMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -82,14 +82,14 @@ public class HopperTransferSubsystem extends SubsystemBase {
                 transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
                 break;
             case TRANSFER:
-                if(Timer.getFPGATimestamp() - pauseForSideSweep > .25) {
+                // if(Timer.getFPGATimestamp() - pauseForSideSweep > .25) {
                     transferSetpoint = speedTransferTransfer;
                     transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
-                }
-                else {
-                    transferSetpoint = 0;
-                    transferUpperMotor.setControl(transferRequest.withOutput(0));
-                }
+                // }
+                // else {
+                //     transferSetpoint = 0;
+                //     transferUpperMotor.setControl(transferRequest.withOutput(0));
+                // }
                 break;
             case EJECT:
                 transferSetpoint = -4;
@@ -105,6 +105,12 @@ public class HopperTransferSubsystem extends SubsystemBase {
         if (logTransferDebug.get()) {
             Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Transfer/Transfer Position", transferUpperMotor.getPosition().getValueAsDouble());
+
+            Logger.recordOutput("NewHopper/Transfer/Upper Supply Amps", transferUpperMotor.getSupplyCurrent().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Transfer/Upper Stator Amps", transferUpperMotor.getStatorCurrent().getValueAsDouble());
+            
+            Logger.recordOutput("NewHopper/Transfer/Lower Supply Amps", transferLowerMotor.getSupplyCurrent().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Transfer/Lower Stator Amps", transferLowerMotor.getStatorCurrent().getValueAsDouble());
         }
     }
 

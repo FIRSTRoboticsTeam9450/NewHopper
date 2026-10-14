@@ -25,7 +25,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test Retreat from behind goal"
+            "pathName": "Dump retreat from behind goal"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustTrue"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SetVisionTrustFalse"
           }
         },
         {

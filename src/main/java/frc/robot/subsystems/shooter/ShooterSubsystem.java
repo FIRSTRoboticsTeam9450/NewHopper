@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private double hoodAngleMax = 7.5; //old: 14.3
     private double hoodAngleMin = 0; //old: 3.5
-    private double hoodFerryMotorRev = 14.15;
+    private double hoodFerryMotorRev = 7.35;
     private double degreesPerRev = ShooterConstants.HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
     private double distanceAwayToUseLowDegree = 1.2;
@@ -87,14 +87,25 @@ public class ShooterSubsystem extends SubsystemBase {
     private double hoodMMVelocity = logHoodMMVeloc.get();
     private double hoodMMAcceleration = logHoodMMAccel.get();
 
-    private PIDVals hoodPID = new PIDVals("/Tuning/Shooter/Angle/",0.1,0.095,0,15,0,0,0.3); 
+    private PIDVals hoodPID = new PIDVals("/Tuning/Shooter/Angle/",0.118,0.15,0,90,0,0.1,0.2); 
+    /*
+     * 
+        kS,
+        kV,
+        kA,
+        kP,
+        kI,
+        kD,
+        kG
+     */
 
     private LoggedNetworkNumber logHoodMotorRevTarget = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Target", 13);
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
 
-    private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.023549,0.11935,0.025517,0.6,0.0,0.0,0.0); // kP = 0.6
+    // private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.12696,0.11984,0.023895,0.6,0.0,0.0,0.0); // kP = 0.6
+    private PIDVals outtakePID = new PIDVals("/Tuning/Shooter/Outtake/",0.13482,0.115,0.020888,0.4,0.0,0.0,0.0); // kP = 0.6
 
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 2.0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 9450);
@@ -118,7 +129,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double manualHoodSetpoint = 0;
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
     private double manualHoodShift = 0;
-    private double wheelWareAdjustment = 1.5 - 3.5;
+    private double wheelWareAdjustment = -1.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -165,21 +176,34 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
-        shootingDistanceToAngle.put(1.334, 1.37); // 65
-        shootingDistanceToAngle.put(2.027, 2.8); // 65
-        shootingDistanceToAngle.put(2.3, 3.35); // 65
-        shootingDistanceToAngle.put(2.713, 6.9); // 65
-        shootingDistanceToAngle.put(3.3, 10.17); // 65
-        shootingDistanceToAngle.put(3.455, 8.9); // 65
-        shootingDistanceToAngle.put(3.57, 9.5); // 65
+
+        shootingDistanceToAngle.put(1.4, 0.0 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(2.0, .7 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.16, 4.185 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.6, 2.44 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.61, 2.44 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(3.75, 2.89 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(4.14, 3.97 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(5.0, 4.97 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(5.2, 4.97 + wheelWareAdjustment); // 65
+        shootingDistanceToAngle.put(5.82, 7.97 + wheelWareAdjustment); // 65
+
+        //OLD SHOOTER TABLE
+        // shootingDistanceToAngle.put(1.334, 1.37); // 65
+        // shootingDistanceToAngle.put(2.027, 2.8); // 65
+        // shootingDistanceToAngle.put(2.3, 3.35); // 65
+        // shootingDistanceToAngle.put(2.713, 6.9); // 65
+        // shootingDistanceToAngle.put(3.3, 10.17); // 65
+        // shootingDistanceToAngle.put(3.455, 8.9); // 65
+        // shootingDistanceToAngle.put(3.57, 9.5); // 65
         
-        shootingDistanceToAngle.put(3.74, 6.577); // 73
-        shootingDistanceToAngle.put(3.97, 7.577); // 73
-        shootingDistanceToAngle.put(4.242, 10.4);
-        shootingDistanceToAngle.put(4.434, 11.4); // 73
-        shootingDistanceToAngle.put(4.8, 11.7); // 73
-        shootingDistanceToAngle.put(4.9, 13.00); // 73
-        shootingDistanceToAngle.put(5.4, 13.2); // 73
+        // shootingDistanceToAngle.put(3.74, 6.577); // 73
+        // shootingDistanceToAngle.put(3.97, 7.577); // 73
+        // shootingDistanceToAngle.put(4.242, 10.4);
+        // shootingDistanceToAngle.put(4.434, 11.4); // 73
+        // shootingDistanceToAngle.put(4.8, 11.7); // 73
+        // shootingDistanceToAngle.put(4.9, 13.00); // 73
+        // shootingDistanceToAngle.put(5.4, 13.2); // 73
         // shootingDistanceToAngle.put(4.434, 8.59); // 73
 
         
@@ -195,12 +219,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
         // shootingDistanceToTime.put(2.462, 1.29);
 
-        shootingDistanceToTime.put(1.21, 1.25);
-        shootingDistanceToTime.put(1.81, 1.25);
-        shootingDistanceToTime.put(2.872, 1.1);
-        shootingDistanceToTime.put(3.951, 1.292);
-        shootingDistanceToTime.put(4.43, 1.2725);
-        shootingDistanceToTime.put(4.83, 1.23);
+        shootingDistanceToTime.put(1.71, 1.1925); // Video 2!
+        shootingDistanceToTime.put(2.399, 1.11); // Video 1!
+        shootingDistanceToTime.put(3.271, 1.026); // Video 4!
+        shootingDistanceToTime.put(4.28, 1.2); // Video 5!
+        shootingDistanceToTime.put(5.28, 1.25); // Video 1 Nicholas
+        shootingDistanceToTime.put(5.8, 1.2025); // Video 1 Mark 
+        // shootingDistanceToTime.put(1.21, 1.25);
+        // shootingDistanceToTime.put(1.81, 1.25);
+        // shootingDistanceToTime.put(2.872, 1.1);
+        // shootingDistanceToTime.put(3.951, 1.292);
+        // shootingDistanceToTime.put(4.43, 1.2725);
+        // shootingDistanceToTime.put(4.83, 1.23);
         // shootingDistanceToTime.put(5.61, 1.25);
         // shootingDistanceToTime.put(6.2, 1.25);
         // shootingDistanceToTime.put(5.095, 1.4525);
@@ -220,11 +250,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // ferryingDistanceToVelocity.put(11.26, 52.0);
         // ferryingDistanceToVelocity.put(16.26, 62.75);
 
-        // ferryingDistanceToVelocity.put(4.59, 34.5 + 2.5);
-        // ferryingDistanceToVelocity.put(4.962, 35.72 + 2.5);
-        // ferryingDistanceToVelocity.put(7.622, 42.03 + 8);
-        // ferryingDistanceToVelocity.put(11.26, 52.0 + 35);
-        ferryingDistanceToVelocity.put(14.26, 110.0);
+        ferryingDistanceToVelocity.put(4.59, 28.5 + 2.5);
+        ferryingDistanceToVelocity.put(4.962, 29.72 + 2.5);
+        ferryingDistanceToVelocity.put(7.622, 36.03 + 8);
+        ferryingDistanceToVelocity.put(11.26, 46.0);
+        ferryingDistanceToVelocity.put(14.26, 104.0);
 
         // Ferrying Data Time
         ferryingDistanceToTime.put(4.59, 1.41);
@@ -260,7 +290,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
    private void configureShooterMotors() {
         shooterMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -275,7 +305,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterLeftMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shooterRightMotor.getConfigurator().apply(shooterMotorsConfig);
 
         shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
@@ -331,12 +361,15 @@ public class ShooterSubsystem extends SubsystemBase {
         // Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("NewHopper/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Hood/Left Stator Amps", angleMotor.getStatorCurrent().getValueAsDouble());
         // Logger.recordOutput("NewHopper/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
         // Logger.recordOutput("NewHopper/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
         Logger.recordOutput("NewHopper/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("NewHopper/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Left Stator Amps", shooterLeftMotor.getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Left Position", shooterLeftMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("NewHopper/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());
@@ -411,6 +444,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 angleMotor.setControl(hoodMMRequest.withPosition(targetAngle).withSlot(slotNum));
                 break;
             case MANUAL:
+                targetHoodHeight = manualHoodSetpoint + manualHoodShift;
                 angleMotor.setControl(hoodMMRequest.withPosition(manualHoodSetpoint + manualHoodShift).withSlot(slotNum));
 
             default:
@@ -427,28 +461,49 @@ public class ShooterSubsystem extends SubsystemBase {
 
                 case SHOOTING_ZONE:
                     // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-                    if(cachedDistanceToTarget > 4.5) {
-                        targetShooterVeloc = 73;
+                    if(cachedDistanceToTarget > 5.6) {
+                        targetShooterVeloc = 44.5;
                     }
-                    else if(cachedDistanceToTarget > 3.6) {
-                        targetShooterVeloc = 69;
+                    else if(cachedDistanceToTarget > 4.5) {
+                        targetShooterVeloc = 38.15;
+                    }
+                    else if(cachedDistanceToTarget > 3.3) {
+                        targetShooterVeloc = 38;
                     }
                     else {
-                        targetShooterVeloc = 61;
+                        targetShooterVeloc = 32;
                     }
+                    // if(cachedDistanceToTarget > 4.5) {
+                    //     targetShooterVeloc = 73;
+                    // }
+                    // else if(cachedDistanceToTarget > 3.6) {
+                    //     targetShooterVeloc = 69;
+                    // }
+                    // else {
+                    //     targetShooterVeloc = 61;
+                    // }
                     break;
 
                 case CLIMB_DEADZONE:
                     // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 4.5) {
-                        targetShooterVeloc = 73;
+                        targetShooterVeloc = 40;
                     }
                     else if(cachedDistanceToTarget > 3.6) {
-                        targetShooterVeloc = 69;
+                        targetShooterVeloc = 32;
                     }
                     else {
-                        targetShooterVeloc = 61;
+                        targetShooterVeloc = 32;
                     }
+                    // if(cachedDistanceToTarget > 4.5) {
+                    //     targetShooterVeloc = 73;
+                    // }
+                    // else if(cachedDistanceToTarget > 3.6) {
+                    //     targetShooterVeloc = 69;
+                    // }
+                    // else {
+                    //     targetShooterVeloc = 61;
+                    // }
                     break;
 
                 case FERRY_ZONE_TOP:
@@ -728,7 +783,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void resetManualVelocityShift() {
-        manualHoodShift = 0;
+        manualShift = 0;
     }
 
     // -------------------------------------------- UPDATE BASED ON LOGS -------------------------------------------- //

@@ -1,0 +1,184 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6165306122448984,
+        "y": 7.614591836734695
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.214994068801898,
+        "y": 7.580154211150653
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.5915658362989324,
+        "y": 6.687141162514828
+      },
+      "prevControl": {
+        "x": 6.5841083533057345,
+        "y": 7.425431978841359
+      },
+      "nextControl": {
+        "x": 6.59846160749249,
+        "y": 6.004459814352664
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.398171768707483,
+        "y": 4.079744897959184
+      },
+      "prevControl": {
+        "x": 5.859733233522991,
+        "y": 4.079744897959184
+      },
+      "nextControl": {
+        "x": 7.225952380952381,
+        "y": 4.079744897959184
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.398171768707483,
+        "y": 5.369889455782313
+      },
+      "prevControl": {
+        "x": 7.500286671195962,
+        "y": 5.2432951764424205
+      },
+      "nextControl": {
+        "x": 5.294464285714286,
+        "y": 5.496666666666666
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.57108843537415,
+        "y": 5.504124149659864
+      },
+      "prevControl": {
+        "x": 5.167710320612951,
+        "y": 5.5094039893522435
+      },
+      "nextControl": {
+        "x": 3.7283928571428575,
+        "y": 5.496666666666666
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.266975088967973,
+        "y": 5.632740213523132
+      },
+      "prevControl": {
+        "x": 4.594407061757089,
+        "y": 5.625282730529934
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "dump start end"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.364120781527538,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.6317103620474394,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.3795255930087402,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.2784019975031073,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 3.2584269662921366,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrenchTrue",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrenchTrue"
+        }
+      }
+    },
+    {
+      "name": "setIntakeVolts10",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "setIntakeVolts10"
+        }
+      }
+    },
+    {
+      "name": "SetIntakeTrue",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntakeTrue"
+        }
+      }
+    },
+    {
+      "name": "SetOverrideSpeedTrue",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetOverrideSpeedTrue"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 10.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 2.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Dump Double Sweep",
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

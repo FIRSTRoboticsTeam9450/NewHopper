@@ -64,19 +64,22 @@ public class RobotContainer {
      * Woojin's Drive: 117.4, 0.054, 91.4, 0.76, 0.1, 0.01
      * Woojin's Rotate: 120.1, 0.145, 92.2, 0.362, 0.035, 0.03
      */
-    public static BezierCurve driveBezier = new BezierCurve("drive", 151.0, 0.137, 116, 0.646, 0.1, 0.01);
-    public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
+    // public static BezierCurve driveBezier = new BezierCurve("drive", 151.0, 0.137, 116, 0.646, 0.1, 0.01);
+    // public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
     
-    public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(5);
-    public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(5);
-    public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(8.0);
+    public BezierCurve driveBezier = new BezierCurve("drive", 89.4, 0.117, 88.5, 0.896, 0.1, 0.01);
+    public BezierCurve rotateBezier = new BezierCurve("rotate", 89.4, 0.117, 88.5, 0.896, 0.035, 0.03);
+
+    // public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(5);
+    // public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(5);
+    // public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(8.0);
     
     private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
     public static boolean slewMode = false;
 
-    public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
+    public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
     public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -108,10 +111,15 @@ public class RobotContainer {
         // Drive
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() -> {
-                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
-                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
                 // double driveX = DRIVER.getLeftY();
                 // double driveY = DRIVER.getLeftX();
+                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier());
+
+                double driveX = -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier();
+                double driveY = -driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed * visionSub.getMaxSpeedMultiplier();
 
                 boolean xNegative = driveX < 0;
                 boolean yNegative = driveY < 0;
@@ -119,15 +127,18 @@ public class RobotContainer {
                 // driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
                 // driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
 
-                double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+                // double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+                
+                double driveRotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
                 double joyX = -DRIVER.getLeftX();
                 double joyY = DRIVER.getLeftY();
-                double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed;
+                double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed * visionSub.getMaxSpeedMultiplier();
                 double rotation = getRotation(joyY, joyX);
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
                 
                 double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
+                // double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
                 // double rotate = DRIVER.getRightX();
                 boolean xRotatePositive = rotate > 0;
                 // rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
@@ -136,8 +147,8 @@ public class RobotContainer {
                     .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
                     .withRotationalRate(slewMode ? driveRotate : rotate); // Drive counterclockwise with negative X (left)
                 
-                // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+                // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed * visionSub.getMaxSpeedMultiplier()) // Drive forward with negative Y (forward)
+                //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed * visionSub.getMaxSpeedMultiplier())) // Drive left with negative X (left)
                 //     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
             }
             )
@@ -178,14 +189,19 @@ public class RobotContainer {
         //                     .onFalse(coordSub.setAgitate(false));
         OPERATOR.rightBumper().onTrue(coordSub.increaseManualAdjust());
         OPERATOR.leftBumper().onTrue(coordSub.decreaseManualAdjust());
-        OPERATOR.a().onTrue(coordSub.setManualTurret(true))
+        OPERATOR.y().onTrue(coordSub.setManualTurret(true))
                     .onFalse(coordSub.setManualTurret(false));
-        OPERATOR.y().onTrue(coordSub.resetManualAdjust());
+        OPERATOR.a().onTrue(coordSub.resetManualAdjust());
+        OPERATOR.povUp().onTrue(new InstantCommand(() -> visionSub.setOverrideSpeed(true)))
+        .onFalse(new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
         OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         OPERATOR.leftTrigger().onTrue(coordSub.setIntakeOut());
         OPERATOR.povDown()
             .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
             .onFalse(visionSub.setOperatorOverrideVisionTrustCommand(false));
+        
+        OPERATOR.rightTrigger().onTrue(coordSub.setAgitate(true))
+                            .onFalse(coordSub.setAgitate(false));
         // No SysID
         if (!enableSysIdKeybinds) {
         }
@@ -194,10 +210,10 @@ public class RobotContainer {
         /* ========== TESTING KEYBINDS ========== */
         // SysID
         if (enableSysIdKeybinds) {
-            DRIVER.back().and(DRIVER.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-            DRIVER.back().and(DRIVER.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-            DRIVER.start().and(DRIVER.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-            DRIVER.start().and(DRIVER.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+            DRIVER.back().and(DRIVER.y()).whileTrue(shooterSub.sysIdDynamic(Direction.kForward));
+            DRIVER.back().and(DRIVER.x()).whileTrue(shooterSub.sysIdDynamic(Direction.kReverse));
+            DRIVER.start().and(DRIVER.y()).whileTrue(shooterSub.sysIdQuasistatic(Direction.kForward));
+            DRIVER.start().and(DRIVER.x()).whileTrue(shooterSub.sysIdQuasistatic(Direction.kReverse));
         }
         else {
             
@@ -220,9 +236,9 @@ public class RobotContainer {
         // DRIVER.a().onTrue(coordSub.resetManualAdjust());
         // DRIVER.leftStick().onTrue(coordSub.setManualTurret(false));
         // DRIVER.leftStick().onFalse(coordSub.setManualTurret(true));
-        DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
-        DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
-        DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
+        // DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
+        // DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
+        // DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
         // DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         // DRIVER.rightBumper().onTrue(coordSub.setAgitate());
         // DRIVER.rightStick().onTrue(coordSub.setForceTrenchCommand());
@@ -253,8 +269,8 @@ public class RobotContainer {
 
     public ChassisSpeeds getRobotFieldCentricVeloc() {
         return new ChassisSpeeds(
-            -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed,
-            -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed,
+            -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed * visionSub.getMaxSpeedMultiplier(),
+            -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed * visionSub.getMaxSpeedMultiplier(),
             -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate
         );
     }
@@ -263,8 +279,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
         // NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
         NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
+        NamedCommands.registerCommand("SetIntakeTrue", coordSub.setIntakeCommand(true));
+        NamedCommands.registerCommand("SetIntakeFalse", coordSub.setIntakeCommand(false));
         NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
+        NamedCommands.registerCommand("SetFireTrue", coordSub.setFireCommand(true));
+        NamedCommands.registerCommand("SetFireFalse", coordSub.setFireCommand(false));
         NamedCommands.registerCommand("SetAgitate", coordSub.setAgitate());
+        NamedCommands.registerCommand("SetAgitateTrue", coordSub.setAgitate(true));
+        NamedCommands.registerCommand("SetAgitateFalse", coordSub.setAgitate(false));
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
         // NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
         // NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
@@ -278,19 +300,32 @@ public class RobotContainer {
         NamedCommands.registerCommand("LeftTurretAngle", new InstantCommand(turretSub::increaseManualAdjust));
         NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(turretSub::decreaseManualAdjust));
 
+        NamedCommands.registerCommand("setIntakeVolts10", new InstantCommand(() -> intakeSub.setIntakeVolts(10)));
+        NamedCommands.registerCommand("setIntakeVolts8", new InstantCommand(() -> intakeSub.setIntakeVolts(8)));
+
         // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
         NamedCommands.registerCommand("ForceTrench", coordSub.setForceTrenchCommand());
+        NamedCommands.registerCommand("ForceTrenchTrue", coordSub.setForceTrenchCommand(true));
+        NamedCommands.registerCommand("ForceTrenchFalse", coordSub.setForceTrenchCommand(false));
         NamedCommands.registerCommand("SetVisionTrustTrue", visionSub.setOperatorOverrideVisionTrustCommand(true));
         NamedCommands.registerCommand("SetVisionTrustFalse", visionSub.setOperatorOverrideVisionTrustCommand(false));
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
+        NamedCommands.registerCommand("SetOverrideSpeedTrue", new InstantCommand(() -> visionSub.setOverrideSpeed(true)));
+        NamedCommands.registerCommand("SetOverrideSpeedFalse", new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
         // autoChooser.a("Test Auto", drivetrain.getAutoPath("4414 remake", false));
-        autoChooser.addOption("Test Auto 2", drivetrain.getAutoPath("4414 remake", false));
-        autoChooser.addDefaultOption("Test", drivetrain.getAutoPath("Test", false));
+        autoChooser.addOption("4414 remake", drivetrain.getAutoPath("4414 remake", false));
+        // autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
+        autoChooser.addOption("DumpRight", drivetrain.getAutoPath("Dump", true));
+        autoChooser.addOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Test of 4414 remake", drivetrain.getAutoPath("Test of 4414 remake", false));
+        autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
+        autoChooser.addDefaultOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
+        autoChooser.addOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
+        autoChooser.addOption("Short Dump Right", drivetrain.getAutoPath("Short Dump", true));
     }
 
     public Command getAutonomousCommand() {

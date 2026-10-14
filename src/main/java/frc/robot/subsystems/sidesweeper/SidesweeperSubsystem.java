@@ -32,7 +32,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
     private RampState rampState = RampState.IDLE;
     private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
 
-    private double speedRampTransfer = 6; // Volts // TODO: Transfer speed
+    private double speedRampTransfer = 3; // Volts // TODO: Transfer speed
     private double speedRampIdle = 0; // Volts
     
     private double speedSidesweeperTransfer = 12; // Volts // TODO: Transfer speed
@@ -177,6 +177,9 @@ public class SidesweeperSubsystem extends SubsystemBase {
             
             Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Velocity", sidesweeperUpperMotor.getVelocity().getValueAsDouble());
             Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Position", sidesweeperUpperMotor.getPosition().getValueAsDouble());
+
+            Logger.recordOutput("NewHopper/Sidesweeper/Vertical Supply Amps", verticalRollerMotor.getSupplyCurrent().getValueAsDouble());
+            Logger.recordOutput("NewHopper/Sidesweeper/Vertical Stator Amps", verticalRollerMotor.getStatorCurrent().getValueAsDouble());
         }
     }
 
