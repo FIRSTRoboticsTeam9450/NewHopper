@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.subsystems.shooter.ShooterSubsystem.AngleState;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -158,12 +161,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private boolean isZeroingDone(){
         if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
-            deployMotor.setPosition(0);
-            deployMotor.setVoltage(0);
-            zeroingVolts = 0;
-            zeroingCount = 0;
-            isZeroingDone = true;
-            deployState = DeployState.DEPLOY;
+            if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                deployMotor.setPosition(0);
+                deployMotor.setVoltage(0);
+                zeroingVolts = 0;
+                zeroingCount = 0;
+                deployState = DeployState.DEPLOY;
+                isZeroingDone = true;
+                RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+            }
             return true;
         }
         return false;

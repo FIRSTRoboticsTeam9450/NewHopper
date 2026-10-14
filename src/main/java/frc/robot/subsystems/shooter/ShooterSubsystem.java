@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double hoodAngleMin = 0; //old: 3.5
     private double hoodFerryMotorRev = 7.35;
     private double degreesPerRev = ShooterConstants.HoodConstants.degreesPerMotorRev;
-    private double degreesToZero = 8;
+    private double degreesToZero = 15;
     private double distanceAwayToUseLowDegree = 1.2;
     private double distanceAwayToUseHighDegree = 1.78;
 
@@ -268,9 +268,9 @@ public class ShooterSubsystem extends SubsystemBase {
         angleMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         angleMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        angleMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
+        angleMotorConfig.CurrentLimits.StatorCurrentLimit = 80;
         angleMotorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        angleMotorConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        angleMotorConfig.CurrentLimits.SupplyCurrentLimit = 40;
 
         hoodPID.setMotorPID0(angleMotorConfig);
 
@@ -561,22 +561,22 @@ public class ShooterSubsystem extends SubsystemBase {
             double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
             switch (RobotContainer.coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetHoodHeight = shootingDistanceToAngle.get(distance);
-                    // targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = shootingDistanceToAngle.get(distance);
+                    targetHoodHeight = hoodAngleFunction(distance);
                     break;
                 case CLIMB_DEADZONE:
-                    // targetHoodHeight = hoodAngleFunction(distance);
-                    targetHoodHeight = shootingDistanceToAngle.get(distance);
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = shootingDistanceToAngle.get(distance);
                     break;
 
                 case FERRY_ZONE_TOP:
-                    // targetHoodHeight = hoodAngleFunction(distance);
-                    targetHoodHeight = hoodFerryMotorRev;
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = hoodFerryMotorRev;
                     break;
 
                 case FERRY_ZONE_BOTTOM:
-                    // targetHoodHeight = hoodAngleFunction(distance);
-                    targetHoodHeight = hoodFerryMotorRev;
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = hoodFerryMotorRev;
                     break;
 
                 case FERRY_ZONE_MID:
@@ -625,7 +625,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public double hoodAngleFunction(double distance) {
         // double wantedAngle = (-60/(distance + 0.8)) + 47;
         // double wantedAngle = (-200/(distance + 6)) + 39;
-        double wantedAngle = -(200/(distance + 5)) + 47;
+        // double wantedAngle = -(200/(distance + 5)) + 47;
+        double wantedAngle = (-180/(distance + 3)) + 60;
 
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {

@@ -7,6 +7,6 @@ public final class ShooterConstants {
         public static final int kRightShooterMotorID = 37;
     }
     public static final class HoodConstants {
-        public static final double degreesPerMotorRev = 2.2040816372; //2.0571428571429;
+        public static final double degreesPerMotorRev = 4.0; //2.0571428571429;
     }
 }
