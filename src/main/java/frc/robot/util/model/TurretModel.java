@@ -9,6 +9,7 @@ public class TurretModel {
     private static Translation3d P;
     private static Translation3d V;
     private static double vI;
+    private static double previousT;
 
     //theta, phi
     public static double[] calculate(Translation3d P, ChassisSpeeds V, double vI) {
@@ -18,6 +19,13 @@ public class TurretModel {
         double t = newtonMethod();
         Logger.recordOutput("TurretModel/t", t);
         Logger.recordOutput("TurretModel/P", P);
+        if(!(t>0)) {
+            t = previousT;
+            Logger.recordOutput("TurretModel/TimeError", true);
+        } else {
+            previousT = t;
+            Logger.recordOutput("TurretModel/TimeError", false);
+        }
         return new double[]{Math.atan2(Y(t), X(t)), Math.atan2(Math.sqrt(Math.pow(X(t), 2) + Math.pow(Y(t), 2)), Z(t))};
     }
 
