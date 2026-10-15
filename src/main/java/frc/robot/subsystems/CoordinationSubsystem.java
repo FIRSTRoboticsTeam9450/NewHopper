@@ -139,6 +139,15 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public void applyState() {
+
+        setTurretState(TurretState.DISABLED);
+        setShooterVelocState(ShooterState.NOT_SHOOTING);
+        setShooterHoodState(AngleState.DISABLED);
+        setTransferState(TransferState.IDLE);
+        setIntakeWheelState(IntakeState.IDLE);
+        setIntakeDeployState(DeployState.DEPLOY);
+        setSidesweepState(SidesweeperState.IDLE);
+        setRampState(RampState.IDLE);
         if(isIntaking) {
             // intakeDeployState = DeployState.AGITATE;
             intakeWheelState = IntakeState.INTAKE;
