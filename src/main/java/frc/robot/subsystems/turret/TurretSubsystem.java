@@ -42,6 +42,7 @@ import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
+import static frc.robot.RobotContainer.coordSub;
 import frc.robot.subsystems.turret.TurretConstants;
 // import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
@@ -149,9 +150,6 @@ public class TurretSubsystem extends SubsystemBase {
         /** Aiming at custom position set via setCustomTarget() */
         CUSTOM
     }
-
-    private TurretState currentState = TurretState.AIMING;
-    private TurretState previousState = currentState;
 
     // Target management
     private TargetMode currentTargetMode = TargetMode.ADJ_HUB;
@@ -555,14 +553,14 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void applyState() {
         if (goodToMove) {
-            switch (currentState) {
+            switch (coordSub.getTurretState()) {
                 case DISABLED:
                     turretMotor.stopMotor();
                     break;
 
                 case INIT:
-                    if (isAtProfiledGoal(20) && RobotContainer.shooterSub.getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
-                        currentState = TurretState.AIMING;
+                    if (isAtProfiledGoal(20) && coordSub.getShooterHoodState() != ShooterSubsystem.AngleState.ZEROING) {
+                        coordSub.setTurretState(TurretState.AIMING);
                     }
 
                     profiledSetpointDeg = 0;
@@ -802,7 +800,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void updateDriverFeedback() {
         if (driverController != null) {
-            if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
+            if (coordSub.getTurretState() == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
                 // if (false) { //CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridingTrench()) { // TODO: CHANGE BACK
                 //     if (controllersCurrentRumbling != 0.15) {
                 //         controllersCurrentRumbling = 0.15;
@@ -843,7 +841,7 @@ public class TurretSubsystem extends SubsystemBase {
 
 
         // State information
-        Logger.recordOutput("NewHopper/Turret/State/CurrentState", currentState);
+        Logger.recordOutput("NewHopper/Turret/State/CurrentState", coordSub.getTurretState());
         Logger.recordOutput("NewHopper/Turret/State/TargetMode", currentTargetMode);
 
         // Position tracking
@@ -877,8 +875,6 @@ public class TurretSubsystem extends SubsystemBase {
             Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.25);
             Rotation3d turretPoseRotation = new Rotation3d(0, 0, fieldRelativeGoalAngle.getRadians());
             Logger.recordOutput("NewHopper/Turret/Turret Pose WRT Field", new Pose3d(turretPoseTranslation, turretPoseRotation));
-
-            Logger.recordOutput("NewHopper/Turret/State/PreviousState", previousState);
 
             Logger.recordOutput("NewHopper/Turret/Target/TargetAngleDeg", robotRelativeTargetAngleDeg);
             Logger.recordOutput("NewHopper/Turret/Target/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
@@ -964,23 +960,15 @@ public class TurretSubsystem extends SubsystemBase {
     public void setManualTurretSetpoint(double setpoint) {
         manualSetpoint = setpoint;
     }
-    /**
-     * Changes the turret's operating state.
-     *
-     * @param wantedState Desired state
-     */
-    public void setState(TurretState wantedState) {
-        if (currentState != TurretState.DISABLED) {
-            previousState = currentState;
-            currentState = wantedState;
 
-            // Reset motion profile on state change
+    public void updatedState() {
+        if (coordSub.getTurretState() != TurretState.DISABLED) {
             velocityLimiter.reset(Math.toRadians(cachedAngleDeg));
         }
     }
 
     public Command setStateCommand(TurretState state) {
-        return new InstantCommand(() -> setState(state));
+        return new InstantCommand(() -> coordSub.setTurretState(state));
     }
 
     /**
@@ -989,7 +977,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void aimAtHub() {
         setTargetHub();
-        setState(TurretState.AIMING);
+        coordSub.setTurretState(TurretState.AIMING);
     }
 
     /**
@@ -998,7 +986,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void aimAtFerry() {
         setTargetFerry();
-        setState(TurretState.AIMING);
+        coordSub.setTurretState(TurretState.AIMING);
     }
 
     /**
@@ -1009,7 +997,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void aimAtCustom(Translation2d targetPosition) {
         setCustomTarget(targetPosition);
-        setState(TurretState.AIMING);
+        coordSub.setTurretState(TurretState.AIMING);
     }
 
     /**
@@ -1056,15 +1044,6 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public double getCurrentAngleDeg() {
         return cachedAngleDeg;
-    }
-
-    /**
-     * Gets the current turret state.
-     *
-     * @return Current operating state
-     */
-    public TurretState getCurrentState() {
-        return currentState;
     }
 
     /**

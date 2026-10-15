@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
+import static frc.robot.RobotContainer.coordSub;
 
 public class SidesweeperSubsystem extends SubsystemBase {
 
@@ -28,9 +29,6 @@ public class SidesweeperSubsystem extends SubsystemBase {
         IDLE,
         EJECT
     }
-
-    private RampState rampState = RampState.IDLE;
-    private SidesweeperState sidesweeperState = SidesweeperState.IDLE;
 
     private double speedRampTransfer = 3; // Volts // TODO: Transfer speed
     private double speedRampIdle = 0; // Volts
@@ -120,7 +118,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
     }
 
     private void applyState() {
-        switch (rampState) {
+        switch (coordSub.getRampState()) {
             case IDLE:
                 rampSetpoint = speedRampIdle;
                 verticalRollerSetpoint = 0;
@@ -142,7 +140,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
 
         }
 
-        switch (sidesweeperState) {
+        switch (coordSub.getSidesweepState()) {
             case IDLE:
                 sidesweeperSetpoint = speedSidesweeperIdle;
                 sidesweeperUpperMotor.setControl(sidesweepRequest.withOutput(sidesweeperSetpoint));
@@ -159,8 +157,10 @@ public class SidesweeperSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-        Logger.recordOutput("NewHopper/Sidesweeper/Ramp State", rampState);
-        Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper State", sidesweeperState);
+
+        //TODO: move
+        Logger.recordOutput("NewHopper/Sidesweeper/Ramp State", coordSub.getRampState());
+        Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper State", coordSub.getSidesweepState());
         Logger.recordOutput("NewHopper/Sidesweeper/Ramp Setpoint", rampSetpoint);
         Logger.recordOutput("NewHopper/Sidesweeper/Ramp Voltage", rampMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Setpoint", sidesweeperSetpoint);
@@ -194,20 +194,12 @@ public class SidesweeperSubsystem extends SubsystemBase {
             speedSidesweeperTransfer = 10;
         }
     }
-    
-    public void setRampState(RampState state) {
-        rampState = state;
-    }
-
-    public void setSidesweeperState(SidesweeperState state) {
-        sidesweeperState = state;
-    }
 
     public InstantCommand setRampStateCommand(RampState state) {
-        return new InstantCommand(() -> setRampState(state));
+        return new InstantCommand(() -> coordSub.setRampState(state));
     }
 
     public InstantCommand setSidesweeperStateCommand(SidesweeperState state) {
-        return new InstantCommand(() -> setSidesweeperState(state));
+        return new InstantCommand(() -> coordSub.setSidesweepState(state));
     }
 }

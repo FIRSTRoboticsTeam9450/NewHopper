@@ -32,6 +32,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.RobotConstants;
+
+import static frc.robot.RobotContainer.coordSub;
+import static frc.robot.RobotContainer.shooterSub;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 // import frc.robot.subsystems.vision.VisionSubsystem.ZoneState;
 
@@ -54,9 +57,6 @@ public class ShooterSubsystem extends SubsystemBase {
         HOLD_IN,
         MANUAL
     }
-
-    private AngleState currentAngleState = AngleState.ZEROING;
-    private ShooterState currentShooterState = ShooterState.SHOOTING;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
@@ -315,7 +315,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.STORING);
+            coordSub.setShooterHoodState(AngleState.STORING);
             return true;
         }
         return false; // TODO CHANGE BACK TO FALSE
@@ -332,7 +332,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
 
         if (!isZeroingDone) {
-            currentAngleState = AngleState.ZEROING;
+            coordSub.setShooterHoodState(AngleState.ZEROING);
             isZeroingDone = autoZeroing();
         }
 
@@ -346,7 +346,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         publishLogs();
 
-        if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
+        if(switchSlotBackTimer.get() > 2 && coordSub.getShooterHoodState() == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;
             slotNum = 0;
             hoodMMRequest.withVelocity(hoodMMVelocity)
@@ -356,7 +356,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void publishLogs() {
-        Logger.recordOutput("NewHopper/Shooter/Hood/currentState", currentAngleState);
+        Logger.recordOutput("NewHopper/Shooter/Hood/currentState", coordSub.getShooterHoodState());
         Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight + manualHoodShift);
         // Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("NewHopper/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
@@ -365,7 +365,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // Logger.recordOutput("NewHopper/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
         // Logger.recordOutput("NewHopper/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
-        Logger.recordOutput("NewHopper/Shooter/Outtake/currentState", currentShooterState);
+        Logger.recordOutput("NewHopper/Shooter/Outtake/currentState", coordSub.getShooterVelocState());
         Logger.recordOutput("NewHopper/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left Stator Amps", shooterLeftMotor.getStatorCurrent().getValueAsDouble());
@@ -402,7 +402,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void applyState() {
-        switch (currentShooterState) {
+        switch (coordSub.getShooterVelocState()) {
             case SHOOTING:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
@@ -420,7 +420,7 @@ public class ShooterSubsystem extends SubsystemBase {
             default:
                 break;
         }
-        switch (currentAngleState) {
+        switch (coordSub.getShooterHoodState()) {
             case ZEROING:
                 // if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
                     // angleMotor.setVoltage(-0.6);
@@ -457,7 +457,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
             cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
-            switch (RobotContainer.coordSub.getCurrentZone()) {
+            switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
                     // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
@@ -559,7 +559,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getShooterAngle() {
         if(!isOverrideAngle) {
             double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
-            switch (RobotContainer.coordSub.getCurrentZone()) {
+            switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
                     targetHoodHeight = shootingDistanceToAngle.get(distance);
                     // targetHoodHeight = hoodAngleFunction(distance);
@@ -663,10 +663,6 @@ public class ShooterSubsystem extends SubsystemBase {
         return (degrees-degreesToZero) / degreesPerRev;
     }
 
-    public AngleState getCurrentAngleState() {
-        return currentAngleState;
-    }
-
     // Checks
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.75);
@@ -699,7 +695,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     private void updateReachedShooterVelocityLogic() {
-        if (currentShooterState != ShooterState.SHOOTING) {
+        if (coordSub.getShooterVelocState() != ShooterState.SHOOTING) {
             hasReachedShooterVelocity = false;
         } else {
             if (Math.abs(shooterLeftMotor.getVelocity().getValueAsDouble() - getShooterVeloc()) < 3) {
@@ -710,36 +706,21 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // -------------------------------------- SETTERS -------------------------------------- //
 
-    /**
-     * Set shooter state
-     * @param wantedShooterState
-     * @param wantedAngleState
-     */
-    public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        if(currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) {
+    public void updatedState() {
+        if(coordSub.getShooterHoodState() == AngleState.ZEROING || coordSub.getShooterHoodState() == AngleState.STORING) {
             hoodMMRequest.withVelocity(300)
                          .withAcceleration(300);
 
             switchSlotBackTimer.restart();
             hasSwitchedBack = false;
         }
-        if(wantedAngleState == AngleState.ZEROING) {
+        if(coordSub.getShooterHoodState() == AngleState.ZEROING) {
             isZeroingDone = false;
         }
-        currentShooterState = wantedShooterState;
-        currentAngleState = wantedAngleState;
-    }
-
-    public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
-    }
-
-    public Command setShooterStateCommand(ShooterState wantedShooterState) {
-        return setStateCommand(wantedShooterState, currentAngleState);
     }
 
     public Command setAngleState(AngleState wantedAngleState) {
-        return setStateCommand(currentShooterState, wantedAngleState);
+        return new InstantCommand(() -> coordSub.setShooterHoodState(wantedAngleState));
     }
 
     public void setOverrideModeAngle(boolean isOverrideAngle) {

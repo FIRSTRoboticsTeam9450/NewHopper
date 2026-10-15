@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.RobotConstants;
+import static frc.robot.RobotContainer.coordSub;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -39,9 +40,6 @@ public class IntakeSubsystem extends SubsystemBase {
         EJECT,
         OFF
     }
-
-    private DeployState deployState = DeployState.ZEROING;
-    private IntakeState intakeState = IntakeState.IDLE;
 
     private double speedIntakeIntake = 8; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0.5; // Volts
@@ -147,7 +145,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         //applyState();
         if(!isZeroingDone){
-            deployState = DeployState.ZEROING;
+            coordSub.setIntakeDeployState(DeployState.ZEROING);
             isZeroingDone = isZeroingDone();
             zeroingCount++;
         }
@@ -157,20 +155,20 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
+        if(coordSub.getIntakeDeployState() == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
             deployMotor.setPosition(0);
             deployMotor.setVoltage(0);
             zeroingVolts = 0;
             zeroingCount = 0;
             isZeroingDone = true;
-            deployState = DeployState.DEPLOY;
+            coordSub.setIntakeDeployState(DeployState.DEPLOY);
             return true;
         }
         return false;
     }
 
     private void applyState() {
-        switch (deployState) {
+        switch (coordSub.getIntakeDeployState()) {
             case ZEROING:
                 zeroingVolts = 4;
                 deployMotor.setVoltage(-zeroingVolts);
@@ -275,7 +273,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         }
 
-        switch (intakeState) {
+        switch (coordSub.getIntakeWheelState()) {
             case IDLE:
                 intakeSetpoint = speedIntakeIdle;
                 intakeLeftMotor.setControl(intakeRequest.withOutput(intakeSetpoint));
@@ -317,8 +315,9 @@ public class IntakeSubsystem extends SubsystemBase {
     //     // if(intakeLeftMotor.)
     // }
     private void publishLogs() {
-        Logger.recordOutput("NewHopper/Intake/Angle State", deployState);
-        Logger.recordOutput("NewHopper/Intake/Intake State", intakeState);
+        //TODO Move logging of states to coord sub
+        Logger.recordOutput("NewHopper/Intake/Angle State", coordSub.getIntakeDeployState());
+        Logger.recordOutput("NewHopper/Intake/Intake State", coordSub.getIntakeWheelState());
         Logger.recordOutput("NewHopper/Intake/Deploy Setpoint", deploySetpoint);
         Logger.recordOutput("NewHopper/Intake/Deploy Position", deployMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Intake/Intake Voltage Setpoint", intakeSetpoint);
@@ -352,15 +351,15 @@ public class IntakeSubsystem extends SubsystemBase {
         if (deployPID.updateMotorPID(deployMotorConfig)) configureDeployMotors();
     }
 
-    public DeployState getDeployState() {
-        return deployState;
-    }
-
     public void setDeploySetpoint(double setpoint) {
         tuningDeploySetpoint = setpoint;
     }
 
-    public void setDeployState(DeployState state) {
+    public void updatedDeployState() {
+
+        //None of these conditions should ever be true with the new system
+
+        /*
         if(deployState != state){
             setpointCounter = 0;
         }
@@ -399,22 +398,11 @@ public class IntakeSubsystem extends SubsystemBase {
             zeroingVolts = 0;
             System.out.println("Yay its working.");
         }
-        deployState = state;
+        deployState = state;*/
     }
 
     public void setIntakeVolts(double volts) {
         speedIntakeIntake = volts;
     }
 
-    public void setIntakeState(IntakeState state) {
-        intakeState = state;
-    }
-
-    public InstantCommand setAngleStateCommand(DeployState state) {
-        return new InstantCommand(() -> setDeployState(state));
-    }
-
-    public InstantCommand setIntakeStateCommand(IntakeState state) {
-        return new InstantCommand(() -> setIntakeState(state));
-    }
 }

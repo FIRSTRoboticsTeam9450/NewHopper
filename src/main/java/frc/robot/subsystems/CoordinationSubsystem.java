@@ -41,6 +41,15 @@ public class CoordinationSubsystem extends SubsystemBase {
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
 
+    private TurretState turretState = TurretState.DISABLED;
+    private ShooterState shooterVelocState = ShooterState.NOT_SHOOTING;
+    private AngleState shooterHoodState = AngleState.DISABLED;
+    private TransferState transferState = TransferState.IDLE;
+    private IntakeState intakeWheelState = IntakeState.IDLE;
+    private DeployState intakeDeployState = DeployState.DEPLOY;
+    private SidesweeperState sidesweepState = SidesweeperState.IDLE;
+    private RampState rampState = RampState.IDLE;
+
     private boolean driverAllowingShooting = false;
     private boolean checkZeroing = false;
     private boolean justZeroed = true;
@@ -115,8 +124,8 @@ public class CoordinationSubsystem extends SubsystemBase {
                     }
                     break;
                 case CLIMB_DEADZONE:
-                    RobotContainer.sidesweeperSub.setRampState(RampState.IDLE);
-                    RobotContainer.sidesweeperSub.setSidesweeperState(SidesweeperState.IDLE);
+                    setRampState(RampState.IDLE);
+                    setSidesweepState(SidesweeperState.IDLE);
                     break;
 
                 case BACK_SHOOT:
@@ -130,14 +139,6 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public void applyState() {
-        TurretState turretState = TurretState.DISABLED;
-        ShooterState shooterVelocState = ShooterState.NOT_SHOOTING;
-        AngleState shooterHoodState = AngleState.DISABLED;
-        TransferState transferState = TransferState.IDLE;
-        IntakeState intakeWheelState = IntakeState.IDLE;
-        DeployState intakeDeployState = DeployState.DEPLOY;
-        SidesweeperState sidesweepState = SidesweeperState.IDLE;
-        RampState rampState = RampState.IDLE;
         if(isIntaking) {
             // intakeDeployState = DeployState.AGITATE;
             intakeWheelState = IntakeState.INTAKE;
@@ -152,13 +153,14 @@ public class CoordinationSubsystem extends SubsystemBase {
         // if(isFastAgitate) {
         //     intakeDeployState = DeployState.AGITATE_FAST;
         // }
+
         switch(currentState) {
             case INIT:
                 turretState = TurretState.INIT;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
-                if(RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING && RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                if(getIntakeDeployState() != DeployState.ZEROING && getShooterHoodState() != AngleState.ZEROING) {
                     intakeDeployState = DeployState.DEPLOY;
                     setState(AbsoluteStates.TRENCH, false);
                 }
@@ -196,13 +198,10 @@ public class CoordinationSubsystem extends SubsystemBase {
             transferState = TransferState.EJECT;
             sidesweepState = SidesweeperState.EJECT;
         }
-        RobotContainer.turretSub.setState(turretState);
-        RobotContainer.shooterSub.setState(shooterVelocState, shooterHoodState);
-        RobotContainer.intakeSub.setDeployState(intakeDeployState);
-        RobotContainer.intakeSub.setIntakeState(intakeWheelState);
-        RobotContainer.sidesweeperSub.setSidesweeperState(sidesweepState);
-        RobotContainer.transferSub.setTransferState(transferState);
-        RobotContainer.sidesweeperSub.setRampState(rampState);
+        RobotContainer.turretSub.updatedState();
+        RobotContainer.shooterSub.updatedState();
+        RobotContainer.intakeSub.updatedDeployState();
+        RobotContainer.transferSub.updatedTransferState();
 
     }
 
@@ -226,8 +225,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isZeroingDone() {
-        boolean zeroingDone = RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING
-        && RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING;
+        boolean zeroingDone = getShooterHoodState() != AngleState.ZEROING
+        && getIntakeDeployState() != DeployState.ZEROING;
         Logger.recordOutput("NewHopper/Coord/zeroingDonebyBoth", zeroingDone);
         if(zeroingDone) {
             System.out.println("so you did it.");
@@ -247,7 +246,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isTurretReady() {
-        return RobotContainer.turretSub.getCurrentState() == TurretState.AIMING && RobotContainer.turretSub.isTurretGoodToFire();
+        return turretState == TurretState.AIMING && RobotContainer.turretSub.isTurretGoodToFire();
 
     }
 
@@ -362,6 +361,70 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setManualTurret(boolean value){
         return new InstantCommand(() -> shiftingTurret = value);
+    }
+
+    public TurretState getTurretState() {
+        return turretState;
+    }
+
+    public void setTurretState(TurretState turretState) {
+        this.turretState = turretState;
+    }
+
+    public ShooterState getShooterVelocState() {
+        return shooterVelocState;
+    }
+
+    public void setShooterVelocState(ShooterState shooterVelocState) {
+        this.shooterVelocState = shooterVelocState;
+    }
+
+    public AngleState getShooterHoodState() {
+        return shooterHoodState;
+    }
+
+    public void setShooterHoodState(AngleState shooterHoodState) {
+        this.shooterHoodState = shooterHoodState;
+    }
+
+    public TransferState getTransferState() {
+        return transferState;
+    }
+
+    public void setTransferState(TransferState transferState) {
+        this.transferState = transferState;
+    }
+
+    public IntakeState getIntakeWheelState() {
+        return intakeWheelState;
+    }
+
+    public void setIntakeWheelState(IntakeState intakeWheelState) {
+        this.intakeWheelState = intakeWheelState;
+    }
+
+    public DeployState getIntakeDeployState() {
+        return intakeDeployState;
+    }
+
+    public void setIntakeDeployState(DeployState intakeDeployState) {
+        this.intakeDeployState = intakeDeployState;
+    }
+
+    public SidesweeperState getSidesweepState() {
+        return sidesweepState;
+    }
+
+    public void setSidesweepState(SidesweeperState sidesweepState) {
+        this.sidesweepState = sidesweepState;
+    }
+
+    public RampState getRampState() {
+        return rampState;
+    }
+
+    public void setRampState(RampState rampState) {
+        this.rampState = rampState;
     }
 
 }

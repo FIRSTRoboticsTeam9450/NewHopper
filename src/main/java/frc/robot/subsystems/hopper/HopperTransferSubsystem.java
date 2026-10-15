@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 
+import static frc.robot.RobotContainer.coordSub;
+
 public class HopperTransferSubsystem extends SubsystemBase {
     
     public enum TransferState {
@@ -23,8 +25,6 @@ public class HopperTransferSubsystem extends SubsystemBase {
         IDLE,
         EJECT
     }
-
-    private TransferState transferState = TransferState.IDLE;
 
     private double speedTransferTransfer = 10; // Volts // TODO: Transfer speed
     private double speedTransferIdle = 0; // Volts
@@ -76,7 +76,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
     }
 
     private void applyState() {
-        switch (transferState) {
+        switch (coordSub.getTransferState()) {
             case IDLE:
                 transferSetpoint = speedTransferIdle;
                 transferUpperMotor.setControl(transferRequest.withOutput(transferSetpoint));
@@ -98,7 +98,9 @@ public class HopperTransferSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-        Logger.recordOutput("NewHopper/Transfer/Transfer State", transferState);
+
+        //TODO: Move
+        Logger.recordOutput("NewHopper/Transfer/Transfer State", coordSub.getTransferState());
         Logger.recordOutput("NewHopper/Transfer/Transfer Setpoint", transferSetpoint);
         Logger.recordOutput("NewHopper/Transfer/Transfer Voltage", transferUpperMotor.getMotorVoltage().getValueAsDouble());
 
@@ -114,9 +116,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
         }
     }
 
-    public void setTransferState(TransferState state) {
-        transferState = state;
-        if(state == TransferState.TRANSFER) {
+    public void updatedTransferState() {
+        if(coordSub.getTransferState() == TransferState.TRANSFER) {
             pauseForSideSweep = Timer.getFPGATimestamp();
         }
     }
@@ -131,7 +132,4 @@ public class HopperTransferSubsystem extends SubsystemBase {
         }
     }
 
-    public InstantCommand setTransferStateCommand(TransferState state) {
-        return new InstantCommand(() -> setTransferState(state));
-    }
 }
