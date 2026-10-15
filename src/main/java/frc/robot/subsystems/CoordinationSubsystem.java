@@ -169,10 +169,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
-                if(getIntakeDeployState() != DeployState.ZEROING && getShooterHoodState() != AngleState.ZEROING) {
-                    intakeDeployState = DeployState.DEPLOY;
-                    setState(AbsoluteStates.TRENCH, false);
-                }
                 // justZeroed = false;
                 break;
             case PREPARING_FOR_SHOOTING:
