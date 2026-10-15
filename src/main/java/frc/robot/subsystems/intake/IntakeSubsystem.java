@@ -158,13 +158,13 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(deployState == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
-            if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+        if(coordSub.getIntakeDeployState() == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
+            if(coordSub.getShooterHoodState() != AngleState.ZEROING) {
                 deployMotor.setPosition(0);
                 deployMotor.setVoltage(0);
                 zeroingVolts = 0;
                 zeroingCount = 0;
-                deployState = DeployState.DEPLOY;
+                coordSub.setIntakeDeployState(DeployState.DEPLOY);
                 isZeroingDone = true;
                 RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
             }
