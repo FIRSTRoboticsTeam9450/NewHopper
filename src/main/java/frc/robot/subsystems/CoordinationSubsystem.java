@@ -159,10 +159,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(isAgitate) {
             intakeDeployState = DeployState.AGITATE;
         }
-        // if(isFastAgitate) {
-        //     intakeDeployState = DeployState.AGITATE_FAST;
-        // }
-
+        if(isFastAgitate) {
+            intakeDeployState = DeployState.AGITATE_FAST;
+        }
         switch(currentState) {
             case INIT:
                 turretState = TurretState.INIT;

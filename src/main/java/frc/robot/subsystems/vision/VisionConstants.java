@@ -33,8 +33,9 @@ public final class VisionConstants { // TODO: Vision constants (Including Limeli
     public enum Limelight {
 
         LEFT("limelight-l",-0.23,-0.312,0.26,40,180,90),
-        RIGHT("limelight-r",-0.0862,0.3114,0.0906,40,0,-90),
-        BACK("limelight-b",-0.2635,-0.109,0.3022,40,0,180);
+        RIGHT("limelight-r",-0.0862,0.3114,0.0906,35,0,-90),
+        BACK("limelight-b",-0.2635,-0.109,0.3022,35,0,180),
+        FRONT("limelight-f",0.1071,0.2786,0.4498,35,0,0);
 
         public final String NAME;
         public final double LOCATION_X;

@@ -167,8 +167,8 @@ public class IntakeSubsystem extends SubsystemBase {
                 coordSub.setIntakeDeployState(DeployState.DEPLOY);
                 isZeroingDone = true;
                 RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -276,6 +276,8 @@ public class IntakeSubsystem extends SubsystemBase {
                         }
                         agitationStage++;
                     }
+                    deployMotor.setControl(deployRequest.withPosition(deploySetpoint));
+                    break;
 
         }
 
@@ -378,26 +380,26 @@ public class IntakeSubsystem extends SubsystemBase {
             lastSwitchTime = Timer.getFPGATimestamp();
             agitationStage = 0;
         }
-        // if(deployState == DeployState.AGITATE_FAST && state != DeployState.AGITATE_FAST) {
-        //     waitTimer.restart();
-        //     deployMotorConfig.MotionMagic.MotionMagicAcceleration = 100;
-        //     deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 50;
-        //     deployMotor.getConfigurator().apply(deployMotorConfig);
+        if(deployState == DeployState.AGITATE_FAST && state != DeployState.AGITATE_FAST) {
+            waitTimer.restart();
+            deployMotorConfig.MotionMagic.MotionMagicAcceleration = 100;
+            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 50;
+            deployMotor.getConfigurator().apply(deployMotorConfig);
 
-        //     lastSwitchTime = Timer.getFPGATimestamp();
-        //     agitationStage = 0;
+            lastSwitchTime = Timer.getFPGATimestamp();
+            agitationStage = 0;
 
-        // }
+        }
         if(deployState == DeployState.AGITATE && state != DeployState.AGITATE) {
             deployMotorConfig.MotionMagic.MotionMagicAcceleration = 400;
             deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
             deployMotor.getConfigurator().apply(deployMotorConfig);
         }
-        // if(deployState == DeployState.AGITATE_FAST && state != DeployState.AGITATE_FAST) {
-        //     deployMotorConfig.MotionMagic.MotionMagicAcceleration = 400;
-        //     deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
-        //     deployMotor.getConfigurator().apply(deployMotorConfig);
-        // }
+        if(deployState == DeployState.AGITATE_FAST && state != DeployState.AGITATE_FAST) {
+            deployMotorConfig.MotionMagic.MotionMagicAcceleration = 400;
+            deployMotorConfig.MotionMagic.MotionMagicCruiseVelocity = 200;
+            deployMotor.getConfigurator().apply(deployMotorConfig);
+        }
         if(state == DeployState.ZEROING && deployState != DeployState.ZEROING) {
             isZeroingDone = false;
             zeroingCount = 0;

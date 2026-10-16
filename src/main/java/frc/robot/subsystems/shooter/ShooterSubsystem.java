@@ -181,13 +181,16 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(1.96, 27.75);
         shootingDistanceToVelocity.put(3.06, 31.25);
         shootingDistanceToVelocity.put(4.06, 35.00);
+        // shootingDistanceToVelocity.put(4.53, 37.15);
         shootingDistanceToVelocity.put(4.74, 40.5);
+        shootingDistanceToVelocity.put(5.73, 44.0);
 
         shootingDistanceToTime.put(1.56, 1.02);
         shootingDistanceToTime.put(2.16, 1.01);
         shootingDistanceToTime.put(3.06, 1.05);
         shootingDistanceToTime.put(4.06, 1.14);
         shootingDistanceToTime.put(4.74, 1.33);
+        shootingDistanceToVelocity.put(5.61, 1.27);
 
         // shootingDistanceToAngle.put(1.4, 0.0 + wheelWareAdjustment); // 65
         // shootingDistanceToAngle.put(2.0, .7 + wheelWareAdjustment); // 65
@@ -437,7 +440,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 // if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
                     // angleMotor.setVoltage(-0.6);
                 // } else {
-                    angleMotor.setControl(new VoltageOut(-1.0));
+                    angleMotor.setControl(new VoltageOut(-0.60));
                 // }
                 break;
 
@@ -472,19 +475,19 @@ public class ShooterSubsystem extends SubsystemBase {
             switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-                    if(cachedDistanceToTarget > 5.6) {
-                        targetShooterVeloc = 44.5;
-                    }
-                    else if(cachedDistanceToTarget > 4.5) {
-                        targetShooterVeloc = 38.15;
-                    }
-                    else if(cachedDistanceToTarget > 3.3) {
-                        targetShooterVeloc = 38;
-                    }
-                    else {
-                        targetShooterVeloc = 32;
-                    }
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // if(cachedDistanceToTarget > 5.6) {
+                    //     targetShooterVeloc = 44.5;
+                    // }
+                    // else if(cachedDistanceToTarget > 4.5) {
+                    //     targetShooterVeloc = 38.15;
+                    // }
+                    // else if(cachedDistanceToTarget > 3.3) {
+                    //     targetShooterVeloc = 38;
+                    // }
+                    // else {
+                    //     targetShooterVeloc = 32;
+                    // }
                     // if(cachedDistanceToTarget > 4.5) {
                     //     targetShooterVeloc = 73;
                     // }
@@ -497,16 +500,16 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
 
                 case CLIMB_DEADZONE:
-                    // targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
-                    if(cachedDistanceToTarget > 4.5) {
-                        targetShooterVeloc = 40;
-                    }
-                    else if(cachedDistanceToTarget > 3.6) {
-                        targetShooterVeloc = 32;
-                    }
-                    else {
-                        targetShooterVeloc = 32;
-                    }
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    // if(cachedDistanceToTarget > 4.5) {
+                    //     targetShooterVeloc = 40;
+                    // }
+                    // else if(cachedDistanceToTarget > 3.6) {
+                    //     targetShooterVeloc = 32;
+                    // }
+                    // else {
+                    //     targetShooterVeloc = 32;
+                    // }
                     // if(cachedDistanceToTarget > 4.5) {
                     //     targetShooterVeloc = 73;
                     // }

@@ -15,6 +15,7 @@ public class LimelightObject {
         LEFT,
         RIGHT,
         BACK,
+        FRONT,
         NONE
     }
 
