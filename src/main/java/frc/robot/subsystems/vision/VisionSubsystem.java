@@ -3,6 +3,7 @@ package frc.robot.subsystems.vision;
 import static frc.robot.subsystems.vision.VisionConstants.Limelight.BACK;
 import static frc.robot.subsystems.vision.VisionConstants.Limelight.LEFT;
 import static frc.robot.subsystems.vision.VisionConstants.Limelight.RIGHT;
+import static frc.robot.subsystems.vision.VisionConstants.Limelight.FRONT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -159,24 +160,33 @@ public class VisionSubsystem extends SubsystemBase {
      * Ensures that all camera poses are correctly transformed to robot frame.
      */
     private void configureLimelights() {
-        // Front Left Limelight
+        // Left Limelight
         LimelightObject limelightLeft = new LimelightObject(LEFT.NAME)
                                         .withLocation(Location.LEFT)
                                         .withPose3d(LEFT.POSE);
         LIMELIGHT_LIST.add(limelightLeft);
 
-        // Front Right Limelight
+        // Right Limelight
         LimelightObject limelightRight = new LimelightObject(RIGHT.NAME)
                                         .withLocation(Location.RIGHT)
                                         .withPose3d(RIGHT.POSE);
         LIMELIGHT_LIST.add(limelightRight);
 
-        // Back Left Limelight
+        // Back Limelight
         LimelightObject limelightBack = new LimelightObject(BACK.NAME)
                                         .withLocation(Location.BACK)
                                         .withPose3d(BACK.POSE);
         LIMELIGHT_LIST.add(limelightBack);
 
+        // Front Limelight
+        LimelightObject limelightFront = new LimelightObject(FRONT.NAME)
+                                        .withLocation(Location.FRONT)
+                                        .withPose3d(FRONT.POSE);
+        Logger.recordOutput("NewHopper/Vision/BACK/pose", BACK.POSE);
+        Logger.recordOutput("NewHopper/Vision/LEFT/pose", LEFT.POSE);
+        Logger.recordOutput("NewHopper/Vision/RIGHT/pose", RIGHT.POSE);
+        Logger.recordOutput("NewHopper/Vision/FRONT/pose", FRONT.POSE);
+        LIMELIGHT_LIST.add(limelightFront);
     }
 
     /**

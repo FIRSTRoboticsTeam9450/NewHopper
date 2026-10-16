@@ -169,8 +169,8 @@ public class RobotContainer {
         DRIVER.rightTrigger().onTrue(coordSub.setFireCommand(true).alongWith(coordSub.setForceTrenchCommand(false)))
                             .onFalse(coordSub.setFireCommand(false).alongWith(coordSub.setForceTrenchCommand(true)));
         // DRIVER.rightBumper().onTrue(coordSub.setForceTrenchCommand());
-        DRIVER.leftBumper().onTrue(coordSub.setAgitate(true))
-                            .onFalse(coordSub.setAgitate(false));
+        DRIVER.leftBumper().onTrue(coordSub.setFastAgitate(true))
+                            .onFalse(coordSub.setFastAgitate(false));
         DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand(true))
                             .onFalse(coordSub.setIntakeCommand(false));
         DRIVER.rightBumper().onTrue(coordSub.setRejectingCommand(true))
