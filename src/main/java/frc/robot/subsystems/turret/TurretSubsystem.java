@@ -104,6 +104,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
     private boolean goodToMove = true;
+    private Timer stuckTimer = new Timer();
 
     // Cached values
     @ToLog(level = LogLevel.MINIMAL)
@@ -326,7 +327,11 @@ public class TurretSubsystem extends SubsystemBase {
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
 
-        if (turretMotor.getPosition().getValueAsDouble() > (MAX_ANGLE_DEG + 10) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE || turretMotor.getPosition().getValueAsDouble() < (MIN_ANGLE_DEG - 10) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {//&& CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) { //TODO: ADD BACK
+        if (turretMotor.getPosition().getValueAsDouble() > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE || turretMotor.getPosition().getValueAsDouble() < (MIN_ANGLE_DEG - 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {//&& CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) { //TODO: ADD BACK
+            
+            if(goodToMove != false) {
+                stuckTimer.restart();
+            }
             goodToMove = false;
             System.out.println("COOKED SIGH SIGH");
         } else {
@@ -658,7 +663,12 @@ public class TurretSubsystem extends SubsystemBase {
                     break;
             }
         } else {
-            turretMotor.stopMotor();
+            if(stuckTimer.get() < 2) {
+                turretMotor.stopMotor();
+            }
+            else {
+                commandTurret(turretEncoder.getPosition().getValueAsDouble() + manualShift, 0, 0);
+            }
         }
     }
 

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.009212421113025,
-        "y": 7.839556122448978
+        "x": 8.130130486358246,
+        "y": 7.655468564650059
       },
       "isLocked": false,
       "linkedName": "DumpTrenchThroughStart"
@@ -93,6 +93,10 @@
     }
   ],
   "rotationTargets": [
+    {
+      "waypointRelativePos": 0.11545293072825463,
+      "rotationDegrees": 0.0
+    },
     {
       "waypointRelativePos": 0.4494382022471892,
       "rotationDegrees": -90.0

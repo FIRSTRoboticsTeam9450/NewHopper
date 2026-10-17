@@ -82,12 +82,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final VoltageOut m_voltReq = new VoltageOut(0.0);
 
     // Hood Motion Magic parameters
-    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 8000);
-    private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Acceleration", 8000);
+    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 800);
+    private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Acceleration", 800);
     private double hoodMMVelocity = logHoodMMVeloc.get();
     private double hoodMMAcceleration = logHoodMMAccel.get();
 
-    private PIDVals hoodPID = new PIDVals("/Tuning/Shooter/Angle/",0.118,0.15,0,90,0,0.1,0.2); 
+    private PIDVals hoodPID = new PIDVals("/Tuning/Shooter/Angle/",0.118,0.15,0,30,0,0.1,0.2); 
     /*
      * 
         kS,
@@ -129,7 +129,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double manualHoodSetpoint = 0;
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
     private double manualHoodShift = 0;
-    private double wheelWareAdjustment = -1.5;
+    private double wheelWareAdjustment = 0;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -177,20 +177,20 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() { // 73 is max velocity for max hood to make it from the furthest point in shooter
 
-        shootingDistanceToVelocity.put(1.24, 27.25);
-        shootingDistanceToVelocity.put(1.96, 27.75);
-        shootingDistanceToVelocity.put(3.06, 31.25);
-        shootingDistanceToVelocity.put(4.06, 35.00);
+        shootingDistanceToVelocity.put(1.24, 27.25 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(1.96, 27.75 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(3.06, 31.25 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(4.06, 35.00 + wheelWareAdjustment);
         // shootingDistanceToVelocity.put(4.53, 37.15);
-        shootingDistanceToVelocity.put(4.74, 40.5);
-        shootingDistanceToVelocity.put(5.73, 44.0);
+        shootingDistanceToVelocity.put(4.74, 40.5 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(5.73, 44.0 + wheelWareAdjustment);
 
         shootingDistanceToTime.put(1.56, 1.02);
         shootingDistanceToTime.put(2.16, 1.01);
         shootingDistanceToTime.put(3.06, 1.05);
         shootingDistanceToTime.put(4.06, 1.14);
         shootingDistanceToTime.put(4.74, 1.33);
-        shootingDistanceToVelocity.put(5.61, 1.27);
+        shootingDistanceToTime.put(5.61, 1.27);
 
         // shootingDistanceToAngle.put(1.4, 0.0 + wheelWareAdjustment); // 65
         // shootingDistanceToAngle.put(2.0, .7 + wheelWareAdjustment); // 65

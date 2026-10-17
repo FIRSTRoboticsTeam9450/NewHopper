@@ -237,10 +237,9 @@ public class VisionSubsystem extends SubsystemBase {
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;
         }
-
-        if (robotRoll > 6 || robotPitch > 6) { // TODO: FIX THE BUMP DETECTION
-            bumpDetected = false;
-            bumpMeasurmentCount = 0;
+        
+        if (robotRoll > 6 || robotPitch > 6) {
+            bumpDetected = true;
         }
 
         Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);
@@ -903,22 +902,22 @@ public class VisionSubsystem extends SubsystemBase {
         }
         if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ferryTarget;
+            currentTarget = ZoneTargets.SHOOTING_TARGET;
             maxSpeedMultiplier = 1;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ferryTarget;
+            currentTarget = ZoneTargets.SHOOTING_TARGET;
             maxSpeedMultiplier = 1;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ferryTarget;
+            currentTarget = ZoneTargets.SHOOTING_TARGET;
             maxSpeedMultiplier = 1;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ferryTarget;
+            currentTarget = ZoneTargets.SHOOTING_TARGET;
             maxSpeedMultiplier = 1;
         }
         else if(turretX > ZoneConstantsWelded.OUR_CLIMB_DEADZONE_X_LOW && turretX < ZoneConstantsWelded.OUR_CLIMB_DEADZONE_X_HIGH && turretY > ZoneConstantsWelded.CLIMB_DEADZONE_Y_LOW && turretY < ZoneConstantsWelded.CLIMB_DEADZONE_Y_HIGH) {

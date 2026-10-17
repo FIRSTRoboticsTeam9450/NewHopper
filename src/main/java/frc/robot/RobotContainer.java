@@ -80,7 +80,7 @@ public class RobotContainer {
     public static boolean slewMode = false;
 
     public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
-    public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
+    public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 0.85;
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(driveBezier.getDeadband())

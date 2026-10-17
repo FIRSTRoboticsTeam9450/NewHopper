@@ -43,6 +43,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean forceTrench = false;
     private boolean rejecting = false;
     private boolean previousGoodToShoot = goodToFire();
+    private boolean previousDriverAllowingShooting = getdriverAllowingShooting();
 
     private boolean isIntaking = false;
     private boolean shiftingTurret = false;
@@ -64,19 +65,18 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void applyZone() {
-        if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
+        if(currentZone != previousZone || update || previousGoodToShoot != goodToFire() || previousDriverAllowingShooting != getdriverAllowingShooting()) {
             previousZone = currentZone;
             update = false;
             previousGoodToShoot = goodToFire();
+            previousDriverAllowingShooting = getdriverAllowingShooting();
 
             switch (currentZone) {
                 case SHOOTING_ZONE, FERRY_ZONE_TOP, FERRY_ZONE_BOTTOM, SHOOT_OVER_NET:
-                    if (forceTrench) {
-                        setState(AbsoluteStates.TRENCH, false);
-                    } else if(goodToFire()) {
+                    if(getdriverAllowingShooting()) {
                         setState(AbsoluteStates.SHOOTING, false);
                     } else {
-                        setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+                        setState(AbsoluteStates.TRENCH, false);
                     }
                     break;
 
@@ -86,12 +86,10 @@ public class CoordinationSubsystem extends SubsystemBase {
                     // } else {
                     //     setState(AbsoluteStates.SHOOTING, false);
                     // }
-                    if (forceTrench) {
-                        setState(AbsoluteStates.TRENCH, false);
-                    } else if(goodToFire()) {
+                    if(getdriverAllowingShooting()) {
                         setState(AbsoluteStates.SHOOTING, false);
                     } else {
-                        setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+                        setState(AbsoluteStates.TRENCH, false);
                     }
 
                     break;
@@ -138,12 +136,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(isAgitate) {
             intakeDeployState = DeployState.AGITATE;
         }
-        if(isFastAgitate) {
-            intakeDeployState = DeployState.AGITATE_FAST;
-        }
         switch(currentState) {
             case INIT:
-                turretState = TurretState.INIT;
+                turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
@@ -155,13 +150,16 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.SHOOTING;
                 break;
             case SHOOTING:
-                transferState = TransferState.TRANSFER;
-                rampState = RampState.TRANSFER;
-                sidesweepState = SidesweeperState.TRANSFER;
                 shooterHoodState = AngleState.AIMING;
                 turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 intakeWheelState = IntakeState.INTAKE;
+                if(areShooterAndTurretReady()) {
+                    transferState = TransferState.TRANSFER;
+                    rampState = RampState.TRANSFER;
+                    sidesweepState = SidesweeperState.TRANSFER;
+                    intakeDeployState = DeployState.AGITATE;
+                }
                 break;
             case STORING:
                 turretState = TurretState.STORING;
@@ -180,6 +178,9 @@ public class CoordinationSubsystem extends SubsystemBase {
             intakeWheelState = IntakeState.EJECT;
             transferState = TransferState.EJECT;
             sidesweepState = SidesweeperState.EJECT;
+        }
+        if(isFastAgitate) {
+            intakeDeployState = DeployState.AGITATE_FAST;
         }
         RobotContainer.turretSub.setState(turretState);
         RobotContainer.shooterSub.setState(shooterVelocState, shooterHoodState);
@@ -216,7 +217,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/zeroingDonebyBoth", zeroingDone);
         if(zeroingDone) {
             System.out.println("so you did it.");
-            setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
+            setState(AbsoluteStates.TRENCH, false);
             checkZeroing = false;
         }
         return zeroingDone;
