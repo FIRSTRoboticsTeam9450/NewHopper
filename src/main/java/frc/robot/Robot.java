@@ -101,6 +101,7 @@ public class Robot extends LoggedRobot {
     @Override
     public void autonomousInit() {
         RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.enabledMT2StdDev);
+        RobotContainer.coordSub.setIsAuto(true);
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         if (m_autonomousCommand != null) CommandScheduler.getInstance().schedule(m_autonomousCommand);
     }
@@ -109,11 +110,14 @@ public class Robot extends LoggedRobot {
     public void autonomousPeriodic() {}
 
     @Override
-    public void autonomousExit() {}
+    public void autonomousExit() {
+        RobotContainer.coordSub.setIsAuto(false);
+    }
 
     @Override
     public void teleopInit() {
         if (m_autonomousCommand != null) CommandScheduler.getInstance().cancel(m_autonomousCommand);
+        RobotContainer.coordSub.setIsAuto(false);
         
         SignalLogger.start();
     }

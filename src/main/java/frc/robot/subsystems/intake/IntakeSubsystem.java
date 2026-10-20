@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
@@ -46,7 +47,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private DeployState deployState = DeployState.ZEROING;
     private IntakeState intakeState = IntakeState.IDLE;
 
-    private double speedIntakeIntake = 8; // Volts // TODO: Intake speed
+    private double speedIntakeIntake = 10; // Volts // TODO: Intake speed
     private double speedIntakeIdle = 0.5; // Volts
     private double speedIntakeOff = 0; // Volts
 
@@ -172,14 +173,32 @@ public class IntakeSubsystem extends SubsystemBase {
                 return true;
             }
         }
+        else if(RobotContainer.coordSub.getIsAuto()) {
+            if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                deployMotor.setPosition(0);
+                deployMotor.setVoltage(0);
+                zeroingVolts = 0;
+                zeroingCount = 0;
+                deployState = DeployState.DEPLOY;
+                isZeroingDone = true;
+                RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+                return true;
+            }
+        }
         return false;
     }
 
     private void applyState() {
         switch (deployState) {
             case ZEROING:
-                zeroingVolts = 4;
-                deployMotor.setVoltage(-zeroingVolts);
+                if(!RobotContainer.coordSub.getIsAuto()) {
+                    zeroingVolts = 4;
+                    deployMotor.setVoltage(-zeroingVolts);
+                }
+                else {
+                    zeroingVolts = 0;
+                    deployMotor.setVoltage(zeroingVolts);
+                }
                 break;
             case DEPLOY:
                 deploySetpoint = angleDeployIntake;
@@ -405,7 +424,7 @@ public class IntakeSubsystem extends SubsystemBase {
             isZeroingDone = false;
             zeroingCount = 0;
             zeroingVolts = 0;
-            System.out.println("Yay its working.");
+            // System.out.println("Yay its working.");
         }
         deployState = state;
     }

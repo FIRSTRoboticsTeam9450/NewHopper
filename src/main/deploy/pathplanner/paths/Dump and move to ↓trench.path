@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6981422458663187,
-        "y": 7.668757220325853
+        "x": 1.7929655990510092,
+        "y": 7.913689205219455
       },
       "isLocked": false,
       "linkedName": "Dump First Sweep End"
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.48381742738589223,
+      "waypointRelativePos": 0.16696269982237913,
       "rotationDegrees": 0.0
     }
   ],

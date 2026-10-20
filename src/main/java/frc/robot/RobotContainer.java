@@ -80,7 +80,7 @@ public class RobotContainer {
     public static boolean slewMode = false;
 
     public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
-    public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 0.85;
+    public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(driveBezier.getDeadband())
@@ -194,7 +194,7 @@ public class RobotContainer {
         OPERATOR.a().onTrue(coordSub.resetManualAdjust());
         OPERATOR.povUp().onTrue(new InstantCommand(() -> visionSub.setOverrideSpeed(true)))
         .onFalse(new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
-        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
+        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setIsAuto(false).andThen(coordSub.setStateCommand(AbsoluteStates.INIT, true)));
         OPERATOR.leftTrigger().onTrue(coordSub.setIntakeOut());
         OPERATOR.povDown()
             .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
@@ -202,6 +202,12 @@ public class RobotContainer {
         
         OPERATOR.rightTrigger().onTrue(coordSub.setAgitate(true))
                             .onFalse(coordSub.setAgitate(false));
+        OPERATOR.povUp()
+            .onTrue(coordSub.setSlowTransfer(true))
+            .onFalse(coordSub.setSlowTransfer(false));
+        OPERATOR.povRight()
+            .onTrue(coordSub.setAutoAgitateOff(true))
+            .onFalse(coordSub.setAutoAgitateOff(false));
         // No SysID
         if (!enableSysIdKeybinds) {
         }
@@ -313,6 +319,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
         NamedCommands.registerCommand("SetOverrideSpeedTrue", new InstantCommand(() -> visionSub.setOverrideSpeed(true)));
         NamedCommands.registerCommand("SetOverrideSpeedFalse", new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
+        NamedCommands.registerCommand("SetIsAutoTrue", coordSub.setIsAuto(true));
+        NamedCommands.registerCommand("SetIsAutoFalse", coordSub.setIsAuto(false));
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())
@@ -323,7 +331,7 @@ public class RobotContainer {
         autoChooser.addOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Test of 4414 remake", drivetrain.getAutoPath("Test of 4414 remake", false));
         autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
-        autoChooser.addDefaultOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
+        autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
         autoChooser.addOption("Short Dump Right", drivetrain.getAutoPath("Short Dump", true));
     }

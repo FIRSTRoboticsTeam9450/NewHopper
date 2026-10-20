@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Volt;
 
 import java.util.ArrayList;
 
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.util.PIDVals;
 import org.littletonrobotics.junction.Logger;
@@ -183,7 +184,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(4.06, 35.00 + wheelWareAdjustment);
         // shootingDistanceToVelocity.put(4.53, 37.15);
         shootingDistanceToVelocity.put(4.74, 40.5 + wheelWareAdjustment);
-        shootingDistanceToVelocity.put(5.73, 44.0 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(5.73, 42.0 + wheelWareAdjustment);
 
         shootingDistanceToTime.put(1.56, 1.02);
         shootingDistanceToTime.put(2.16, 1.01);
@@ -327,12 +328,19 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean autoZeroing() {
-        if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
-            angleMotor.setPosition(0);
-            angleMotor.setVoltage(0);
-            setState(currentShooterState, AngleState.STORING);
-            return true;
-        }
+        // if(!RobotContainer.coordSub.getIsAuto()) {
+            if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
+                angleMotor.setPosition(0);
+                angleMotor.setVoltage(0);
+                setState(currentShooterState, AngleState.STORING);
+                return true;
+            }
+        // }
+        // else {
+        //     angleMotor.setPosition(0);
+        //     setState(currentShooterState, AngleState.STORING);
+        //     return true;
+        // }
         return false; // TODO CHANGE BACK TO FALSE
     }
 
@@ -440,7 +448,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 // if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
                     // angleMotor.setVoltage(-0.6);
                 // } else {
+                // }
+                // if(!RobotContainer.coordSub.getIsAuto()) {
                     angleMotor.setControl(new VoltageOut(-0.60));
+                // }
+                // else {
+                //     angleMotor.setControl(new VoltageOut(0));
                 // }
                 break;
 

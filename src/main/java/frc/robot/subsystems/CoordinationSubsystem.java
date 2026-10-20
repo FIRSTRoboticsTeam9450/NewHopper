@@ -40,16 +40,20 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean update = false;
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
-    private boolean forceTrench = false;
+    private boolean forceTrench = true;
     private boolean rejecting = false;
     private boolean previousGoodToShoot = goodToFire();
     private boolean previousDriverAllowingShooting = getdriverAllowingShooting();
+    private boolean previousRejecting = rejecting;
 
     private boolean isIntaking = false;
     private boolean shiftingTurret = false;
     private boolean isAgitate = false;
     private boolean isFastAgitate = false;
     private boolean isIntakeOut = true;
+    private boolean isSlowTransfer = false;
+    private boolean isAutoAgitateOff = false;
+    private boolean isAuto = true;
     public CoordinationSubsystem() {}
 
     @Override
@@ -65,11 +69,13 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void applyZone() {
-        if(currentZone != previousZone || update || previousGoodToShoot != goodToFire() || previousDriverAllowingShooting != getdriverAllowingShooting()) {
+        if(currentZone != previousZone || update || previousGoodToShoot != goodToFire() || previousDriverAllowingShooting != getdriverAllowingShooting()
+        || previousRejecting != rejecting) {
             previousZone = currentZone;
             update = false;
             previousGoodToShoot = goodToFire();
             previousDriverAllowingShooting = getdriverAllowingShooting();
+            previousRejecting = rejecting;
 
             switch (currentZone) {
                 case SHOOTING_ZONE, FERRY_ZONE_TOP, FERRY_ZONE_BOTTOM, SHOOT_OVER_NET:
@@ -158,7 +164,16 @@ public class CoordinationSubsystem extends SubsystemBase {
                     transferState = TransferState.TRANSFER;
                     rampState = RampState.TRANSFER;
                     sidesweepState = SidesweeperState.TRANSFER;
-                    intakeDeployState = DeployState.AGITATE;
+                    if(!isAutoAgitateOff) {
+                        intakeDeployState = DeployState.AGITATE;
+                    }
+                    if(isSlowTransfer) {
+                        transferState = TransferState.SLOW_TRANSFER;
+                    }
+                    if(currentZone == ZoneState.FERRY_ZONE_TOP || currentZone == ZoneState.FERRY_ZONE_BOTTOM) {
+                        transferState = TransferState.SLOW_TRANSFER;
+                        intakeDeployState = DeployState.DEPLOY;   
+                    }
                 }
                 break;
             case STORING:
@@ -172,15 +187,15 @@ public class CoordinationSubsystem extends SubsystemBase {
                 break;
 
         }
+        if(isFastAgitate) {
+            intakeDeployState = DeployState.AGITATE_FAST;
+        }
         if (rejecting) {
             rampState = RampState.EJECT;
             intakeDeployState = DeployState.DEPLOY;
             intakeWheelState = IntakeState.EJECT;
             transferState = TransferState.EJECT;
             sidesweepState = SidesweeperState.EJECT;
-        }
-        if(isFastAgitate) {
-            intakeDeployState = DeployState.AGITATE_FAST;
         }
         RobotContainer.turretSub.setState(turretState);
         RobotContainer.shooterSub.setState(shooterVelocState, shooterHoodState);
@@ -207,6 +222,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("NewHopper/Coord/justZeroed", justZeroed);
+        Logger.recordOutput("NewHopper/Coord/isAuto", isAuto);
 
         // Logger.recordOutput("NewHopper/Coord/OverridingTrench?", overrideTrench);
     }
@@ -216,7 +232,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         && RobotContainer.intakeSub.getDeployState() != DeployState.ZEROING;
         Logger.recordOutput("NewHopper/Coord/zeroingDonebyBoth", zeroingDone);
         if(zeroingDone) {
-            System.out.println("so you did it.");
+            // System.out.println("so you did it.");
             setState(AbsoluteStates.TRENCH, false);
             checkZeroing = false;
         }
@@ -262,6 +278,15 @@ public class CoordinationSubsystem extends SubsystemBase {
             .andThen(new InstantCommand(this::applyState));
     }
 
+    public Command setSlowTransfer() {
+        return new InstantCommand(() -> isSlowTransfer = !isSlowTransfer)
+        .andThen(new InstantCommand(this::applyState));
+    }
+    public Command setSlowTransfer(boolean value) {
+        return new InstantCommand(() -> isSlowTransfer = value)
+        .andThen(new InstantCommand(this::applyState));
+    }
+
     public Command setAgitate() {
         return new InstantCommand(() -> isAgitate = !isAgitate)
         .andThen(new InstantCommand(this::applyState));
@@ -277,6 +302,15 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
     public Command setFastAgitate(boolean value) {
         return new InstantCommand(() -> isFastAgitate = value)
+        .andThen(new InstantCommand(this::applyState));
+    }
+
+    public Command setAutoAgitateOff() {
+        return new InstantCommand(() -> isAutoAgitateOff = !isAutoAgitateOff)
+        .andThen(new InstantCommand(this::applyState));
+    }
+    public Command setAutoAgitateOff(boolean value) {
+        return new InstantCommand(() -> isAutoAgitateOff = value)
         .andThen(new InstantCommand(this::applyState));
     }
 
@@ -313,6 +347,20 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setIntakeOut(boolean value) {
         return new InstantCommand(() -> isIntakeOut = value)
         .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIsAuto() {
+        return new InstantCommand(() -> isAuto = !isAuto)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIsAuto(boolean value) {
+        return new InstantCommand(() -> isAuto = value)
+        .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public boolean getIsAuto() {
+        return isAuto;
     }
 
     public void setState(AbsoluteStates state, boolean forceStateChange) {

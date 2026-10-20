@@ -106,7 +106,7 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile Translation2d lastAdjustedTargetPose = null;
     private String currentFerryZone = "none";
     public double maxSpeedMultiplier = 1;
-    private boolean overrideSpeed = false;
+    private boolean overrideSpeed = true;
 
 
     // Targeting Data
