@@ -844,6 +844,14 @@ public class VisionSubsystem extends SubsystemBase {
         return null;
     }
 
+    /**
+     * Was the bump detected?
+     * @return Boolean
+     */
+    public boolean getIsBumpDetected() {
+        return bumpDetected;
+    }
+
 
     public void setOverrideSpeed(boolean value) {
         overrideSpeed = value;

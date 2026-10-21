@@ -83,7 +83,8 @@ public class Robot extends LoggedRobot {
     public void disabledPeriodic() {
         if (updateValuesOffset == 15) RobotContainer.intakeSub.updateConstants();
         else if (updateValuesOffset == 30) RobotContainer.shooterSub.updateShooterConstants();
-        else if (updateValuesOffset >= 45) {
+        else if (updateValuesOffset == 45) RobotContainer.transferSub.updateTransferConstants();
+        else if (updateValuesOffset >= 60) {
             RobotContainer.turretSub.updateTunableParameters();
             updateValuesOffset = 0;
         }

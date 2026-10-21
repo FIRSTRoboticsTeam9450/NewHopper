@@ -151,13 +151,15 @@ public class CoordinationSubsystem extends SubsystemBase {
                 // justZeroed = false;
                 break;
             case PREPARING_FOR_SHOOTING:
-                turretState = TurretState.AIMING;
+                if (onBump()) turretState = TurretState.BUMP;
+                else turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 break;
             case SHOOTING:
                 shooterHoodState = AngleState.AIMING;
-                turretState = TurretState.AIMING;
+                if (onBump()) turretState = TurretState.BUMP;
+                else turretState = TurretState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 intakeWheelState = IntakeState.INTAKE;
                 if(areShooterAndTurretReady()) {
@@ -165,7 +167,8 @@ public class CoordinationSubsystem extends SubsystemBase {
                     rampState = RampState.TRANSFER;
                     sidesweepState = SidesweeperState.TRANSFER;
                     if(!isAutoAgitateOff) {
-                        intakeDeployState = DeployState.AGITATE;
+                        if (hasLotsOfFuel()) intakeDeployState = DeployState.DEPLOY;
+                        else intakeDeployState = DeployState.AGITATE_FAST;
                     }
                     if(isSlowTransfer) {
                         transferState = TransferState.SLOW_TRANSFER;
@@ -237,6 +240,14 @@ public class CoordinationSubsystem extends SubsystemBase {
             checkZeroing = false;
         }
         return zeroingDone;
+    }
+
+    public boolean hasLotsOfFuel() {
+        return RobotContainer.transferSub.canSeeFuel();
+    }
+
+    public boolean onBump() {
+        return RobotContainer.visionSub.getIsBumpDetected();
     }
 
     public ZoneState getCurrentZone() {

@@ -134,6 +134,9 @@ public class TurretSubsystem extends SubsystemBase {
 
         CLIMB,
 
+        /** While going over the bump (Go to a specific angle to aim) */
+        BUMP,
+
         MANUAL
     }
 
@@ -637,6 +640,16 @@ public class TurretSubsystem extends SubsystemBase {
                     break;
                 case CLIMB:
                     profiledSetpointDeg = 90;
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg,
+                        MIN_ANGLE_DEG,
+                        MAX_ANGLE_DEG
+                    );
+
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
+                case BUMP:
+                    profiledSetpointDeg = 0; // TODO: Turret bump state angle
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg,
                         MIN_ANGLE_DEG,
