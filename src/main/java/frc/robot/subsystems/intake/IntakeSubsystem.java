@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 import static frc.robot.RobotContainer.coordSub;
 import frc.robot.RobotContainer;
@@ -170,14 +171,32 @@ public class IntakeSubsystem extends SubsystemBase {
                 return true;
             }
         }
+        else if(RobotContainer.coordSub.getIsAuto()) {
+            if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
+                deployMotor.setPosition(0);
+                deployMotor.setVoltage(0);
+                zeroingVolts = 0;
+                zeroingCount = 0;
+                deployState = DeployState.DEPLOY;
+                isZeroingDone = true;
+                RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+                return true;
+            }
+        }
         return false;
     }
 
     private void applyState() {
         switch (coordSub.getIntakeDeployState()) {
             case ZEROING:
-                zeroingVolts = 4;
-                deployMotor.setVoltage(-zeroingVolts);
+                if(!RobotContainer.coordSub.getIsAuto()) {
+                    zeroingVolts = 4;
+                    deployMotor.setVoltage(-zeroingVolts);
+                }
+                else {
+                    zeroingVolts = 0;
+                    deployMotor.setVoltage(zeroingVolts);
+                }
                 break;
             case DEPLOY:
                 deploySetpoint = angleDeployIntake;
@@ -404,7 +423,7 @@ public class IntakeSubsystem extends SubsystemBase {
             isZeroingDone = false;
             zeroingCount = 0;
             zeroingVolts = 0;
-            System.out.println("Yay its working.");
+            // System.out.println("Yay its working.");
         }
         deployState = state;*/
     }

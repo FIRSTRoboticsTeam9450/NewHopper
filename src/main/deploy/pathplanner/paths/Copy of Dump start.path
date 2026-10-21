@@ -25,7 +25,7 @@
       },
       "nextControl": {
         "x": 7.24787663107948,
-        "y": 3.1688849347568198
+        "y": 3.1688849347568193
       },
       "isLocked": false,
       "linkedName": null
@@ -92,46 +92,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "ForceTrenchTrue",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "ForceTrenchTrue"
-        }
-      }
-    },
-    {
-      "name": "setIntakeVolts10",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "setIntakeVolts10"
-        }
-      }
-    },
-    {
       "name": "SetIntakeTrue",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.18222722159727373,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "SetIntakeTrue"
-        }
-      }
-    },
-    {
-      "name": "SetOverrideSpeedTrue",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetOverrideSpeedTrue"
         }
       }
     }

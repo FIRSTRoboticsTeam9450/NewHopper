@@ -7,7 +7,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 
 public final class VisionConstants { // TODO: Vision constants (Including Limelight names)
-    public static final int kDisabledThrottle = 200;
+    public static final int kDisabledThrottle = 0; // TODO: Put this back to 200
     public static final int kEnabledThrottle = 0;
     public static final int kDisabledIMUMode = VisionConstants.IMUMode.EXTERNAL_SEED;
     public static final int kEnabledIMUMode = VisionConstants.IMUMode.EXTERNAL_ONLY;
@@ -32,7 +32,7 @@ public final class VisionConstants { // TODO: Vision constants (Including Limeli
 
     public enum Limelight {
 
-        LEFT("limelight-l",-0.23,-0.312,0.26,40,180,90),
+        LEFT("limelight-l",-0.2385,-0.3232,0.274,35,180,90),
         RIGHT("limelight-r",-0.0862,0.3114,0.0906,35,0,-90),
         BACK("limelight-b",-0.2635,-0.109,0.3022,35,0,180),
         FRONT("limelight-f",0.1071,0.2786,0.4498,35,0,0);
