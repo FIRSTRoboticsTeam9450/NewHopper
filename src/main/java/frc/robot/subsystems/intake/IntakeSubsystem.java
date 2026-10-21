@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.util.PIDVals;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
@@ -159,25 +160,13 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private boolean isZeroingDone(){
-        if(coordSub.getIntakeDeployState() == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
+        if(DriverStation.isAutonomous() || coordSub.getIntakeDeployState() == DeployState.ZEROING && Math.abs(deployMotor.getVelocity().getValueAsDouble()) < 0.1 && Math.abs(zeroingVolts) > 1 && Math.abs(deployMotor.getMotorVoltage().getValueAsDouble()) > 0 && zeroingCount > 5){
             if(coordSub.getShooterHoodState() != AngleState.ZEROING) {
                 deployMotor.setPosition(0);
                 deployMotor.setVoltage(0);
                 zeroingVolts = 0;
                 zeroingCount = 0;
                 coordSub.setIntakeDeployState(DeployState.DEPLOY);
-                isZeroingDone = true;
-                RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
-                return true;
-            }
-        }
-        else if(RobotContainer.coordSub.getIsAuto()) {
-            if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
-                deployMotor.setPosition(0);
-                deployMotor.setVoltage(0);
-                zeroingVolts = 0;
-                zeroingCount = 0;
-                deployState = DeployState.DEPLOY;
                 isZeroingDone = true;
                 RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
                 return true;
