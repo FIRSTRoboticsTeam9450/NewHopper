@@ -45,6 +45,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean previousDriverAllowingShooting = getdriverAllowingShooting();
     private boolean previousRejecting = rejecting;
+    private boolean previousLaser = hasLotsOfFuel();
+    private boolean continueAgitating = false;
 
     private boolean isIntaking = false;
     private boolean shiftingTurret = false;
@@ -53,7 +55,6 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean isIntakeOut = true;
     private boolean isSlowTransfer = false;
     private boolean isAutoAgitateOff = false;
-    private boolean isAuto = true;
     public CoordinationSubsystem() {}
 
     @Override
@@ -70,12 +71,13 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire() || previousDriverAllowingShooting != getdriverAllowingShooting()
-        || previousRejecting != rejecting) {
+        || previousRejecting != rejecting || previousLaser != hasLotsOfFuel()) {
             previousZone = currentZone;
             update = false;
             previousGoodToShoot = goodToFire();
             previousDriverAllowingShooting = getdriverAllowingShooting();
             previousRejecting = rejecting;
+            previousLaser = hasLotsOfFuel();
 
             switch (currentZone) {
                 case SHOOTING_ZONE, FERRY_ZONE_TOP, FERRY_ZONE_BOTTOM, SHOOT_OVER_NET:
@@ -167,8 +169,14 @@ public class CoordinationSubsystem extends SubsystemBase {
                     rampState = RampState.TRANSFER;
                     sidesweepState = SidesweeperState.TRANSFER;
                     if(!isAutoAgitateOff) {
-                        if (hasLotsOfFuel()) intakeDeployState = DeployState.DEPLOY;
-                        else intakeDeployState = DeployState.AGITATE_FAST;
+                        if (hasLotsOfFuel() && !continueAgitating) {
+                            intakeDeployState = DeployState.DEPLOY;
+                        }
+                        else {
+                            intakeDeployState = DeployState.AGITATE_FAST;
+                            continueAgitating = true;
+                            
+                        }
                     }
                     if(isSlowTransfer) {
                         transferState = TransferState.SLOW_TRANSFER;
@@ -225,7 +233,6 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("NewHopper/Coord/justZeroed", justZeroed);
-        Logger.recordOutput("NewHopper/Coord/isAuto", isAuto);
 
         // Logger.recordOutput("NewHopper/Coord/OverridingTrench?", overrideTrench);
     }
@@ -360,24 +367,13 @@ public class CoordinationSubsystem extends SubsystemBase {
         .alongWith(new InstantCommand(() -> update = true));
     }
 
-    public Command setIsAuto() {
-        return new InstantCommand(() -> isAuto = !isAuto)
-        .alongWith(new InstantCommand(() -> update = true));
-    }
-
-    public Command setIsAuto(boolean value) {
-        return new InstantCommand(() -> isAuto = value)
-        .alongWith(new InstantCommand(() -> update = true));
-    }
-
-    public boolean getIsAuto() {
-        return isAuto;
-    }
-
     public void setState(AbsoluteStates state, boolean forceStateChange) {
         currentState = state;
         if(currentState != AbsoluteStates.INIT && state == AbsoluteStates.INIT) {
             justZeroed = true;
+        }
+        if(currentState != AbsoluteStates.SHOOTING && state == AbsoluteStates.SHOOTING) {
+            continueAgitating = false;
         }
         applyState();
     }

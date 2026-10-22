@@ -15,10 +15,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -97,6 +99,10 @@ public class RobotContainer {
         configureBindings();
         configureNamedCommands();
         configureAutos();
+
+        // Warmup PathPlanner to avoid Java pauses
+        CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
+
         /*testLog.addHandler(new Logging.Handler<Pose2d>() {
             @Override
             public void handle(String path, Pose2d o) {
@@ -189,12 +195,14 @@ public class RobotContainer {
         //                     .onFalse(coordSub.setAgitate(false));
         OPERATOR.rightBumper().onTrue(coordSub.increaseManualAdjust());
         OPERATOR.leftBumper().onTrue(coordSub.decreaseManualAdjust());
+        OPERATOR.leftStick().onTrue(new InstantCommand(() -> shooterSub.addManualVelocityShift(-5)));
+        OPERATOR.rightStick().onTrue(new InstantCommand(() -> shooterSub.addManualVelocityShift(5)));
         OPERATOR.y().onTrue(coordSub.setManualTurret(true))
                     .onFalse(coordSub.setManualTurret(false));
         OPERATOR.a().onTrue(coordSub.resetManualAdjust());
         OPERATOR.povUp().onTrue(new InstantCommand(() -> visionSub.setOverrideSpeed(true)))
         .onFalse(new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
-        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setIsAuto(false).andThen(coordSub.setStateCommand(AbsoluteStates.INIT, true)));
+        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
         OPERATOR.leftTrigger().onTrue(coordSub.setIntakeOut());
         OPERATOR.povDown()
             .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
@@ -319,8 +327,6 @@ public class RobotContainer {
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());
         NamedCommands.registerCommand("SetOverrideSpeedTrue", new InstantCommand(() -> visionSub.setOverrideSpeed(true)));
         NamedCommands.registerCommand("SetOverrideSpeedFalse", new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
-        NamedCommands.registerCommand("SetIsAutoTrue", coordSub.setIsAuto(true));
-        NamedCommands.registerCommand("SetIsAutoFalse", coordSub.setIsAuto(false));
     }
 
     private void configureAutos() { // Set up the auto chooser (Using drivetrain.getAutoPath())

@@ -134,7 +134,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 
     // DEBUGGING
-    private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", true);
+    private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
     double loopOffset = 0;
 
     private boolean useCustomTarget = false;
@@ -182,10 +182,10 @@ public class VisionSubsystem extends SubsystemBase {
         LimelightObject limelightFront = new LimelightObject(FRONT.NAME)
                                         .withLocation(Location.FRONT)
                                         .withPose3d(FRONT.POSE);
-        Logger.recordOutput("NewHopper/Vision/BACK/pose", BACK.POSE);
-        Logger.recordOutput("NewHopper/Vision/LEFT/pose", LEFT.POSE);
-        Logger.recordOutput("NewHopper/Vision/RIGHT/pose", RIGHT.POSE);
-        Logger.recordOutput("NewHopper/Vision/FRONT/pose", FRONT.POSE);
+        // Logger.recordOutput("NewHopper/Vision/BACK/pose", BACK.POSE);
+        // Logger.recordOutput("NewHopper/Vision/LEFT/pose", LEFT.POSE);
+        // Logger.recordOutput("NewHopper/Vision/RIGHT/pose", RIGHT.POSE);
+        // Logger.recordOutput("NewHopper/Vision/FRONT/pose", FRONT.POSE);
         LIMELIGHT_LIST.add(limelightFront);
     }
 
@@ -492,8 +492,9 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private void publishLogs() {
         // Overall vision state
-        Logger.recordOutput("NewHopper/Vision/Right/pose", RIGHT.POSE);
-        Logger.recordOutput("NewHopper/Vision/Back/pose", BACK.POSE);
+        Logger.recordOutput("NewHopper/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
+        Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
+        Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
         Logger.recordOutput("NewHopper/Vision/Total/Last Vision Pose", lastVisionPose);
         Logger.recordOutput("NewHopper/Vision/Ferrying Top", ferryingTop);
         Logger.recordOutput("NewHopper/Vision/Total/Last Fused Pose", lastFusedPose);
@@ -694,10 +695,13 @@ public class VisionSubsystem extends SubsystemBase {
         Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
+        // System.out.println("FinalTarget: Velocity " + " - x:" + velocityRobotWRTRobot.vxMetersPerSecond + "y: " + velocityRobotWRTRobot.vyMetersPerSecond);
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
             amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
             finalTarget = targetWRTBot.plus(amountMoved.times(-1));
+            // System.out.println("FinalTarget: Iteration " + i + " - " + timeToShoot); // TODO: COMMENT OUT
+            // System.out.println("FinalTarget: Iteration " + i + " - " + finalTarget); // TODO: COMMENT OUT
         }
         
         return finalTarget;

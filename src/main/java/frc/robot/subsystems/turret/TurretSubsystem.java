@@ -81,7 +81,7 @@ public class TurretSubsystem extends SubsystemBase {
     // private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     // private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = 144;
+    private static final double MAX_ANGLE_DEG = 175;
 
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -649,7 +649,7 @@ public class TurretSubsystem extends SubsystemBase {
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
                     break;
                 case BUMP:
-                    profiledSetpointDeg = 0; // TODO: Turret bump state angle
+                    profiledSetpointDeg = -159; // TODO: Turret bump state angle
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg,
                         MIN_ANGLE_DEG,

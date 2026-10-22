@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -173,7 +174,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 return true;
             }
         }
-        else if(RobotContainer.coordSub.getIsAuto()) {
+        else if(DriverStation.isAutonomousEnabled()) {
             if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
                 deployMotor.setPosition(0);
                 deployMotor.setVoltage(0);
@@ -191,7 +192,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private void applyState() {
         switch (deployState) {
             case ZEROING:
-                if(!RobotContainer.coordSub.getIsAuto()) {
+                if(!DriverStation.isAutonomousEnabled()) {
                     zeroingVolts = 4;
                     deployMotor.setVoltage(-zeroingVolts);
                 }

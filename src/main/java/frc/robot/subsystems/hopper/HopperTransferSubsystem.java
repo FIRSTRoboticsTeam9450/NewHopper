@@ -40,8 +40,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private CANrange transferCanrange = new CANrange(HopperTransferConstants.DeviceIDs.kTransferCanrangeID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    private LoggedNetworkNumber logFovCenterX = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV CX", 0);
-    private LoggedNetworkNumber logFovCenterY = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV CY", 0);
+    private LoggedNetworkNumber logFovCenterX = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV CX", 0.75);
+    private LoggedNetworkNumber logFovCenterY = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV CY", 2.5);
     private LoggedNetworkNumber logFovRangeX = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV RX", 27);
     private LoggedNetworkNumber logFovRangeY = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV RY", 27);
     private LoggedNetworkNumber logFovDistance = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/Trigger Inches", 16);
@@ -83,7 +83,14 @@ public class HopperTransferSubsystem extends SubsystemBase {
     }
 
     private void configureCanrange() {
+        // CANrangeConfiguration laserConfig = new CANrangeConfiguration();
+        // transferCanrangeConfig.FovParams.FOVRangeX = 6.75;
+        // transferCanrangeConfig.FovParams.FOVCenterY = 6.75;
+        // transferCanrangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 10000;
+        // transferCanrangeConfig.ProximityParams.ProximityThreshold = 0.09;
+        
         transferCanrangeConfig.ProximityParams.ProximityThreshold = Units.inchesToMeters(logFovDistance.get());
+        transferCanrangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
 
         transferCanrangeConfig.FovParams.FOVCenterX = logFovCenterX.get();
         transferCanrangeConfig.FovParams.FOVCenterY = logFovCenterY.get();
@@ -133,6 +140,10 @@ public class HopperTransferSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Transfer/Transfer State", transferState);
         Logger.recordOutput("NewHopper/Transfer/Transfer Setpoint", transferSetpoint);
         Logger.recordOutput("NewHopper/Transfer/Transfer Voltage", transferUpperMotor.getMotorVoltage().getValueAsDouble());
+
+        Logger.recordOutput("NewHopper/Transfer/Can See Fuel", canSeeFuel());
+        Logger.recordOutput("NewHopper/Transfer/Fuel Distance Inches", getFuelDistance());
+        Logger.recordOutput("NewHopper/Transfer/signal strength", transferCanrange.getSignalStrength().getValueAsDouble());
 
         if (logTransferDebug.get()) {
             Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());
