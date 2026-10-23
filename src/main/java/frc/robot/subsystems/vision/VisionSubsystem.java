@@ -106,7 +106,7 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile Translation2d lastAdjustedTargetPose = null;
     private String currentFerryZone = "none";
     public double maxSpeedMultiplier = 1;
-    private boolean overrideSpeed = true;
+    private boolean overrideSpeed = false;
 
 
     // Targeting Data
@@ -877,7 +877,7 @@ public class VisionSubsystem extends SubsystemBase {
             currentTarget = ZoneTargets.SHOOTING_TARGET;
             currentFerryZone = "Shooting";
             if(RobotContainer.coordSub.getdriverAllowingShooting() && !overrideSpeed) {
-                maxSpeedMultiplier = 1;//0.2;
+                maxSpeedMultiplier = 0.2;
             }
             else {
                 maxSpeedMultiplier = 1;
