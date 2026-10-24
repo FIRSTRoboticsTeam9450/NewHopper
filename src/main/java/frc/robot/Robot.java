@@ -51,15 +51,15 @@ public class Robot extends LoggedRobot {
     public void robotInit() {
         
         // Creates a network table which is read by Elastic (Seems like advantage scope doesn't see it)
-        networkTable = NetworkTableInstance.getDefault()
-                .getTable("FieldTable") // Name of the folder Field2d is stored in
-                .getSubTable("Field2d"); // Name of the Field2d
+        // networkTable = NetworkTableInstance.getDefault()
+        //         .getTable("FieldTable") // Name of the folder Field2d is stored in
+        //         .getSubTable("Field2d"); // Name of the Field2d
         
         // Makes the builder attached to the network table to send the feild2d
-        sendableBuilder.setTable(networkTable);
+        // sendableBuilder.setTable(networkTable);
         // initiate the field2d and builder
-        field2d.initSendable(sendableBuilder);
-        sendableBuilder.startListeners();
+        // field2d.initSendable(sendableBuilder);
+        // sendableBuilder.startListeners();
         
         // Warmup PathPlanner to avoid Java pauses
         // CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());

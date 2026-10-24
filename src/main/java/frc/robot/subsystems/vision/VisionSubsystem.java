@@ -224,16 +224,16 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void updateVision() {
 
-        Pose2d robotPoseData = drivetrain.getState().Pose;
-        Pigeon2 pigeonData = drivetrain.getPigeon2();
+        // Pose2d robotPoseData = drivetrain.getState().Pose;
+        // Pigeon2 pigeonData = drivetrain.getPigeon2();
 
-        double robotTranslationX = robotPoseData.getX();
-        double robotTranslationY = robotPoseData.getY();
+        double robotTranslationX = drivetrain.getState().Pose.getX();
+        double robotTranslationY = drivetrain.getState().Pose.getY();
 
-        double robotYaw = robotPoseData.getRotation().getDegrees();
-        double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
-        double robotRoll = Math.abs(Math.abs(pigeonData.getRoll().getValueAsDouble()) - 180);
-        double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
+        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
+        double robotYawRate = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
+        double robotRoll = Math.abs(Math.abs(drivetrain.getPigeon2().getRoll().getValueAsDouble()) - 180);
+        double robotPitch = Math.abs(drivetrain.getPigeon2().getPitch().getValueAsDouble());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;

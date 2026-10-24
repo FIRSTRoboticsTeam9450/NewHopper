@@ -496,7 +496,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
-            cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - previousFlywheelTimestamp));
+            cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
+            // cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - previousFlywheelTimestamp));
             previousFlywheelTimestamp = Timer.getFPGATimestamp();
             switch (RobotContainer.coordSub.getCurrentZone()) {
 
@@ -599,7 +600,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterAngle() {
         if(!isOverrideAngle) {
-            double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - previousHoodTimestamp));
+            double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
+            // double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - previousHoodTimestamp));
             previousHoodTimestamp = Timer.getFPGATimestamp();
             switch (RobotContainer.coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:

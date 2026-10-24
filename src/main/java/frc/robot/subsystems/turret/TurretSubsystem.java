@@ -555,8 +555,8 @@ public class TurretSubsystem extends SubsystemBase {
                 ?  ImportantFieldPoses.BLUE_HUB_CENTER
                 :  ImportantFieldPoses.RED_HUB_CENTER;
 
-            case ADJ_HUB -> RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - currentPrev);
-            // case ADJ_HUB -> RobotContainer.visionSub.getAdjustedCurrentTarget();
+            // case ADJ_HUB -> RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - currentPrev);
+            case ADJ_HUB -> RobotContainer.visionSub.getAdjustedCurrentTarget();
 
 
             case FERRY -> FieldConstants.isBlueAlliance
@@ -662,7 +662,12 @@ public class TurretSubsystem extends SubsystemBase {
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
                     break;
                 case BUMP:
-                    profiledSetpointDeg = -159; // TODO: Turret bump state angle
+                    Rotation2d temp = (Rotation2d.fromDegrees(-159.0)).plus(
+                        new Rotation2d(Units.degreesToRadians(angleOffsetToZero + degreeOffsetToTarget)));
+
+                    // Find best angle considering wrapping and limits
+                    profiledSetpointDeg = findBestWrappedAngle(temp.getDegrees());
+                    
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg,
                         MIN_ANGLE_DEG,

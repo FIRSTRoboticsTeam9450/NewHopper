@@ -46,6 +46,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousDriverAllowingShooting = getdriverAllowingShooting();
     private boolean previousRejecting = rejecting;
     private boolean previousLaser = hasLotsOfFuel();
+    // private boolean previousBump = onBump();
     private boolean continueAgitating = false;
 
     private boolean isIntaking = false;
@@ -55,6 +56,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean isIntakeOut = true;
     private boolean isSlowTransfer = false;
     private boolean isAutoAgitateOff = false;
+    // private double turretBumpAngle = -159.0;
     public CoordinationSubsystem() {}
 
     @Override
@@ -71,13 +73,21 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire() || previousDriverAllowingShooting != getdriverAllowingShooting()
-        || previousRejecting != rejecting || previousLaser != hasLotsOfFuel()) {
+        || previousRejecting != rejecting || previousLaser != hasLotsOfFuel()) { // || previousBump != onBump()) {
+            // if(currentZone == ZoneState.SHOOTING_ZONE && previousZone == ZoneState.FERRY_ZONE_BOTTOM) {
+            //     turretBumpAngle = -159.0;
+            // }
+            // else if(currentZone == ZoneState.SHOOTING_ZONE && previousZone == ZoneState.FERRY_ZONE_TOP){
+            //     turretBumpAngle = -159.0;
+
+            // }
             previousZone = currentZone;
             update = false;
             previousGoodToShoot = goodToFire();
             previousDriverAllowingShooting = getdriverAllowingShooting();
             previousRejecting = rejecting;
             previousLaser = hasLotsOfFuel();
+            // previousBump = onBump();
 
             switch (currentZone) {
                 case SHOOTING_ZONE, FERRY_ZONE_TOP, FERRY_ZONE_BOTTOM, SHOOT_OVER_NET:
@@ -188,7 +198,8 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.STORING;
                 break;
             case TRENCH:
-                turretState = TurretState.AIMING;
+                if (onBump()) turretState = TurretState.BUMP;
+                else turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.SHOOTING;
                 break;
@@ -255,7 +266,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean onBump() {
-        return RobotContainer.visionSub.getIsBumpDetected();
+        return false;
     }
 
     public ZoneState getCurrentZone() {

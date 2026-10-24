@@ -342,10 +342,10 @@ public class RobotContainer {
         autoChooser.addOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Test of 4414 remake", drivetrain.getAutoPath("Test of 4414 remake", false));
         autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
-        autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
+        // autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
         autoChooser.addOption("Short Dump Right", drivetrain.getAutoPath("Short Dump", true));
-        autoChooser.addOption("SmartDumpLeft", drivetrain.getAutoPath("SmartDump", false));
+        autoChooser.addDefaultOption("SmartDumpLeft", drivetrain.getAutoPath("SmartDump", false));
         autoChooser.addOption("SmartDumpRight", drivetrain.getAutoPath("SmartDump", true));
     }
 
