@@ -235,9 +235,9 @@ public class VisionSubsystem extends SubsystemBase {
         double robotTranslationY = cachedBotPose.getY();
 
         double robotYaw = cachedBotPose.getRotation().getDegrees();
-        double robotYawRate = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
-        double robotRoll = Math.abs(Math.abs(drivetrain.getPigeon2().getRoll().getValueAsDouble()) - 180);
-        double robotPitch = Math.abs(drivetrain.getPigeon2().getPitch().getValueAsDouble());
+        double robotYawRate = drivetrain.getPigeon2().getAngularVelocityZDevice(false).getValueAsDouble();
+        double robotRoll = Math.abs(Math.abs(drivetrain.getPigeon2().getRoll(false).getValueAsDouble()) - 180);
+        double robotPitch = Math.abs(drivetrain.getPigeon2().getPitch(false).getValueAsDouble());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;
@@ -583,7 +583,7 @@ public class VisionSubsystem extends SubsystemBase {
             
             // Robot state
             Logger.recordOutput("NewHopper/Vision/Robot/Pigeon Yaw", 
-                drivetrain.getPigeon2().getYaw().getValueAsDouble());
+                drivetrain.getPigeon2().getYaw(false).getValueAsDouble());
 
             // Current bot pose
             // Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);

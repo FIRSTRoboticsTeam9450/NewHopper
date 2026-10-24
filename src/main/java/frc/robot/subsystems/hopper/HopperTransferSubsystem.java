@@ -1,5 +1,7 @@
 package frc.robot.subsystems.hopper;
 
+import com.ctre.phoenix6.StatusSignal;
+import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -38,7 +40,7 @@ public class HopperTransferSubsystem extends SubsystemBase {
     private TalonFX transferUpperMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferUpperMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX transferLowerMotor = new TalonFX(HopperTransferConstants.DeviceIDs.kTransferLowerMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
-    // private CANrange transferCanrange = new CANrange(HopperTransferConstants.DeviceIDs.kTransferCanrangeID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private CANrange transferCanrange = new CANrange(HopperTransferConstants.DeviceIDs.kTransferCanrangeID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     private LoggedNetworkNumber logFovCenterX = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV CX", 0.75);
     private LoggedNetworkNumber logFovCenterY = new LoggedNetworkNumber("/Tuning/Transfer/CANrange/FOV CY", 2.5);
@@ -48,11 +50,14 @@ public class HopperTransferSubsystem extends SubsystemBase {
 
     private TalonFXConfiguration transferMotorConfig = new TalonFXConfiguration();
 
-    // private CANrangeConfiguration transferCanrangeConfig = new CANrangeConfiguration();
+    private CANrangeConfiguration transferCanrangeConfig = new CANrangeConfiguration();
 
     private VoltageOut transferRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private LoggedNetworkBoolean logTransferDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Transfer", false);
+
+    private StatusSignal<Distance> canRangeDistance;
+    private StatusSignal<Boolean> canRangeInRange;
 
     private double transferSetpoint = 0;
     private double pauseForSideSweep = 0;
@@ -62,7 +67,11 @@ public class HopperTransferSubsystem extends SubsystemBase {
     public HopperTransferSubsystem() {
         configureTransferMotors();
         // transferUpperMotor.setControl(transferRequest.withOutput(4));
-        // configureCanrange();
+        configureCanrange();
+        canRangeDistance = transferCanrange.getDistance();
+        canRangeInRange = transferCanrange.getIsDetected();
+        canRangeDistance.setUpdateFrequency(40);
+        canRangeInRange.setUpdateFrequency(40);
     }
 
     private void configureTransferMotors() {
@@ -82,23 +91,23 @@ public class HopperTransferSubsystem extends SubsystemBase {
         transferLowerMotor.setControl(new Follower(transferUpperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
     }
 
-    // private void configureCanrange() {
-    //     // CANrangeConfiguration laserConfig = new CANrangeConfiguration();
-    //     // transferCanrangeConfig.FovParams.FOVRangeX = 6.75;
-    //     // transferCanrangeConfig.FovParams.FOVCenterY = 6.75;
-    //     // transferCanrangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 10000;
-    //     // transferCanrangeConfig.ProximityParams.ProximityThreshold = 0.09;
-        
-    //     transferCanrangeConfig.ProximityParams.ProximityThreshold = Units.inchesToMeters(logFovDistance.get());
-    //     transferCanrangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
+     private void configureCanrange() {
+         // CANrangeConfiguration laserConfig = new CANrangeConfiguration();
+         // transferCanrangeConfig.FovParams.FOVRangeX = 6.75;
+         // transferCanrangeConfig.FovParams.FOVCenterY = 6.75;
+         // transferCanrangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 10000;
+         // transferCanrangeConfig.ProximityParams.ProximityThreshold = 0.09;
 
-    //     transferCanrangeConfig.FovParams.FOVCenterX = logFovCenterX.get();
-    //     transferCanrangeConfig.FovParams.FOVCenterY = logFovCenterY.get();
-    //     transferCanrangeConfig.FovParams.FOVRangeX = logFovRangeX.get();
-    //     transferCanrangeConfig.FovParams.FOVRangeY = logFovRangeY.get();
+         transferCanrangeConfig.ProximityParams.ProximityThreshold = Units.inchesToMeters(logFovDistance.get());
+         transferCanrangeConfig.ProximityParams.MinSignalStrengthForValidMeasurement = 4000;
 
-    //     transferCanrange.getConfigurator().apply(transferCanrangeConfig);
-    // }
+         transferCanrangeConfig.FovParams.FOVCenterX = logFovCenterX.get();
+         transferCanrangeConfig.FovParams.FOVCenterY = logFovCenterY.get();
+         transferCanrangeConfig.FovParams.FOVRangeX = logFovRangeX.get();
+         transferCanrangeConfig.FovParams.FOVRangeY = logFovRangeY.get();
+
+         transferCanrange.getConfigurator().apply(transferCanrangeConfig);
+     }
 
     public boolean isJammed() {
         return false;
@@ -160,12 +169,12 @@ public class HopperTransferSubsystem extends SubsystemBase {
         }
     }
 
-    // public boolean canSeeFuel() {
-    //     return transferCanrange.getIsDetected().getValue();
-    // }
-    // public double getFuelDistance() {
-    //     return Units.metersToInches(transferCanrange.getDistance(false).getValueAsDouble());
-    // }
+    public boolean canSeeFuel() {
+        return canRangeInRange.getValue();
+    }
+    public double getFuelDistance() {
+        return Units.metersToInches(canRangeDistance.getValueAsDouble());
+    }
 
     public void setTransferState(TransferState state) {
         transferState = state;

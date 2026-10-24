@@ -399,7 +399,7 @@ public class TurretSubsystem extends SubsystemBase {
         boolean usedVeloc = false;
         double targetVeloc = 0;
 
-        double robotYawVeloc = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
+        double robotYawVeloc = drivetrain.getPigeon2().getAngularVelocityXDevice(false).getValueAsDouble();
         // Logger.recordOutput("NewHopper/Turret/Robot Yaw Veloc", robotYawVeloc);
 
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) {
@@ -466,7 +466,7 @@ public class TurretSubsystem extends SubsystemBase {
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) return 0.0;
 
         double turretVeloictyWRTRobot = 0.0;
-        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble(); //degrees/second
+        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice(false).getValueAsDouble(); //degrees/second
 
         Rotation2d robotYaw = cachedBotPose.getRotation(); //rotation
         Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(robotRelativeTargetAngleDeg))); //radians
