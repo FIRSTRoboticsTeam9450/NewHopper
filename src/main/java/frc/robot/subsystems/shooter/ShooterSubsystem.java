@@ -378,7 +378,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         updateReachedShooterVelocityLogic();
 
-        publishLogs();
+        // publishLogs();
+        Logger.recordOutput("NewHopper/Shooter/Outtake/Manual Adjustment", manualShift);
 
         if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;

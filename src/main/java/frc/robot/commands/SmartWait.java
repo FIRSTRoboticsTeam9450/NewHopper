@@ -24,12 +24,7 @@ public class SmartWait extends Command{
     @Override
     public void initialize() {
         timer.restart();
-        if(RobotContainer.coordSub.hasLotsOfFuel()) {
-            endTime = maxEndTime;
-        }
-        else {
-            endTime = minEndTime;
-        }
+        endTime = minEndTime;
         
     }
 

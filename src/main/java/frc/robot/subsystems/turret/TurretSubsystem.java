@@ -379,9 +379,11 @@ public class TurretSubsystem extends SubsystemBase {
 
         // Apply state machine
         applyState();
+        
+        Logger.recordOutput("NewHopper/Turret/Pos/Manual Adjustment", manualShift);
 
         // Publish telemetry
-        publishLogs();
+        // publishLogs();
     }
 
     /**

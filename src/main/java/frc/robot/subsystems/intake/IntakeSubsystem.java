@@ -158,7 +158,7 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
         applyState();
-        publishLogs();
+        // publishLogs();
     }
 
     private boolean isZeroingDone(){

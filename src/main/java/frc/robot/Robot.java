@@ -123,7 +123,7 @@ public class Robot extends LoggedRobot {
     public void teleopInit() {
         if (m_autonomousCommand != null) CommandScheduler.getInstance().cancel(m_autonomousCommand);
         
-        SignalLogger.start();
+        // SignalLogger.start();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void teleopExit() {
-        SignalLogger.stop();
+        // SignalLogger.stop();
     }
 
     @Override

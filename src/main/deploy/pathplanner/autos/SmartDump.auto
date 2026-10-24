@@ -79,9 +79,9 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "named",
+                      "type": "wait",
                       "data": {
-                        "name": "SmartWait"
+                        "waitTime": 2.5
                       }
                     },
                     {
@@ -189,9 +189,9 @@
                 "data": {
                   "commands": [
                     {
-                      "type": "named",
+                      "type": "wait",
                       "data": {
-                        "name": "SmartWait"
+                        "waitTime": 2.5
                       }
                     },
                     {

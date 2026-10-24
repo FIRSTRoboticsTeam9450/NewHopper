@@ -116,7 +116,7 @@ public class SidesweeperSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         applyState();
-        publishLogs();
+        // publishLogs();
     }
 
     private void applyState() {

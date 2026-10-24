@@ -215,7 +215,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         updateVision();  // Compute fused vision pose
-        publishLogs();   // Print/log fusion confidence and pose
+        // publishLogs();   // Print/log fusion confidence and pose
     }
 
     // -------------------------
@@ -228,13 +228,13 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void updateVision() {
 
-        Pose2d robotPoseData = cachedBotPose;
+        // Pose2d robotPoseData = cachedBotPose;
         // Pigeon2 pigeonData = drivetrain.getPigeon2();
 
-        double robotTranslationX = robotPoseData.getX();
-        double robotTranslationY = robotPoseData.getY();
+        double robotTranslationX = cachedBotPose.getX();
+        double robotTranslationY = cachedBotPose.getY();
 
-        double robotYaw = robotPoseData.getRotation().getDegrees();
+        double robotYaw = cachedBotPose.getRotation().getDegrees();
         double robotYawRate = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
         double robotRoll = Math.abs(Math.abs(drivetrain.getPigeon2().getRoll().getValueAsDouble()) - 180);
         double robotPitch = Math.abs(drivetrain.getPigeon2().getPitch().getValueAsDouble());
@@ -244,7 +244,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         
         if (robotRoll > 6 || robotPitch > 6) {
-            bumpDetected = true;
+            bumpDetected = false;
         }
 
         Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);

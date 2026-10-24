@@ -45,7 +45,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean previousDriverAllowingShooting = getdriverAllowingShooting();
     private boolean previousRejecting = rejecting;
-    private boolean previousLaser = hasLotsOfFuel();
+    // private boolean previousLaser = hasLotsOfFuel();
     // private boolean previousBump = onBump();
     private boolean continueAgitating = false;
 
@@ -68,12 +68,12 @@ public class CoordinationSubsystem extends SubsystemBase {
             checkZeroing = !isZeroingDone();
         }
         applyZone();
-        publishLogs();
+        // publishLogs();
     }
 
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire() || previousDriverAllowingShooting != getdriverAllowingShooting()
-        || previousRejecting != rejecting || previousLaser != hasLotsOfFuel()) { // || previousBump != onBump()) {
+        || previousRejecting != rejecting) {// || previousLaser != hasLotsOfFuel()) { // || previousBump != onBump()) {
             // if(currentZone == ZoneState.SHOOTING_ZONE && previousZone == ZoneState.FERRY_ZONE_BOTTOM) {
             //     turretBumpAngle = -159.0;
             // }
@@ -86,7 +86,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             previousGoodToShoot = goodToFire();
             previousDriverAllowingShooting = getdriverAllowingShooting();
             previousRejecting = rejecting;
-            previousLaser = hasLotsOfFuel();
+            // previousLaser = hasLotsOfFuel();
             // previousBump = onBump();
 
             switch (currentZone) {
@@ -175,14 +175,14 @@ public class CoordinationSubsystem extends SubsystemBase {
                     rampState = RampState.TRANSFER;
                     sidesweepState = SidesweeperState.TRANSFER;
                     if(!isAutoAgitateOff) {
-                        if (hasLotsOfFuel() && !continueAgitating) {
-                            intakeDeployState = DeployState.DEPLOY;
-                        }
-                        else {
+                        // if (hasLotsOfFuel() && !continueAgitating) {
+                        //     intakeDeployState = DeployState.DEPLOY;
+                        // }
+                        // else {
                             intakeDeployState = DeployState.AGITATE_FAST;
                             continueAgitating = true;
                             
-                        }
+                        // }
                     }
                     if(isSlowTransfer) {
                         transferState = TransferState.SLOW_TRANSFER;
@@ -261,9 +261,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         return zeroingDone;
     }
 
-    public boolean hasLotsOfFuel() {
-        return RobotContainer.transferSub.canSeeFuel();
-    }
+    // public boolean hasLotsOfFuel() {
+    //     return RobotContainer.transferSub.canSeeFuel();
+    // }
 
     public boolean onBump() {
         return false;
