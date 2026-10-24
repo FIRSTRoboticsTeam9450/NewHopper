@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,9 +29,9 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
-    private final Field2d field2d = new Field2d();
-    private NetworkTable networkTable;
-    private final SendableBuilderImpl sendableBuilder = new SendableBuilderImpl();
+    // private final Field2d field2d = new Field2d();
+    // private NetworkTable networkTable;
+    // private final SendableBuilderImpl sendableBuilder = new SendableBuilderImpl();
 
     private int updateValuesOffset = 0;
 
@@ -70,8 +71,8 @@ public class Robot extends LoggedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
 
-        field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
-        sendableBuilder.update();
+        // field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
+        // sendableBuilder.update();
         //RobotContainer.testLog.run();
     }
 
@@ -100,6 +101,7 @@ public class Robot extends LoggedRobot {
         RobotContainer.visionSub.setVisionMeasurementStdDevs(RobotContainer.visionSub.enabledMT2StdDev);
         RobotContainer.visionSub.setThrottle(VisionConstants.kEnabledThrottle);
         RobotContainer.visionSub.setLLIMUModes(VisionConstants.kEnabledIMUMode);
+        RobotContainer.visionSub.setAlliancePose(DriverStation.getAlliance().toString());
         // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
     }
 

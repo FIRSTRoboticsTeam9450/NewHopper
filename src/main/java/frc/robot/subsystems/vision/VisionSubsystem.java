@@ -27,6 +27,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -109,6 +110,7 @@ public class VisionSubsystem extends SubsystemBase {
     public double maxSpeedMultiplier = 1;
     private boolean overrideSpeed = false;
 
+    private String alliance = DriverStation.getAlliance().toString();
 
     // Targeting Data
     public enum ZoneState {
@@ -133,6 +135,8 @@ public class VisionSubsystem extends SubsystemBase {
     private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
     private double prevTimeStamp = 0;
 
+    private Pose2d cachedBotPose;
+
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
@@ -148,12 +152,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem() {
         drivetrain = RobotContainer.drivetrain;
-
         // Configure camera offsets and add to internal list
         configureLimelights();
 
         // Initialize drivetrain vision standard deviations
         setVisionMeasurementStdDevs(VecBuilder.fill(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta));
+        cachedBotPose = drivetrain.getState().Pose;
     }
 
     /**
@@ -196,7 +200,7 @@ public class VisionSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-
+        cachedBotPose = drivetrain.getState().Pose;
         if (updateTargetAndZoneOffset > 10) {
             updateTargetAndZoneOffset = 0;
             updateTargetAndZone();
@@ -224,13 +228,13 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void updateVision() {
 
-        // Pose2d robotPoseData = drivetrain.getState().Pose;
+        Pose2d robotPoseData = cachedBotPose;
         // Pigeon2 pigeonData = drivetrain.getPigeon2();
 
-        double robotTranslationX = drivetrain.getState().Pose.getX();
-        double robotTranslationY = drivetrain.getState().Pose.getY();
+        double robotTranslationX = robotPoseData.getX();
+        double robotTranslationY = robotPoseData.getY();
 
-        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
+        double robotYaw = robotPoseData.getRotation().getDegrees();
         double robotYawRate = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
         double robotRoll = Math.abs(Math.abs(drivetrain.getPigeon2().getRoll().getValueAsDouble()) - 180);
         double robotPitch = Math.abs(drivetrain.getPigeon2().getPitch().getValueAsDouble());
@@ -275,7 +279,9 @@ public class VisionSubsystem extends SubsystemBase {
                 double limelightYaw = llData.megaTag1Estimate.pose.getRotation().getDegrees();
                 if (Math.abs(sampleRobotYaw - limelightYaw) < MAX_MT1_YAW_DIFF_DEGREES) {
                     setVisionMeasurementStdDevs(enabledMT1StdDev);
+                    // drivetrain.addVisionMeasurement(llData.megaTag1Estimate.pose, Utils.fpgaToCurrentTime(llData.megaTag1Estimate.timestampSeconds));
                     drivetrain.addVisionMeasurement(llData.megaTag1Estimate.pose, llData.megaTag1Estimate.timestampSeconds);
+
                 }
             }
         }
@@ -314,7 +320,9 @@ public class VisionSubsystem extends SubsystemBase {
             } else {
                 setVisionMeasurementStdDevs(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta);
             }
+            // drivetrain.addVisionMeasurement(pose, lastVisionTimestamp);
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
+
 
         });
 
@@ -502,6 +510,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Vision/OverridingOdom?", operatorForcedVisionTrust);
         Logger.recordOutput("NewHopper/Vision/Drive Multiplier", maxSpeedMultiplier);
         Logger.recordOutput("NewHopper/Vision/overrideSpeed", overrideSpeed);
+        Logger.recordOutput("NewHopper/Vision/CurrentMinusFPGA", Utils.getCurrentTimeSeconds() - Timer.getFPGATimestamp());
         // Logger.recordOutput("NewHopper/Vision/Total/Last Target Pose", lastTargetPose);
         // Logger.recordOutput("NewHopper/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
@@ -579,8 +588,8 @@ public class VisionSubsystem extends SubsystemBase {
             // Current bot pose
             // Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);
             Logger.recordOutput("NewHopper/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
-            Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);
-            Logger.recordOutput("NewHopper/Vision/Alliance", DriverStation.getAlliance().toString());
+            // Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);
+            // Logger.recordOutput("NewHopper/Vision/Alliance", DriverStation.getAlliance().toString());
             Logger.recordOutput("NewHopper/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
             Logger.recordOutput("NewHopper/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
             Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -638,10 +647,10 @@ public class VisionSubsystem extends SubsystemBase {
      * @return
      */
     public Pose2d getCurrentBotPoseAllianceUnspecific() {
-        Pose2d currentBluePose = drivetrain.getState().Pose;
+        Pose2d currentBluePose = cachedBotPose;
         Pose2d alliancePose = new Pose2d(new Translation2d(0,0), new Rotation2d());
 
-        if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
+        if(alliance.equals("Optional[Red]")){
             alliancePose = new Pose2d(ZoneConstantsWelded.RED_CORNER, new Rotation2d(Math.PI));
             // Pose2d newBotPose = currentBluePose.plus(redCornerPose);
             // Transform2d calculated = redCorner.minus(currentBluePose);
@@ -1068,6 +1077,9 @@ public class VisionSubsystem extends SubsystemBase {
         return new InstantCommand(() -> operatorForcedVisionTrust = value);
     }
 
+    public void setAlliancePose(String alliance) {
+        this.alliance = alliance;
+    }
     // -------------------------
     // Inner classes
     // -------------------------

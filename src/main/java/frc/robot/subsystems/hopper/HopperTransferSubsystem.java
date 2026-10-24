@@ -142,8 +142,8 @@ public class HopperTransferSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Transfer/Transfer Voltage", transferUpperMotor.getMotorVoltage().getValueAsDouble());
 
         Logger.recordOutput("NewHopper/Transfer/Can See Fuel", canSeeFuel());
-        Logger.recordOutput("NewHopper/Transfer/Fuel Distance Inches", getFuelDistance());
-        Logger.recordOutput("NewHopper/Transfer/signal strength", transferCanrange.getSignalStrength().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Transfer/Fuel Distance Inches", getFuelDistance());
+        // Logger.recordOutput("NewHopper/Transfer/signal strength", transferCanrange.getSignalStrength().getValueAsDouble());
 
         if (logTransferDebug.get()) {
             Logger.recordOutput("NewHopper/Transfer/Transfer Velocity", transferUpperMotor.getVelocity().getValueAsDouble());

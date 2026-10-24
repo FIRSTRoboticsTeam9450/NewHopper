@@ -201,6 +201,8 @@ public class TurretSubsystem extends SubsystemBase {
     public double testTargetSetpoint = 0;
     private double manualSetpoint = 0;
 
+    private Pose2d cachedBotPose = drivetrain.getState().Pose;
+
     // ========================= Constructor =========================
 
     /**
@@ -327,6 +329,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        cachedBotPose = drivetrain.getState().Pose;
         // cachedAngleDeg = turretMotor.getPosition().getValueAsDouble() / TurretConstants.ROTOR_TO_SENSOR_RATIO * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION + turretOffset;
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
@@ -463,7 +466,7 @@ public class TurretSubsystem extends SubsystemBase {
         double turretVeloictyWRTRobot = 0.0;
         double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble(); //degrees/second
 
-        Rotation2d robotYaw = drivetrain.getState().Pose.getRotation(); //rotation
+        Rotation2d robotYaw = cachedBotPose.getRotation(); //rotation
         Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(robotRelativeTargetAngleDeg))); //radians
 
         double timestamp = Timer.getFPGATimestamp(); //seconds
@@ -560,10 +563,10 @@ public class TurretSubsystem extends SubsystemBase {
 
 
             case FERRY -> FieldConstants.isBlueAlliance
-                ? drivetrain.getState().Pose.getY() > 4.0345
+                ? cachedBotPose.getY() > 4.0345
                     ? ImportantFieldPoses.BLUE_LEFT_FERRY_TARGET
                     : ImportantFieldPoses.BLUE_RIGHT_FERRY_TARGET
-                : drivetrain.getState().Pose.getY() > 4.0345
+                : cachedBotPose.getY() > 4.0345
                     ? ImportantFieldPoses.RED_LEFT_FERRY_TARGET
                     : ImportantFieldPoses.RED_RIGHT_FERRY_TARGET;
 
@@ -911,7 +914,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         if (logDebuggingToggle.get()) {
 
-            Pose2d currentBotPose = drivetrain.getState().Pose;
+            Pose2d currentBotPose = cachedBotPose;
             Pose2d currentBotPoseWRTTurret = currentBotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
             Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.25);
             Rotation3d turretPoseRotation = new Rotation3d(0, 0, fieldRelativeGoalAngle.getRadians());
