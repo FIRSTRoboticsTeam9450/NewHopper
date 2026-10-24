@@ -178,6 +178,7 @@ public class TurretSubsystem extends SubsystemBase {
     private Rotation2d previousTurretAngleWRTField = new Rotation2d();
 
     private double previousAnglesTimestamp = 0.0;
+    private double previousTargetTimestamp = 0.0;
     private double previousVelocityTimestamp = 0.0;
 
     // State tracking
@@ -505,9 +506,17 @@ public class TurretSubsystem extends SubsystemBase {
                 robotToTarget.getY()
             );
 
+            robotToTarget = RobotContainer.visionSub.getAdjustedCurrentTarget();
+            Rotation2d actualAngleToTarget = new Rotation2d(
+                robotToTarget.getX(),
+                robotToTarget.getY()
+            );
+
             // Logger.recordOutput("NewHopper/Turret/x", robotToTarget.getX());
             // Logger.recordOutput("NewHopper/Turret/y", robotToTarget.getY());
             Logger.recordOutput("NewHopper/Turret/fieldRelativeAngle", angleToTarget.getDegrees());
+            Logger.recordOutput("NewHopper/Turret/actualAngleToTarget", findBestWrappedAngle(actualAngleToTarget.plus(
+            new Rotation2d(Units.degreesToRadians(angleOffsetToZero + degreeOffsetToTarget))).getDegrees()));
             // Update field-relative goal
             fieldRelativeGoalAngle = angleToTarget;
         }
@@ -539,12 +548,16 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Target position on field, or null if no valid target
      */
     private Translation2d getCurrentTargetPosition() {
+        double currentPrev = previousTargetTimestamp;
+        previousTargetTimestamp = Timer.getFPGATimestamp();
         return switch (currentTargetMode) {
             case HUB -> FieldConstants.isBlueAlliance
                 ?  ImportantFieldPoses.BLUE_HUB_CENTER
                 :  ImportantFieldPoses.RED_HUB_CENTER;
 
-            case ADJ_HUB -> RobotContainer.visionSub.getAdjustedCurrentTarget();
+            case ADJ_HUB -> RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - currentPrev);
+            // case ADJ_HUB -> RobotContainer.visionSub.getAdjustedCurrentTarget();
+
 
             case FERRY -> FieldConstants.isBlueAlliance
                 ? drivetrain.getState().Pose.getY() > 4.0345

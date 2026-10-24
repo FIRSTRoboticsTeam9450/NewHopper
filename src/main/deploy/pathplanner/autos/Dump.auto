@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of Dump start"
+            "pathName": "Test Dump start"
           }
         },
         {
@@ -141,7 +141,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Dump second sweep"
+            "pathName": "Dump test second sweep"
           }
         },
         {

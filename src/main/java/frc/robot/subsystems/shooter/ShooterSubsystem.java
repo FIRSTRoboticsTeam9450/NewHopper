@@ -131,6 +131,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
     private double manualHoodShift = 0;
     private double wheelWareAdjustment = 0;
+    private double previousHoodTimestamp = 0.0;
+    private double previousFlywheelTimestamp = 0.0;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -185,6 +187,9 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(4.53, 37.15);
         shootingDistanceToVelocity.put(4.74, 40.5 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(5.73, 42.0 + wheelWareAdjustment);
+        //Made up
+        shootingDistanceToVelocity.put(6.75, 44.0 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(7.75, 46.0 + wheelWareAdjustment);
 
         shootingDistanceToTime.put(1.56, 1.02);
         shootingDistanceToTime.put(2.16, 1.01);
@@ -192,6 +197,11 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToTime.put(4.06, 1.14);
         shootingDistanceToTime.put(4.74, 1.33);
         shootingDistanceToTime.put(5.61, 1.27);
+        shootingDistanceToTime.put(6.0, 1.2);
+        shootingDistanceToTime.put(6.5, 1.25);
+        shootingDistanceToTime.put(7.0, 1.3);
+        // shootingDistanceToTime.put(8.0, 1.71);
+        // shootingDistanceToTime.put(12.0, 2.0);
 
         // shootingDistanceToAngle.put(1.4, 0.0 + wheelWareAdjustment); // 65
         // shootingDistanceToAngle.put(2.0, .7 + wheelWareAdjustment); // 65
@@ -328,19 +338,20 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean autoZeroing() {
-        // if(!RobotContainer.coordSub.getIsAuto()) {
+        if(!DriverStation.isAutonomousEnabled()) {
             if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
                 angleMotor.setPosition(0);
                 angleMotor.setVoltage(0);
                 setState(currentShooterState, AngleState.STORING);
                 return true;
             }
-        // }
-        // else {
-        //     angleMotor.setPosition(0);
-        //     setState(currentShooterState, AngleState.STORING);
-        //     return true;
-        // }
+        }
+        else {
+            angleMotor.setPosition(0);
+            setState(currentShooterState, AngleState.STORING);
+            RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+            return true;
+        }
         return false; // TODO CHANGE BACK TO FALSE
     }
 
@@ -383,15 +394,15 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight + manualHoodShift);
         // Logger.recordOutput("NewHopper/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("NewHopper/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Shooter/Hood/Left Stator Amps", angleMotor.getStatorCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Hood/Left Stator Amps", angleMotor.getStatorCurrent().getValueAsDouble());
         // Logger.recordOutput("NewHopper/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
         // Logger.recordOutput("NewHopper/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
         Logger.recordOutput("NewHopper/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("NewHopper/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
-        Logger.recordOutput("NewHopper/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Shooter/Outtake/Left Stator Amps", shooterLeftMotor.getStatorCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Shooter/Outtake/Left Stator Amps", shooterLeftMotor.getStatorCurrent().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left Position", shooterLeftMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("NewHopper/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
@@ -449,12 +460,13 @@ public class ShooterSubsystem extends SubsystemBase {
                     // angleMotor.setVoltage(-0.6);
                 // } else {
                 // }
-                // if(!RobotContainer.coordSub.getIsAuto()) {
+                if(!DriverStation.isAutonomousEnabled()) {
                     angleMotor.setControl(new VoltageOut(-0.60));
-                // }
-                // else {
-                //     angleMotor.setControl(new VoltageOut(0));
-                // }
+                }
+                else {
+                    angleMotor.setControl(new VoltageOut(0));
+                }
+
                 break;
 
             case AIMING:
@@ -484,7 +496,8 @@ public class ShooterSubsystem extends SubsystemBase {
     // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
-            cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
+            cachedDistanceToTarget = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - previousFlywheelTimestamp));
+            previousFlywheelTimestamp = Timer.getFPGATimestamp();
             switch (RobotContainer.coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
@@ -586,7 +599,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterAngle() {
         if(!isOverrideAngle) {
-            double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedCurrentTarget());
+            double distance = RobotContainer.visionSub.getDistanceToTarget(RobotContainer.visionSub.getAdjustedFutureTarget(Timer.getFPGATimestamp() - previousHoodTimestamp));
+            previousHoodTimestamp = Timer.getFPGATimestamp();
             switch (RobotContainer.coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
                     // targetHoodHeight = shootingDistanceToAngle.get(distance);

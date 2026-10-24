@@ -133,10 +133,6 @@ public class CoordinationSubsystem extends SubsystemBase {
         DeployState intakeDeployState = DeployState.DEPLOY;
         SidesweeperState sidesweepState = SidesweeperState.IDLE;
         RampState rampState = RampState.IDLE;
-        if(isIntaking) {
-            // intakeDeployState = DeployState.AGITATE;
-            intakeWheelState = IntakeState.INTAKE;
-        }
         if(!isIntakeOut) {
             intakeDeployState = DeployState.STORE;
             intakeWheelState = IntakeState.OFF;
@@ -146,7 +142,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         switch(currentState) {
             case INIT:
-                turretState = TurretState.AIMING;
+                turretState = TurretState.INIT;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeDeployState = DeployState.ZEROING;
@@ -201,6 +197,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(isFastAgitate) {
             intakeDeployState = DeployState.AGITATE_FAST;
         }
+        if(isIntaking) {
+            intakeDeployState = DeployState.DEPLOY;
+            intakeWheelState = IntakeState.INTAKE;
+        }
         if (rejecting) {
             rampState = RampState.EJECT;
             intakeDeployState = DeployState.DEPLOY;
@@ -233,6 +233,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         Logger.recordOutput("NewHopper/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("NewHopper/Coord/justZeroed", justZeroed);
+        Logger.recordOutput("NewHopper/Coord/onBump", onBump());
 
         // Logger.recordOutput("NewHopper/Coord/OverridingTrench?", overrideTrench);
     }

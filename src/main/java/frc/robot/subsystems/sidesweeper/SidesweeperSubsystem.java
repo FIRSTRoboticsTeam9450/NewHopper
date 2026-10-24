@@ -166,10 +166,10 @@ public class SidesweeperSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Setpoint", sidesweeperSetpoint);
         Logger.recordOutput("NewHopper/Sidesweeper/Sidesweeper Voltage", sidesweeperUpperMotor.getMotorVoltage().getValueAsDouble());
 
-        Logger.recordOutput("NewHopper/Sidesweeper/SidesweepSupplyAmp", sidesweeperUpperMotor.getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Sidesweeper/SidesweepStatorAmp", sidesweeperUpperMotor.getStatorCurrent().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Sidesweeper/RampStatorAmp", rampMotor.getStatorCurrent().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Sidesweeper/RampSupplyAmp", rampMotor.getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Sidesweeper/SidesweepSupplyAmp", sidesweeperUpperMotor.getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Sidesweeper/SidesweepStatorAmp", sidesweeperUpperMotor.getStatorCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Sidesweeper/RampStatorAmp", rampMotor.getStatorCurrent().getValueAsDouble());
+        // Logger.recordOutput("NewHopper/Sidesweeper/RampSupplyAmp", rampMotor.getSupplyCurrent().getValueAsDouble());
 
         if (logSidesweeperDebug.get()) {
             Logger.recordOutput("NewHopper/Sidesweeper/Ramp Velocity", rampMotor.getVelocity().getValueAsDouble());

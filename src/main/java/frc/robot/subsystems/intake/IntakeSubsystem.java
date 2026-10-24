@@ -77,7 +77,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut intakeRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
-    private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", true);
+    private LoggedNetworkBoolean logIntakeDebug = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Intake", false);
 
     private double deploySetpoint = 0;
     private double intakeSetpoint = 0;
@@ -175,16 +175,13 @@ public class IntakeSubsystem extends SubsystemBase {
             }
         }
         else if(DriverStation.isAutonomousEnabled()) {
-            if(RobotContainer.shooterSub.getCurrentAngleState() != AngleState.ZEROING) {
-                deployMotor.setPosition(0);
-                deployMotor.setVoltage(0);
-                zeroingVolts = 0;
-                zeroingCount = 0;
-                deployState = DeployState.DEPLOY;
-                isZeroingDone = true;
-                RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
-                return true;
-            }
+            deployMotor.setPosition(0);
+            deployMotor.setVoltage(0);
+            zeroingVolts = 0;
+            zeroingCount = 0;
+            deployState = DeployState.DEPLOY;
+            isZeroingDone = true;
+            return true;
         }
         return false;
     }
@@ -352,10 +349,10 @@ public class IntakeSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Intake/Intake Voltage Setpoint", intakeSetpoint);
         Logger.recordOutput("NewHopper/Intake/Intake Left Voltage", intakeLeftMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("NewHopper/Intake/Intake Right Voltage (follower)", intakeRightMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("NewHopper/Intake/Agitation/WaitTimer", waitTimer.hasElapsed(2));
-        Logger.recordOutput("NewHopper/Intake/Agitation/AgitationTimer", Timer.getFPGATimestamp() - lastSwitchTime);
-        Logger.recordOutput("NewHopper/Intake/Agitation/agitateTowardIntake", agitateTowardIntake);
-        Logger.recordOutput("NewHopper/Intake/Agitation/AgitationStage", agitationStage);
+        // Logger.recordOutput("NewHopper/Intake/Agitation/WaitTimer", waitTimer.hasElapsed(2));
+        // Logger.recordOutput("NewHopper/Intake/Agitation/AgitationTimer", Timer.getFPGATimestamp() - lastSwitchTime);
+        // Logger.recordOutput("NewHopper/Intake/Agitation/agitateTowardIntake", agitateTowardIntake);
+        // Logger.recordOutput("NewHopper/Intake/Agitation/AgitationStage", agitationStage);
         Logger.recordOutput("NewHopper/Intake/iszeroingdone", isZeroingDone);
         if (logIntakeDebug.get()) {
             Logger.recordOutput("NewHopper/Intake/Deploy Velocity", deployMotor.getVelocity().getValueAsDouble());

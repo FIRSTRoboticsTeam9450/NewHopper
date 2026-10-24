@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import com.ctre.phoenix6.HootAutoReplay;
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -59,6 +60,9 @@ public class Robot extends LoggedRobot {
         // initiate the field2d and builder
         field2d.initSendable(sendableBuilder);
         sendableBuilder.startListeners();
+        
+        // Warmup PathPlanner to avoid Java pauses
+        // CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     }
 
     @Override

@@ -21,6 +21,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DriveBrakeCommand;
 import frc.robot.commands.ResetIMU;
+import frc.robot.commands.SmartWait;
 import frc.robot.subsystems.swerve.TunerConstants;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
@@ -69,6 +71,9 @@ public class RobotContainer {
     // public static BezierCurve driveBezier = new BezierCurve("drive", 151.0, 0.137, 116, 0.646, 0.1, 0.01);
     // public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
     
+    // public BezierCurve driveBezier = new BezierCurve("drive", 151.7, 0.155, 116, 0.21, 0.1, 0.01);
+    // public BezierCurve rotateBezier = new BezierCurve("rotate", 104, -0.022, 126.5, 0.536, 0.035, 0.03);
+
     public BezierCurve driveBezier = new BezierCurve("drive", 89.4, 0.117, 88.5, 0.896, 0.1, 0.01);
     public BezierCurve rotateBezier = new BezierCurve("rotate", 89.4, 0.117, 88.5, 0.896, 0.035, 0.03);
 
@@ -76,13 +81,14 @@ public class RobotContainer {
     // public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(5);
     // public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(8.0);
     
+
     private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
+    private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(4).in(RadiansPerSecond);
 
     public static boolean slewMode = false;
 
     public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
-    public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
+    public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 0.2812;
     
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(driveBezier.getDeadband())
@@ -100,8 +106,6 @@ public class RobotContainer {
         configureNamedCommands();
         configureAutos();
 
-        // Warmup PathPlanner to avoid Java pauses
-        CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
 
         /*testLog.addHandler(new Logging.Handler<Pose2d>() {
             @Override
@@ -301,6 +305,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("SetAgitate", coordSub.setAgitate());
         NamedCommands.registerCommand("SetAgitateTrue", coordSub.setAgitate(true));
         NamedCommands.registerCommand("SetAgitateFalse", coordSub.setAgitate(false));
+        NamedCommands.registerCommand("SmartWait", new SmartWait(2.5, 4));
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
         // NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
         // NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
@@ -340,6 +345,8 @@ public class RobotContainer {
         autoChooser.addDefaultOption("DumpLeft", drivetrain.getAutoPath("Dump", false));
         autoChooser.addOption("Short Dump Left", drivetrain.getAutoPath("Short Dump", false));
         autoChooser.addOption("Short Dump Right", drivetrain.getAutoPath("Short Dump", true));
+        autoChooser.addOption("SmartDumpLeft", drivetrain.getAutoPath("SmartDump", false));
+        autoChooser.addOption("SmartDumpRight", drivetrain.getAutoPath("SmartDump", true));
     }
 
     public Command getAutonomousCommand() {

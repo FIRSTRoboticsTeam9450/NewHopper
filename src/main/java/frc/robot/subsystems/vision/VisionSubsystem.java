@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -231,7 +232,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         double robotYaw = robotPoseData.getRotation().getDegrees();
         double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
-        double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble()) - 180;
+        double robotRoll = Math.abs(Math.abs(pigeonData.getRoll().getValueAsDouble()) - 180);
         double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
@@ -527,7 +528,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         //Logger.recordOutput("NewHopper/Vision/TurretPos", TurretSubsystem.getInstance().getTurretPose());
 
-        Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+        // Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
         // for (LimelightObject limelight : LIMELIGHT_LIST) {
         //     String llName = limelight.getName();
@@ -581,10 +582,10 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("NewHopper/Vision/CurrentPose", drivetrain.getState().Pose);
             Logger.recordOutput("NewHopper/Vision/Alliance", DriverStation.getAlliance().toString());
             Logger.recordOutput("NewHopper/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
-            // Logger.recordOutput("NewHopper/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
+            Logger.recordOutput("NewHopper/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
             Logger.recordOutput("NewHopper/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
             Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
-            Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
+            // Logger.recordOutput("NewHopper/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
             //Logger.recordOutput("NewHopper/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
             // getAdjustedFutureTarget(.5);
 
@@ -683,7 +684,8 @@ public class VisionSubsystem extends SubsystemBase {
         Translation2d targetWRTBot = givenTargetWRTBot;
         // ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
         ChassisSpeeds velocityRobotWRTRobot = ChassisSpeeds.fromFieldRelativeSpeeds(getVelocityOfTurret(), getCurrentBotPoseAllianceUnspecific().getRotation());
-    
+        // double xAccel = RobotContainer.drivetrain.getPigeon2().getAccelerationX().getValueAsDouble();
+        // double yAccel = -RobotContainer.drivetrain.getPigeon2().getAccelerationY().getValueAsDouble();
 
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
@@ -691,15 +693,20 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Calculate the amount the ball moved due to robot velocity in the time it takes for the ball to land in the target
+        // jumppoint
         Translation2d amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+        // Translation2d amountMoved = new Translation2d(0.5 * xAccel * timeToShoot * timeToShoot + velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, 0.5 * yAccel * timeToShoot * timeToShoot + velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
         Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
         // System.out.println("FinalTarget: Velocity " + " - x:" + velocityRobotWRTRobot.vxMetersPerSecond + "y: " + velocityRobotWRTRobot.vyMetersPerSecond);
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
-            amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+            
+            amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+            // amountMoved = new Translation2d(0.5 * xAccel * timeToShoot * timeToShoot + velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, 0.5 * yAccel * timeToShoot * timeToShoot + velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
             finalTarget = targetWRTBot.plus(amountMoved.times(-1));
+            // System.out.println("FinalTarget: amountMoved " + i + " - " + amountMoved);
             // System.out.println("FinalTarget: Iteration " + i + " - " + timeToShoot); // TODO: COMMENT OUT
             // System.out.println("FinalTarget: Iteration " + i + " - " + finalTarget); // TODO: COMMENT OUT
         }
@@ -720,12 +727,21 @@ public class VisionSubsystem extends SubsystemBase {
         //     -RobotContainer.rotateBezier.getOutput(DRIVER.getRightX()) * RobotContainer.maxAngularRate);// ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, getCurrentBotPoseAllianceUnspecific().getRotation());
         double rotationSpeed = velocityRobotWRTField.omegaRadiansPerSecond;
         Pose2d currentTurretPose = getCurrentBotPoseAllianceUnspecific();
-        double turretOffsetX = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getX();
-        double turretOffsetY = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY();
+        Translation2d offField = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getTranslation()
+        .rotateBy(currentTurretPose.getRotation());
+        double turretOffsetX = offField.getX();
+        double turretOffsetY = offField.getY();
 
         // double yOffset = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY();
-        double xOffsetWRTField = turretOffsetX * Math.cos(currentTurretPose.getRotation().getRadians());
-        double yOffsetWRTField = turretOffsetY * Math.sin(currentTurretPose.getRotation().getRadians());
+        double xOffsetWRTField = turretOffsetX;// * Math.cos(currentTurretPose.getRotation().getRadians());
+        double yOffsetWRTField = turretOffsetY;// * Math.sin(currentTurretPose.getRotation().getRadians());
+
+        // double turretOffsetX = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getX();
+        // double turretOffsetY = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY();
+
+        // // double yOffset = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY();
+        // double xOffsetWRTField = turretOffsetX * Math.cos(currentTurretPose.getRotation().getRadians());
+        // double yOffsetWRTField = turretOffsetY * Math.sin(currentTurretPose.getRotation().getRadians());
 
         double finalXVelocity = velocityRobotWRTField.vxMetersPerSecond + (-rotationSpeed * yOffsetWRTField);// * currentTurretPose.getX();
         double finalYVelocity = velocityRobotWRTField.vyMetersPerSecond + (rotationSpeed * xOffsetWRTField);// * currentTurretPose.getY();
@@ -810,9 +826,16 @@ public class VisionSubsystem extends SubsystemBase {
     public Pose2d getFuturePoseWRTCurrentBot(double time) {
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
 
+        // jumppoint
         // Calculate how much the robot will have moved into the future
+        // double xAccel = RobotContainer.drivetrain.getPigeon2().getAccelerationX().getValueAsDouble();
+        // double yAccel = RobotContainer.drivetrain.getPigeon2().getAccelerationY().getValueAsDouble();
+
+
         Pose2d futurePoseWRTCurrentBot = new Pose2d(
             new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
+    
+            // new Translation2d((0.5 * xAccel * time * time + velocityRobotWRTRobot.vxMetersPerSecond * time), (0.5 * yAccel * time * time + velocityRobotWRTRobot.vyMetersPerSecond * time)),
             new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)); // ABSOLUTELY CORRECT
 
         return futurePoseWRTCurrentBot;
@@ -876,8 +899,8 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
             currentFerryZone = "Shooting";
-            if(RobotContainer.coordSub.getdriverAllowingShooting() && !overrideSpeed) {
-                maxSpeedMultiplier = 0.2;
+            if(RobotContainer.coordSub.getdriverAllowingShooting() && !overrideSpeed && !DriverStation.isAutonomousEnabled()) {
+                maxSpeedMultiplier = 0.3;
             }
             else {
                 maxSpeedMultiplier = 1;
