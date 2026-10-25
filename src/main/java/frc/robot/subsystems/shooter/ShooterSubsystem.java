@@ -680,7 +680,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // if(distance >= distanceAwayToUseHighDegree && RobotContainer.coordSub.getCurrentZone() != ZoneState.SHOOTING_ZONE) {
         //     wantedRevs = hoodAngleMax;
         // }
-        Logger.recordOutput("NewHopper/Shooter/Hood/wantedAngle", wantedAngle);
+        // Logger.recordOutput("NewHopper/Shooter/Hood/wantedAngle", wantedAngle);
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 

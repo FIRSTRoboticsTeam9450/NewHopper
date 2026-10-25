@@ -247,10 +247,10 @@ public class VisionSubsystem extends SubsystemBase {
             bumpDetected = false;
         }
 
-        Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);
-        Logger.recordOutput("NewHopper/Vision/Bump Detected", bumpDetected);
-        Logger.recordOutput("NewHopper/Vision/Roll", robotRoll);
-        Logger.recordOutput("NewHopper/Vision/Pitch", robotPitch);
+        // Logger.recordOutput("NewHopper/Vision/Odom Pose outside Field", odomPoseOutsideField);
+        // Logger.recordOutput("NewHopper/Vision/Bump Detected", bumpDetected);
+        // Logger.recordOutput("NewHopper/Vision/Roll", robotRoll);
+        // Logger.recordOutput("NewHopper/Vision/Pitch", robotPitch);
 
         List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
         for (LimelightObject limelight : LIMELIGHT_LIST) {
