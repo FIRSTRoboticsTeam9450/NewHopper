@@ -96,11 +96,11 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq =
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 360);
 
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.185);
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.175);
     private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.0115);
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
-    private PIDVals pid = new PIDVals("/Tuning/Turret/",0.185,0.0115,0.0,35,0.0,0.0,0.0);
+    private PIDVals pid = new PIDVals("/Tuning/Turret/",0.175,0.012,0.0,60,0.0,0.0,0.0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
     private boolean goodToMove = true;
@@ -383,6 +383,7 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("NewHopper/Turret/Pos/Manual Adjustment", manualShift);
         Logger.recordOutput("NewHopper/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
         Logger.recordOutput("NewHopper/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
+        Logger.recordOutput("NewHopper/Turret/State/CurrentState", currentState);
 
         // Publish telemetry
         // publishLogs();
@@ -889,7 +890,6 @@ public class TurretSubsystem extends SubsystemBase {
 
 
         // State information
-        Logger.recordOutput("NewHopper/Turret/State/CurrentState", currentState);
         Logger.recordOutput("NewHopper/Turret/State/TargetMode", currentTargetMode);
 
         // Position tracking

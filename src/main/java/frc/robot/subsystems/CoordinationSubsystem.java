@@ -219,6 +219,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             transferState = TransferState.EJECT;
             sidesweepState = SidesweeperState.EJECT;
         }
+        
         RobotContainer.turretSub.setState(turretState);
         RobotContainer.shooterSub.setState(shooterVelocState, shooterHoodState);
         RobotContainer.intakeSub.setDeployState(intakeDeployState);
