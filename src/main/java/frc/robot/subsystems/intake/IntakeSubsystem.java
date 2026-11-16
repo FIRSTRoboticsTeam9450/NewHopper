@@ -170,7 +170,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 zeroingCount = 0;
                 deployState = DeployState.DEPLOY;
                 isZeroingDone = true;
-                RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+                RobotContainer.coordSub.setState(frc.robot.subsystems.SuperStructure.AbsoluteStates.TRENCH, false);
                 return true;
             }
         }

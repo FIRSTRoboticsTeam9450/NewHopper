@@ -33,6 +33,7 @@ import frc.robot.commands.SmartWait;
 import frc.robot.subsystems.swerve.TunerConstants;
 import frc.robot.subsystems.swerve.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
+import frc.robot.subsystems.SuperStructure;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.hopper.HopperTransferSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -52,7 +53,7 @@ public class RobotContainer {
     public static final ShooterSubsystem shooterSub = new ShooterSubsystem();
     public static final SidesweeperSubsystem sidesweeperSub = new SidesweeperSubsystem();
     public static final TurretSubsystem turretSub = new TurretSubsystem();
-    public static final CoordinationSubsystem coordSub = new CoordinationSubsystem();
+    public static final SuperStructure coordSub = new SuperStructure();
 
     
     public static final CommandXboxController DRIVER = new CommandXboxController(RobotConstants.DRIVER_CONTROLLER_PORT);
@@ -176,15 +177,15 @@ public class RobotContainer {
 
         /* ========== DRIVER KEYBINDS ========== */
         // Normal
-        DRIVER.rightTrigger().onTrue(coordSub.setFireCommand(true).alongWith(coordSub.setForceTrenchCommand(false)))
-                            .onFalse(coordSub.setFireCommand(false).alongWith(coordSub.setForceTrenchCommand(true)));
+        DRIVER.rightTrigger().onTrue(Commands.runOnce(() -> coordSub.setFire(true)).alongWith(Commands.runOnce(() -> coordSub.setForceTrenchCommand(false))))
+                            .onFalse(Commands.runOnce(() -> coordSub.setFire(false)).alongWith(Commands.runOnce(() -> coordSub.setForceTrenchCommand(true))));
         // DRIVER.rightBumper().onTrue(coordSub.setForceTrenchCommand());
-        DRIVER.leftBumper().onTrue(coordSub.setFastAgitate(true))
-                            .onFalse(coordSub.setFastAgitate(false));
-        DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand(true))
-                            .onFalse(coordSub.setIntakeCommand(false));
-        DRIVER.rightBumper().onTrue(coordSub.setRejectingCommand(true))
-                            .onFalse(coordSub.setRejectingCommand(false));
+        DRIVER.leftBumper().onTrue(Commands.runOnce(() -> coordSub.setFastAgitate(true)))
+                            .onFalse(Commands.runOnce(() -> coordSub.setFastAgitate(false)));
+        DRIVER.leftTrigger().onTrue(Commands.runOnce(() -> coordSub.setIntakeCommand(true)))
+                            .onFalse(Commands.runOnce(() -> coordSub.setIntakeCommand(false)));
+        DRIVER.rightBumper().onTrue(Commands.runOnce(() -> coordSub.setRejectingCommand(true)))
+                            .onFalse(Commands.runOnce(() -> coordSub.setRejectingCommand(false)));
         DRIVER.a().whileTrue(new DriveBrakeCommand(drivetrain));
 
         // No SysID
@@ -195,31 +196,31 @@ public class RobotContainer {
 
         /* ========== OPERATOR KEYBINDS ========== */
         // Normal
-        // OPERATOR.rightTrigger().onTrue(coordSub.setAgitate(true))
-        //                     .onFalse(coordSub.setAgitate(false));
-        OPERATOR.rightBumper().onTrue(coordSub.increaseManualAdjust());
-        OPERATOR.leftBumper().onTrue(coordSub.decreaseManualAdjust());
+        // OPERATOR.rightTrigger().onTrue(Commands.runOnce(() -> coordSub.setAgitate(true))
+        //                     .onFalse(Commands.runOnce(() -> coordSub.setAgitate(false));
+        OPERATOR.rightBumper().onTrue(Commands.runOnce(() -> coordSub.increaseManualAdjust()));
+        OPERATOR.leftBumper().onTrue(Commands.runOnce(() -> coordSub.decreaseManualAdjust()));
         OPERATOR.leftStick().onTrue(new InstantCommand(() -> shooterSub.addManualVelocityShift(-5)));
         OPERATOR.rightStick().onTrue(new InstantCommand(() -> shooterSub.addManualVelocityShift(5)));
-        OPERATOR.y().onTrue(coordSub.setManualTurret(true))
-                    .onFalse(coordSub.setManualTurret(false));
-        OPERATOR.a().onTrue(coordSub.resetManualAdjust());
+        OPERATOR.y().onTrue(Commands.runOnce(() -> coordSub.setManualTurret(true)))
+                    .onFalse(Commands.runOnce(() -> coordSub.setManualTurret(false)));
+        OPERATOR.a().onTrue(Commands.runOnce(() -> coordSub.resetManualAdjust()));
         OPERATOR.povUp().onTrue(new InstantCommand(() -> visionSub.setOverrideSpeed(true)))
         .onFalse(new InstantCommand(() -> visionSub.setOverrideSpeed(false)));
-        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
-        OPERATOR.leftTrigger().onTrue(coordSub.setIntakeOut());
+        OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(Commands.runOnce(() -> coordSub.setState(frc.robot.subsystems.SuperStructure.AbsoluteStates.INIT, true)));
+        OPERATOR.leftTrigger().onTrue(Commands.runOnce(() -> coordSub.setIntakeOut()));
         OPERATOR.povDown()
             .onTrue(visionSub.setOperatorOverrideVisionTrustCommand(true))
             .onFalse(visionSub.setOperatorOverrideVisionTrustCommand(false));
         
-        OPERATOR.rightTrigger().onTrue(coordSub.setAgitate(true))
-                            .onFalse(coordSub.setAgitate(false));
+        OPERATOR.rightTrigger().onTrue(Commands.runOnce(() -> coordSub.setAgitate(true)))
+                            .onFalse(Commands.runOnce(() -> coordSub.setAgitate(false)));
         OPERATOR.povUp()
-            .onTrue(coordSub.setSlowTransfer(true))
-            .onFalse(coordSub.setSlowTransfer(false));
+            .onTrue(Commands.runOnce(() -> coordSub.setSlowTransfer(true)))
+            .onFalse(Commands.runOnce(() -> coordSub.setSlowTransfer(false)));
         OPERATOR.povRight()
-            .onTrue(coordSub.setAutoAgitateOff(true))
-            .onFalse(coordSub.setAutoAgitateOff(false));
+            .onTrue(Commands.runOnce(() -> coordSub.setAutoAgitateOff(true)))
+            .onFalse(Commands.runOnce(() -> coordSub.setAutoAgitateOff(false)));
         // No SysID
         if (!enableSysIdKeybinds) {
         }
@@ -248,21 +249,21 @@ public class RobotContainer {
         // ));
 
         /** EVERYTHING ON DRIVER */
-        // DRIVER.leftTrigger().onTrue(coordSub.setIntakeCommand());
-        // DRIVER.x().onTrue(coordSub.decreaseManualAdjust());
-        // DRIVER.b().onTrue(coordSub.increaseManualAdjust());
-        // DRIVER.a().onTrue(coordSub.resetManualAdjust());
-        // DRIVER.leftStick().onTrue(coordSub.setManualTurret(false));
-        // DRIVER.leftStick().onFalse(coordSub.setManualTurret(true));
+        // DRIVER.leftTrigger().onTrue(Commands.runOnce(() -> coordSub.setIntakeCommand());
+        // DRIVER.x().onTrue(Commands.runOnce(() -> coordSub.decreaseManualAdjust());
+        // DRIVER.b().onTrue(Commands.runOnce(() -> coordSub.increaseManualAdjust());
+        // DRIVER.a().onTrue(Commands.runOnce(() -> coordSub.resetManualAdjust());
+        // DRIVER.leftStick().onTrue(Commands.runOnce(() -> coordSub.setManualTurret(false));
+        // DRIVER.leftStick().onFalse(Commands.runOnce(() -> coordSub.setManualTurret(true));
         // DRIVER.povUp().onTrue(new InstantCommand(shooterSub::addManualHoodShift));
         // DRIVER.povDown().onTrue(new InstantCommand(shooterSub::subtractManualHoodShift));
         // DRIVER.povLeft().onTrue(new InstantCommand(shooterSub::resetManualHoodShift));
-        // DRIVER.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.INIT, true));
-        // DRIVER.rightBumper().onTrue(coordSub.setAgitate());
-        // DRIVER.rightStick().onTrue(coordSub.setForceTrenchCommand());
-        // DRIVER.rightTrigger().onTrue(coordSub.setFireCommand());
-        // DRIVER.leftBumper().onTrue(coordSub.setRejectingCommand(true));
-        // DRIVER.leftBumper().onFalse(coordSub.setRejectingCommand(false));
+        // DRIVER.povRight().onTrue(Commands.runOnce(() -> coordSub.setStateCommand(AbsoluteStates.INIT, true));
+        // DRIVER.rightBumper().onTrue(Commands.runOnce(() -> coordSub.setAgitate());
+        // DRIVER.rightStick().onTrue(Commands.runOnce(() -> coordSub.setForceTrenchCommand());
+        // DRIVER.rightTrigger().onTrue(Commands.runOnce(() -> coordSub.setFireCommand());
+        // DRIVER.leftBumper().onTrue(Commands.runOnce(() -> coordSub.setRejectingCommand(true));
+        // DRIVER.leftBumper().onFalse(Commands.runOnce(() -> coordSub.setRejectingCommand(false));
 
         // DRIVER.povLeft().onTrue(shooterSub.setAngleState(AngleState.STORING));
         // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.MANUAL));
@@ -296,15 +297,15 @@ public class RobotContainer {
     private void configureNamedCommands() { // Set up the named commands (Using NamedCommands.registerCommand())
         NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
         // NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
-        NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
-        NamedCommands.registerCommand("SetIntakeTrue", coordSub.setIntakeCommand(true));
-        NamedCommands.registerCommand("SetIntakeFalse", coordSub.setIntakeCommand(false));
-        NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
-        NamedCommands.registerCommand("SetFireTrue", coordSub.setFireCommand(true));
-        NamedCommands.registerCommand("SetFireFalse", coordSub.setFireCommand(false));
-        NamedCommands.registerCommand("SetAgitate", coordSub.setAgitate());
-        NamedCommands.registerCommand("SetAgitateTrue", coordSub.setAgitate(true));
-        NamedCommands.registerCommand("SetAgitateFalse", coordSub.setAgitate(false));
+        NamedCommands.registerCommand("SetIntake", Commands.runOnce(() -> coordSub.setIntake()));
+        NamedCommands.registerCommand("SetIntakeTrue", Commands.runOnce(() -> coordSub.setIntakeCommand(true)));
+        NamedCommands.registerCommand("SetIntakeFalse", Commands.runOnce(() -> coordSub.setIntakeCommand(false)));
+        NamedCommands.registerCommand("SetFire", Commands.runOnce(() -> coordSub.setFire()));
+        NamedCommands.registerCommand("SetFireTrue", Commands.runOnce(() -> coordSub.setFire(true)));
+        NamedCommands.registerCommand("SetFireFalse", Commands.runOnce(() -> coordSub.setFire(false)));
+        NamedCommands.registerCommand("SetAgitate", Commands.runOnce(() -> Commands.runOnce(() -> coordSub.setAgitate())));
+        NamedCommands.registerCommand("SetAgitateTrue", Commands.runOnce(() -> Commands.runOnce(() -> coordSub.setAgitate(true))));
+        NamedCommands.registerCommand("SetAgitateFalse", Commands.runOnce(() -> coordSub.setAgitate(false)));
         NamedCommands.registerCommand("SmartWait", new SmartWait(2.5, 4));
         // NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
         // NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
@@ -324,9 +325,9 @@ public class RobotContainer {
 
         // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
-        NamedCommands.registerCommand("ForceTrench", coordSub.setForceTrenchCommand());
-        NamedCommands.registerCommand("ForceTrenchTrue", coordSub.setForceTrenchCommand(true));
-        NamedCommands.registerCommand("ForceTrenchFalse", coordSub.setForceTrenchCommand(false));
+        NamedCommands.registerCommand("ForceTrench", Commands.runOnce(() -> coordSub.setForceTrenchCommand()));
+        NamedCommands.registerCommand("ForceTrenchTrue", Commands.runOnce(() -> coordSub.setForceTrenchCommand(true)));
+        NamedCommands.registerCommand("ForceTrenchFalse", Commands.runOnce(() -> coordSub.setForceTrenchCommand(false)));
         NamedCommands.registerCommand("SetVisionTrustTrue", visionSub.setOperatorOverrideVisionTrustCommand(true));
         NamedCommands.registerCommand("SetVisionTrustFalse", visionSub.setOperatorOverrideVisionTrustCommand(false));
         NamedCommands.registerCommand("UseCustomTarget", visionSub.setUseCustomTarget());

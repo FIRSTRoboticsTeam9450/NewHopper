@@ -293,25 +293,26 @@ public class CoordinationSubsystem extends SubsystemBase {
         return (driverAllowingShooting && areShooterAndTurretReady());
     }
 
-    public Command setFireCommand() {
-        return new InstantCommand(() -> driverAllowingShooting = !driverAllowingShooting);
+    public void setFire() {
+        driverAllowingShooting = !driverAllowingShooting;
     }
 
-    public Command setFireCommand(boolean value) {
-        return new InstantCommand(() -> driverAllowingShooting = value);
+    public void setFire(boolean value) {
+        driverAllowingShooting = value;
+    }
+
+    public void setIntake() {
+        isIntaking = !isIntaking;
+        applyState();
     }
 
     public boolean getdriverAllowingShooting() {
         return driverAllowingShooting;
     }
-    public Command setIntakeCommand() {
-        return new InstantCommand(() -> isIntaking = !isIntaking)
-            .andThen(new InstantCommand(this::applyState));
-    }
 
-    public Command setSlowTransfer() {
-        return new InstantCommand(() -> isSlowTransfer = !isSlowTransfer)
-        .andThen(new InstantCommand(this::applyState));
+    public void setSlowTransfer() {
+        isSlowTransfer = !isSlowTransfer;
+        applyState();
     }
     public Command setSlowTransfer(boolean value) {
         return new InstantCommand(() -> isSlowTransfer = value)

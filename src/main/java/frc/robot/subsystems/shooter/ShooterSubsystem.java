@@ -349,7 +349,7 @@ public class ShooterSubsystem extends SubsystemBase {
         else {
             angleMotor.setPosition(0);
             setState(currentShooterState, AngleState.STORING);
-            RobotContainer.coordSub.setState(AbsoluteStates.TRENCH, false);
+            RobotContainer.coordSub.setState(frc.robot.subsystems.SuperStructure.AbsoluteStates.TRENCH, false);
             return true;
         }
         return false; // TODO CHANGE BACK TO FALSE
